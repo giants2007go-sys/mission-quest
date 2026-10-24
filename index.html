@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ミッションクエスト</title>
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--tx:#25221d;--mut:#8a8478;--ac:#e8832a;--ok:#2f9e6b;--bd:#e6e1d6;--dg:#d64545;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1a17;--card:#26241f;--tx:#f0ece3;--mut:#9a9486;--bd:#38352e}}
+:root[data-theme="dark"]{--bg:#1b1a17;--card:#26241f;--tx:#f0ece3;--mut:#9a9486;--bd:#38352e}
+html{color-scheme:light dark;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 -apple-system,"Hiragino Sans","Noto Sans JP",system-ui,sans-serif}
+.w{max-width:560px;margin:0 auto;padding:16px 14px 90px}
+.hero{background:linear-gradient(135deg,#f29a3f,#e8632a);color:#fff;border-radius:18px;padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-end}
+.hero small{opacity:.85;font-size:12px}.hero b{font-size:40px;line-height:1.1;display:block}
+.hero .t{text-align:right;font-size:12px;opacity:.9}
+.tabs{display:flex;gap:6px;margin:14px 0}
+.tabs button{flex:1;padding:10px 0;border:1px solid var(--bd);background:var(--card);color:var(--mut);border-radius:12px;font:inherit;font-weight:600}
+.tabs button.on{background:var(--tx);color:var(--bg);border-color:var(--tx)}
+.sec{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 6px;font-weight:700}
+.sec span{font-size:12px;color:var(--mut);font-weight:500}
+.row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:11px 12px;margin-bottom:7px}
+.chk{width:30px;height:30px;border-radius:50%;border:2px solid var(--bd);background:none;color:#fff;font-size:16px;flex:none;padding:0}
+.done .chk{background:var(--ok);border-color:var(--ok)}
+.done .nm{text-decoration:line-through;color:var(--mut)}
+.nm{flex:1;min-width:0;word-break:break-word}
+.pt{font-weight:700;color:var(--ac);white-space:nowrap}
+.ed{border:0;background:none;color:var(--mut);font-size:16px;padding:4px}
+.buy{border:0;background:var(--ac);color:#fff;border-radius:10px;padding:8px 12px;font:inherit;font-weight:700}
+.buy[disabled]{background:var(--bd);color:var(--mut)}
+.add{width:100%;padding:12px;border:1.5px dashed var(--bd);background:none;color:var(--mut);border-radius:14px;font:inherit;margin-top:6px}
+.empty{color:var(--mut);text-align:center;padding:22px 10px;font-size:14px}
+.rng{display:flex;gap:6px;margin-bottom:8px}
+.rng button{flex:1;padding:7px 0;border:1px solid var(--bd);background:var(--card);color:var(--mut);border-radius:10px;font:inherit}
+.rng button.on{border-color:var(--ac);color:var(--ac);font-weight:700}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px}
+.stats{display:flex;gap:8px;margin:8px 0}.stats div{flex:1;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:8px 10px;font-size:12px;color:var(--mut)}
+.stats b{display:block;font-size:18px;color:var(--tx)}
+.lg{display:flex;justify-content:space-between;gap:8px;padding:8px 2px;border-bottom:1px solid var(--bd);font-size:14px;align-items:center}
+.lg i{font-style:normal;color:var(--mut);font-size:11px;display:block}
+.lg button{border:0;background:none;color:var(--mut);font-size:12px;text-decoration:underline}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:20}
+.fm{background:var(--card);border-top:1px solid var(--bd);box-shadow:0 -8px 30px rgba(0,0,0,.18);border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));max-width:560px;margin:0 auto}
+.fm h3{margin:0 0 10px}
+.fm label{display:block;font-size:12px;color:var(--mut);margin:8px 0 3px}
+.fm input,.fm select{width:100%;padding:11px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
+.fb{display:flex;gap:8px;margin-top:14px}
+.fb button{flex:1;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-weight:700}
+.fb .p{background:var(--ac);border-color:var(--ac);color:#fff}.fb .d{color:var(--dg)}
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 14px);transform:translate(-50%,-80px);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:700;transition:transform .25s;z-index:30;white-space:nowrap}
+#toast.on{transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="hero"><div><small>所持ポイント</small><b id="bal">0</b></div><div class="t" id="today"></div></div>
+  <div class="tabs" id="tabs"></div>
+  <div id="main"></div>
+</div>
+<div id="sheet"></div>
+<div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TY={daily:'デイリー',weekly:'ウィークリー',monthly:'マンスリー',once:'単発'};
+let S={missions:[],rewards:[],log:[]},tab='m',range=30,form=null,arm=false,ref=null;
+const pad=n=>String(n).padStart(2,'0');
+const dk=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+function pk(type,d=new Date()){
+  if(type==='daily')return dk(d);
+  if(type==='weekly'){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()-((d.getDay()+6)%7));return 'W'+dk(x)}
+  if(type==='monthly')return d.getFullYear()+'-'+pad(d.getMonth()+1);
+  return 'once';
+}
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const bal=()=>S.log.reduce((a,l)=>a+l.d,0);
+const doneE=m=>S.log.find(l=>l.m===m.id&&l.k===pk(m.type));
+let tt;function toast(s){const t=$('#toast');t.textContent=s;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1600)}
+
+async function save(){
+  try{localStorage.setItem('mq',JSON.stringify(S))}catch(e){}
+}
+async function init(){
+  let L=null;
+  try{L=JSON.parse(localStorage.getItem('mq'))}catch(e){}
+  if(!L)try{
+    const user=await claude.use('user'),db=await claude.use('db');
+    if(user&&db){const id=await user.id();if(id){ref=db.collection('data/users/'+id).doc('state');const s=await ref.get();if(s.exists&&s.data().json)L=JSON.parse(s.data().json)}}
+  }catch(e){ref=null}
+  if(L){S=Object.assign(S,L);save()}
+  render();
+}
+
+function vM(){
+  let h='';
+  for(const ty of Object.keys(TY)){
+    const ms=S.missions.filter(m=>m.type===ty),n=ms.filter(doneE).length;
+    h+=`<div class="sec">${TY[ty]}<span>${n}/${ms.length}</span></div>`;
+    h+=ms.map(m=>`<div class="row ${doneE(m)?'done':''}"><button class="chk" data-a="done" data-i="${m.id}">${doneE(m)?'✓':''}</button><div class="nm">${esc(m.title)}</div><div class="pt">+${m.pts}</div><button class="ed" data-a="edit" data-k="m" data-i="${m.id}">✎</button></div>`).join('');
+    if(!ms.length)h+=`<div class="empty" style="padding:8px">まだありません</div>`;
+  }
+  return h+`<button class="add" data-a="add" data-k="m">＋ ミッションを追加</button>`;
+}
+function vR(){
+  const b=bal();
+  let h=`<div class="sec">ご褒美リスト<span>ポイントで交換</span></div>`;
+  h+=S.rewards.map(r=>`<div class="row"><div class="nm">${esc(r.name)}</div><div class="pt">${r.cost}pt</div><button class="buy" data-a="buy" data-i="${r.id}" ${b<r.cost?'disabled':''}>交換</button><button class="ed" data-a="edit" data-k="r" data-i="${r.id}">✎</button></div>`).join('');
+  if(!S.rewards.length)h+=`<div class="empty">ご褒美を登録しよう（例：好きなスイーツ 50pt）</div>`;
+  return h+`<button class="add" data-a="add" data-k="r">＋ ご褒美を追加</button>`;
+}
+function vG(){
+  const T=new Date(),t0=new Date(T.getFullYear(),T.getMonth(),T.getDate());
+  let f=t0;if(S.log.length){const m=new Date(Math.min(...S.log.map(l=>l.t)));f=new Date(m.getFullYear(),m.getMonth(),m.getDate())}
+  const st=range?new Date(t0.getFullYear(),t0.getMonth(),t0.getDate()-range+1):f;
+  const n=Math.max(1,Math.round((t0-st)/864e5)+1);
+  const at=i=>new Date(st.getFullYear(),st.getMonth(),st.getDate()+i).getTime();
+  let c=S.log.filter(l=>l.t<st.getTime()).reduce((a,l)=>a+l.d,0),earn=0,spend=0;const v=[];
+  for(let i=0;i<n;i++){
+    for(const l of S.log)if(l.t>=at(i)&&l.t<at(i+1)){c+=l.d;if(l.d>0)earn+=l.d;else spend-=l.d}
+    v.push(c);
+  }
+  const W=340,H=170,pl=36,pr=8,pt=12,pb=22;
+  let mn=Math.min(...v,0),mx=Math.max(...v);if(mx===mn)mx=mn+1;
+  const X=i=>pl+(n>1?i/(n-1):.5)*(W-pl-pr),Y=y=>pt+(1-(y-mn)/(mx-mn))*(H-pt-pb);
+  const line=v.map((y,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(y).toFixed(1)).join('');
+  const area=line+`L${X(n-1).toFixed(1)} ${Y(mn)}L${X(0).toFixed(1)} ${Y(mn)}Z`;
+  const ds=i=>{const d=new Date(at(i));return (d.getMonth()+1)+'/'+d.getDate()};
+  const svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block"><path d="${area}" fill="var(--ac)" opacity=".15"/><path d="${line}" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linejoin="round"/>${n<=40?v.map((y,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(y).toFixed(1)}" r="2.5" fill="var(--ac)"/>`).join(''):''}<g fill="var(--mut)" font-size="10"><text x="${pl-4}" y="${pt+4}" text-anchor="end">${mx}</text><text x="${pl-4}" y="${H-pb+3}" text-anchor="end">${mn}</text><text x="${pl}" y="${H-6}">${ds(0)}</text><text x="${W-pr}" y="${H-6}" text-anchor="end">${ds(n-1)}</text></g></svg>`;
+  const rb=(r,l)=>`<button data-a="range" data-i="${r}" class="${range===r?'on':''}">${l}</button>`;
+  const recent=S.log.map((l,i)=>[l,i]).sort((a,b)=>b[0].t-a[0].t).slice(0,12);
+  return `<div class="rng">${rb(7,'7日')}${rb(30,'30日')}${rb(90,'90日')}${rb(0,'全期間')}</div>
+  <div class="card">${svg}</div>
+  <div class="stats"><div>獲得<b>+${earn}</b></div><div>使用<b>−${spend}</b></div><div>現在<b>${bal()}</b></div></div>
+  <div class="sec">履歴</div><div class="card" style="padding:4px 12px">${recent.length?recent.map(([l,i])=>{const d=new Date(l.t);return `<div class="lg"><div>${esc(l.l)}<i>${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}</i></div><div class="pt" style="color:${l.d<0?'var(--dg)':'var(--ac)'}">${l.d>0?'+':'−'}${Math.abs(l.d)}</div><button data-a="undo" data-i="${i}">取消</button></div>`}).join(''):'<div class="empty">まだ記録がありません</div>'}</div>
+  <div class="sec">バックアップ<span>データはこの端末内に保存されます</span></div><div class="card"><textarea id="bk" rows="3" style="width:100%;padding:8px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:12px monospace"></textarea><div class="fb"><button data-a="exp">書き出し</button><button data-a="imp">読み込み</button></div></div>`;
+}
+function vF(){
+  const m=form.k==='m',it=form.id?(m?S.missions:S.rewards).find(x=>x.id===form.id):null;
+  return `<div class="fm"><h3>${m?'ミッション':'ご褒美'}を${it?'編集':'追加'}</h3>
+  <label>${m?'ミッション名':'ご褒美の名前'}</label><input id="f1" value="${it?esc(m?it.title:it.name):''}" maxlength="60">
+  ${m?`<label>種類</label><select id="f2">${Object.keys(TY).map(k=>`<option value="${k}" ${it&&it.type===k?'selected':''}>${TY[k]}</option>`).join('')}</select>`:''}
+  <label>${m?'もらえるポイント':'必要ポイント'}</label><input id="f3" type="number" inputmode="numeric" min="1" value="${it?(m?it.pts:it.cost):''}">
+  <div class="fb"><button data-a="cancel">キャンセル</button>${it?`<button class="d" data-a="del">${arm?'もう一度で削除':'削除'}</button>`:''}<button class="p" data-a="save">保存</button></div></div>`;
+}
+function render(){
+  $('#bal').textContent=bal().toLocaleString();
+  const d=S.missions.filter(m=>m.type==='daily'),n=d.filter(doneE).length;
+  $('#today').innerHTML=d.length?`今日のデイリー<br><b style="font-size:18px;display:inline">${n}/${d.length}</b>`:'';
+  $('#tabs').innerHTML=[['m','ミッション'],['r','ご褒美'],['g','グラフ']].map(([k,l])=>`<button data-a="tab" data-i="${k}" class="${tab===k?'on':''}">${l}</button>`).join('');
+  $('#main').innerHTML=tab==='m'?vM():tab==='r'?vR():vG();
+  $('#sheet').innerHTML=form?vF():'';
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-a]');if(!t)return;
+  const a=t.dataset.a,i=t.dataset.i,k=t.dataset.k;
+  if(a==='tab'){tab=i}
+  else if(a==='range'){range=+i}
+  else if(a==='done'){
+    const m=S.missions.find(x=>x.id===i),e2=doneE(m);
+    if(e2){S.log.splice(S.log.indexOf(e2),1);toast('取り消しました')}
+    else{S.log.push({t:Date.now(),d:m.pts,l:m.title,m:m.id,k:pk(m.type)});toast('クリア！ +'+m.pts+'pt')}
+    save();
+  }
+  else if(a==='buy'){
+    const r=S.rewards.find(x=>x.id===i);
+    if(bal()<r.cost){toast('ポイントが足りません')}
+    else{S.log.push({t:Date.now(),d:-r.cost,l:'交換：'+r.name});toast(r.name+' をゲット！');save()}
+  }
+  else if(a==='exp'){const j=JSON.stringify(S);$('#bk').value=j;try{navigator.clipboard.writeText(j).then(()=>toast('コピーしました'),()=>toast('枠内の文字をコピーしてね'))}catch(x){toast('枠内の文字をコピーしてね')}return}
+  else if(a==='imp'){try{const o=JSON.parse($('#bk').value);if(!Array.isArray(o.missions)||!Array.isArray(o.rewards)||!Array.isArray(o.log))throw 0;S=o;save();toast('読み込みました')}catch(x){toast('読み込めませんでした');return}}
+  else if(a==='undo'){S.log.splice(+i,1);save()}
+  else if(a==='add'){form={k,id:null};arm=false}
+  else if(a==='edit'){form={k,id:i};arm=false}
+  else if(a==='cancel'){form=null;arm=false}
+  else if(a==='del'){
+    if(!arm){arm=true}
+    else{const key=form.k==='m'?'missions':'rewards';S[key]=S[key].filter(x=>x.id!==form.id);form=null;arm=false;save()}
+  }
+  else if(a==='save'){
+    const name=$('#f1').value.trim(),p=parseInt($('#f3').value,10);
+    if(!name||!(p>0)){toast('名前とポイントを入力してね');return}
+    const m=form.k==='m',key=m?'missions':'rewards';
+    let it=form.id?S[key].find(x=>x.id===form.id):null;
+    if(!it){it={id:uid()};S[key].push(it)}
+    if(m){it.title=name;it.type=$('#f2').value;it.pts=p}else{it.name=name;it.cost=p}
+    form=null;save();
+  }
+  render();
+});
+init();
+</script>
+</body>
+</html>
