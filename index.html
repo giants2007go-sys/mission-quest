@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ミッションクエスト</title>
-<style>
+ <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ミッションクエスト</title>
+  <style>
 :root{--bg:#f6f4ef;--card:#fff;--tx:#25221d;--mut:#8a8478;--ac:#e8832a;--ok:#2f9e6b;--bd:#e6e1d6;--dg:#d64545;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1a17;--card:#26241f;--tx:#f0ece3;--mut:#9a9486;--bd:#38352e}}
 :root[data-theme="dark"]{--bg:#1b1a17;--card:#26241f;--tx:#f0ece3;--mut:#9a9486;--bd:#38352e}
@@ -48,19 +48,30 @@ body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 -apple-system,"
 .fb{display:flex;gap:8px;margin-top:14px}
 .fb button{flex:1;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-weight:700}
 .fb .p{background:var(--ac);border-color:var(--ac);color:#fff}.fb .d{color:var(--dg)}
+.fm{max-height:88vh;overflow-y:auto}
+.ic{width:42px;height:42px;border-radius:10px;flex:none;object-fit:cover;background:#fbf7ee;border:1px solid var(--bd);display:block}
+.ic svg{width:100%;height:100%;display:block}
+.sr{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.sr button{flex:1 0 28%;padding:6px 0;border:1px solid var(--bd);background:var(--bg);color:var(--mut);border-radius:10px;font:inherit;font-size:13px}.sr button.on{border-color:var(--ac);color:var(--ac);font-weight:700}
+.pg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.pg button{padding:4px;border:2px solid var(--bd);background:#fbf7ee;border-radius:10px}.pg button.on{border-color:var(--ac)}.pg svg{width:100%;display:block}
+.pv{display:flex;gap:8px;align-items:center}.pv button{flex:1;padding:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:10px;font:inherit}
 #toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 14px);transform:translate(-50%,-80px);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:700;transition:transform .25s;z-index:30;white-space:nowrap}
 #toast.on{transform:translate(-50%,0)}
 </style>
-</head>
-<body>
-<div class="w">
-  <div class="hero"><div><small>所持ポイント</small><b id="bal">0</b></div><div class="t" id="today"></div></div>
-  <div class="tabs" id="tabs"></div>
-  <div id="main"></div>
-</div>
-<div id="sheet"></div>
-<div id="toast"></div>
-<script>
+ </head>
+ <body>
+  <div class="w">
+   <div class="hero">
+    <div>
+     <small>所持ポイント</small><b id="bal">0</b>
+    </div>
+    <div class="t" id="today"></div>
+   </div>
+   <div class="tabs" id="tabs"></div>
+   <div id="main"></div>
+  </div>
+  <div id="sheet"></div>
+  <div id="toast"></div>
+  <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const TY={daily:'デイリー',weekly:'ウィークリー',monthly:'マンスリー',once:'単発'};
@@ -77,7 +88,7 @@ const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const bal=()=>S.log.reduce((a,l)=>a+l.d,0);
 const doneE=m=>S.log.find(l=>l.m===m.id&&l.k===pk(m.type));
 let tt;function toast(s){const t=$('#toast');t.textContent=s;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1600)}
-
+ 
 async function save(){
   try{localStorage.setItem('mq',JSON.stringify(S))}catch(e){}
 }
@@ -88,16 +99,155 @@ async function init(){
     const user=await claude.use('user'),db=await claude.use('db');
     if(user&&db){const id=await user.id();if(id){ref=db.collection('data/users/'+id).doc('state');const s=await ref.get();if(s.exists&&s.data().json)L=JSON.parse(s.data().json)}}
   }catch(e){ref=null}
-  if(L){S=Object.assign(S,L);save()}
-  render();
+  if(L)S=Object.assign(S,L);
+  daily();save();render();
+  if(PN)toast('未達ペナルティが'+PN+'件ありました');
 }
-
+ 
+const PAL={k:'#3a2a2a',w:'#fff',r:'#e84a4a',p:'#f7a8c4',y:'#f7d44a',o:'#f09a3a',b:'#8a5a3a',s:'#b8bcc4',h:'#6a6e78',u:'#4a8ee8',g:'#5cb85c'};
+const SER=[['スイーツ',[
+['ケーキ','..........|....r.....|...rrr....|.kkkkkkkk.|.kwwwwwwk.|.kppppppk.|.kwwwwwwk.|.kppppppk.|.kkkkkkkk.|..........'],
+['ドーナツ','..........|...kkkk...|..kppppk..|.kppkkppk.|.kpk..kpk.|.kpk..kpk.|.kppkkppk.|..kppppk..|...kkkk...|..........'],
+['アイス','...kkkk...|..kppppk..|.kppppppk.|.kwwwwwwk.|..kwwwwk..|..kooook..|...kook...|...kook...|....kk....|..........'],
+['コーヒー','..........|...s..s...|....s.s...|.kkkkkkk..|.kbbbbbkkk|.kbbbbbk.k|.kbbbbbkkk|..kbbbbk..|...kkkk...|..........']]],
+['ゲーム',[
+['コントローラー','..........|.kkkkkkkk.|kssssssssk|ksshssursk|kshhhsuyuk|ksshssursk|kssssssssk|.kkkkkkkk.|..........|..........'],
+['カセット','.kkkkkkkk.|.kssssssk.|.kuuuuuuk.|.kuwwwwuk.|.kuwrrwuk.|.kuwwwwuk.|.kuuuuuuk.|.kssssssk.|.khhhhhhk.|.kkkkkkkk.'],
+['ダイス','..........|.kkkkkkkk.|.kwwwwwwk.|.kwrrwwwk.|.kwrrwwwk.|.kwwwrrwk.|.kwwwrrwk.|.kwwwwwwk.|.kkkkkkkk.|..........'],
+['ヘッドホン','..kkkkkk..|.kssssssk.|.ks....sk.|.ks....sk.|kuuk..kuuk|kuuk..kuuk|kuuk..kuuk|.kk....kk.|..........|..........']]],
+['ごほうび',[
+['宝箱','..........|.kkkkkkkk.|kbbbbbbbbk|kbbbbbbbbk|kkkkyykkkk|kbbbyybbbk|kbbbbbbbbk|kbbbbbbbbk|.kkkkkkkk.|..........'],
+['ギフト','..........|...rr.rr..|..rrrrrrr.|.kkkyykkk.|.kppyyppk.|.kppyyppk.|.kppyyppk.|.kppyyppk.|.kkkkkkkk.|..........'],
+['コイン','..........|...kkkk...|..kyyyyk..|.kyyoyyyk.|.kyyoyyyk.|.kyyoyyyk.|.kyyyyyyk.|..kyyyyk..|...kkkk...|..........'],
+['ハート','..........|.kkk..kkk.|kpppkkpppk|kpwppppppk|kppppppppk|.kppppppk.|..kppppk..|...kppk...|....kk....|..........']]],
+['お出かけ',[
+['車','..........|...kkkk...|..kuuuuk..|.krrrrrrk.|krrrrrrrrk|kyrrrrrryk|kkkkkkkkkk|.khhk.khhk|..kk..kk..|..........'],
+['かばん','..........|...kkkk...|...k..k...|.kkkkkkkk.|kooooooook|kooooooook|kyyyyyyyyk|kooooooook|kkkkkkkkkk|..........'],
+['ポップコーン','..........|..w.ww.w..|.wwyywwyw.|.kkkkkkkk.|.krwrwrwk.|.krwrwrwk.|.krwrwrwk.|..krwrwk..|..krwrwk..|...kkkk...'],
+['ビリヤード','..........|...kkkk...|..khhwhk..|.khhwwhhk.|.khhwwhhk.|.khhhhhhk.|..khhhhk..|...kkkk...|..........|..........']]],
+['食べ物',[
+['ラーメン','...s..s...|....s..s..|.kkkkkkkk.|kyyowwyyyk|kyyyyyyyyk|.krrrrrrk.|.krrrrrrk.|..krrrrk..|...kkkk...|..........'],
+['バーガー','..........|..kooook..|.koowoook.|kggggggggk|kyyyyyyyyk|kbbbbbbbbk|.kooooook.|..kkkkkk..|..........|..........'],
+['おにぎり','..........|....kk....|...kwwk...|..kwwwwk..|.kwwwwwwk.|.kwkkkkwk.|.kwkkkkwk.|.kkkkkkkk.|..........|..........'],
+['ピザ','..........|kkkkkkkkkk|kooooooook|.kyryyryk.|.kyyyyyyk.|..kyyryk..|...kyyk...|....kk....|..........|..........']]]];
+const SC={};
+function sv(key){
+  if(SC[key])return SC[key];
+  const [a,b]=key.split('-'),it=SER[a]&&SER[a][1][b];if(!it)return '';
+  let r='';it[1].split('|').forEach((row,y)=>[...row].forEach((c,x)=>{if(PAL[c])r+=`<rect x="${x}" y="${y}" width="1" height="1" fill="${PAL[c]}"/>`}));
+  return SC[key]=`<svg viewBox="0 0 10 10" shape-rendering="crispEdges">${r}</svg>`;
+}
+const icon=r=>r.img?`<img class="ic" src="${r.img}" alt="">`:r.px?`<div class="ic">${sv(r.px)}</div>`:'';
+const stash=()=>{const a=$('#f1'),c=$('#f3');if(a)form.n=a.value;if(c)form.c=c.value};
+function vIc(){
+  const cur=form.img?`<img class="ic" src="${form.img}" alt="">`:form.px?`<div class="ic">${sv(form.px)}</div>`:'<div class="ic"></div>';
+  const s=form.ser||0;
+  return `<label>アイコン</label><div class="pv">${cur}<button data-a="photo">📷 写真を選ぶ</button><button data-a="noic">なし</button></div><input id="ff" type="file" accept="image/*" hidden>
+  <div class="sr">${SER.map((x,i)=>`<button data-a="ser" data-i="${i}" class="${s===i?'on':''}">${x[0]}</button>`).join('')}</div>
+  <div class="pg">${SER[s][1].map((x,j)=>`<button data-a="pick" data-i="${s}-${j}" class="${form.px===s+'-'+j?'on':''}" title="${x[0]}">${sv(s+'-'+j)}</button>`).join('')}</div>`;
+}
+const BL=[[1,'洞穴','🕳️'],[2,'焚き火','🔥'],[4,'石器','🪨'],[7,'毛皮のテント','⛺'],[10,'狩り場','🏹'],[14,'壁画','🎨'],[19,'干し肉棚','🍖'],[25,'畑','🌾'],[29,'土器','🏺'],[33,'わらの家','🛖'],[37,'家畜小屋','🐑'],[41,'巨石の輪','🗿'],[45,'井戸','🪣'],[50,'神殿','🏛️'],[58,'市場','🏪'],[66,'石橋','🌉'],[75,'水道橋','🏞️'],[85,'港','⚓'],[95,'巻物の蔵','📜'],[110,'城壁','🧱'],[118,'教会','⛪'],[126,'鍛冶屋','⚒️'],[135,'水車小屋','⚙️'],[144,'酒場','🍺'],[152,'修道院','🔔'],[160,'小さな城','🏰'],[166,'騎士団','🛡️'],[170,'帆船','⛵'],[180,'羅針盤','🧭'],[190,'貿易港','🚢'],[200,'香辛料倉庫','🌶️'],[210,'地図工房','🗺️'],[220,'灯台','🗼'],[230,'学校','🏫'],[240,'図書館','📚'],[250,'劇場','🎭'],[260,'鉄道','🚂'],[270,'工場','🏭'],[280,'郵便局','📮'],[290,'ビル','🏢'],[300,'病院','🏥'],[310,'電車','🚃'],[320,'球場','🏟️'],[330,'映画館','🎬'],[340,'観覧車','🎡'],[350,'摩天楼','🌆'],[360,'空港','✈️'],[370,'大学','🎓'],[380,'ショッピングモール','🛍️'],[390,'スタジアム','🏆'],[400,'通信塔','📡'],[410,'高速鉄道','🚄'],[420,'ソーラー街区','☀️'],[430,'ロボット工場','🤖'],[440,'宇宙港','🚀'],[450,'王宮','🏯'],[465,'王家の庭園','🌳'],[480,'祝祭の花火','🎆'],[500,'建国記念碑','🎖️'],[510,'王立劇場','🎻'],[520,'騎士団本部','⚔️'],[530,'王立科学院','🔬'],[540,'噴水広場','⛲'],[550,'王立動物園','🦁'],[560,'水上バス','🚤'],[570,'王立美術館','🖼️'],[580,'国営放送局','📺'],[590,'王立天文台','🔭'],[600,'王立銀行','🏦'],[610,'国立競技場','🥇'],[620,'クルーズ港','🛳️'],[630,'王家の温室','🌺'],[640,'国立博物館','🦖'],[650,'王立音楽堂','🎼'],[660,'国際空港','🛫'],[670,'時計塔','🕰️'],[680,'王立植物園','🌷'],[690,'国立水族館','🐠'],[700,'王立大病院','🩺'],[710,'スケート場','⛸️'],[720,'風力発電所','🌀'],[730,'王立スタジオ','🎥'],[740,'海上都市','🏝️'],[750,'王国鉄道','🚆'],[760,'王立研究所','🧪'],[770,'遊園地','🎢'],[780,'国立公園','🏕️'],[790,'王立レストラン','🍽️'],[800,'王立ホテル','🏨'],[810,'国際会議場','🌐'],[820,'宇宙センター','🛰️'],[830,'月面基地','🌙'],[840,'スキー場','⛷️'],[850,'ビーチリゾート','🏖️'],[880,'王家の宝物庫','💎'],[900,'平和の記念碑','🕊️'],[920,'星空ドーム','✨'],[950,'虹の橋','🌈'],[980,'王国の大時計','⏰'],[1000,'王国','👑']];
+const ER=[[1,'旧石器時代','狩人'],[25,'新石器時代','族長'],[50,'古代文明','村長'],[110,'中世','領主'],[170,'大航海時代','提督'],[230,'産業革命','町長'],[290,'近代','市長'],[350,'現代','知事'],[410,'未来','総督'],[450,'王国','王']];
+const nm=E=>ER[E][2]+'タロウ';
+const MAXL=1000;
+const earned=()=>S.log.reduce((a,l)=>a+(l.d>0?l.d:0),0);
+const lvOf=e=>Math.min(MAXL,1+Math.floor(e/1000));
+const eraOf=L=>ER.filter(x=>L>=x[0]).length-1;
+const pop=e=>1+Math.floor(e/50);
+function dayEarn(o){const T=new Date(),a=new Date(T.getFullYear(),T.getMonth(),T.getDate()-o).getTime();return S.log.reduce((q,l)=>q+(l.d>0&&l.t>=a&&l.t<a+864e5?l.d:0),0)}
+function stk(){let n=0;while(n<400&&dayEarn(n+1)>=200)n++;return n}
+const mult=()=>Math.pow(1.05,stk());
+let PN=0;
+function penalize(){
+  const N=new Date(),t0=new Date(N.getFullYear(),N.getMonth(),N.getDate());let n=0;
+  S.missions.forEach(m=>{
+    const q=ep(m);if(!q||m.type==='once')return;
+    if(!m.at)m.at=Date.now();
+    const cur=pk(m.type),st=new Date(m.at),seen={};m.pd=m.pd||{};
+    let d=new Date(st.getFullYear(),st.getMonth(),st.getDate());
+    for(let g=0;d<t0&&g<800;g++,d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)){const k=pk(m.type,d);if(k!==cur)seen[k]=d.getTime()+86399000}
+    for(const k in seen){
+      if(m.pd[k])continue;m.pd[k]=1;
+      if(S.log.some(l=>l.m===m.id&&l.k===k))continue;
+      S.log.push({t:seen[k],d:-q,l:'未達：'+m.title,m:m.id,k:'p'+k});n++;
+    }
+  });
+  return n;
+}
+const OB=[
+[['洞穴の奥','川のほとり','マンモスの足跡の前','焚き火のそば','岩山のふもと','木の実の森'],['磨いた石','大きな骨','きれいな貝殻','毛皮のマント','赤い木の実','石斧'],['焼いた肉','木の実','焼き魚','キノコ','骨付き肉','はちみつ'],['マンモスが現れた','雷が落ちた','流れ星が降ってきた','焚き火が消えかけた','謎の足跡が見つかった','洞穴の壁に絵が描かれた']],
+[['畑のあぜ道','神殿の階段','市場の広場','港の桟橋','石橋のたもと','村の井戸端'],['青銅の壺','織物','塩のかたまり','金の腕輪','パピルス','オリーブ油'],['焼きたてのパン','ぶどう','チーズ','オリーブ','干し魚','はちみつ酒'],['隊商が到着した','神殿で祭りが始まった','舟が大漁で戻ってきた','星占いが当たった','橋が完成した','雨ごいが成功した']],
+[['城壁の上','教会の鐘楼','酒場','鍛冶屋の前','風車小屋','騎士の訓練場'],['銀の剣','羊皮紙','ステンドグラス','革の鎧','香辛料','古い地図'],['ミートパイ','スープ','黒パン','エール','焼きリンゴ','ソーセージ'],['吟遊詩人が訪れた','馬上槍試合が開かれた','市が立った','城門が修理された','旅の商人が来た','鐘が一日中鳴りやまなかった']],
+[['新しい駅','図書館','劇場','工場の前','石畳の大通り','港の倉庫街'],['懐中時計','新聞','万年筆','望遠鏡','蓄音機','洋傘'],['紅茶','焼き菓子','コーヒー','シチュー','ビスケット','ローストビーフ'],['汽車が到着した','新聞が創刊された','博覧会が開かれた','ガス灯がともった','劇場が満員になった','発明家が訪れた']],
+[['商店街','映画館','球場','電車のホーム','デパート','公園のベンチ'],['腕時計','ラジオ','カメラ','傘','レコード','自転車'],['カレー','コロッケ','プリン','ラーメン','たい焼き','サンドイッチ'],['電車が開通した','花火大会が開かれた','野球の試合で盛り上がった','新作映画が公開された','デパートが開店した','運動会が開かれた']],
+[['空港','摩天楼の展望台','大学のキャンパス','宇宙港','ショッピングモール','王宮の庭園'],['最新のスマホ','ドローン','ノートPC','ロボット掃除機','VRゴーグル','電動自転車'],['タピオカ','ハンバーガー','寿司','ピザ','パンケーキ','コンビニスイーツ'],['ロケットが打ち上がった','王宮で晩餐会が開かれた','街じゅうでセールが始まった','国際会議が開かれた','自動運転バスが迷子になった','花火が空を埋め尽くした']]];
+const NB=[
+[['麦畑','土器づくりの小屋','巨石の輪の前','羊の囲い','村の広場','水田のあぜ道'],['土器のつぼ','麦の穂','骨の針','編みかご','磨いた石斧','羊毛'],['麦がゆ','焼きたてのパン','ヤギのミルク','干し肉','木の実のスープ','蜂蜜'],['初めての収穫祭が開かれた','羊が一匹脱走した','巨石の下で星祭りがあった','土器の窯が大成功した','麦が大豊作だった','雨ごいの踊りが始まった']],
+[['港の桟橋','羅針盤の工房','香辛料の市場','灯台の上','酒場の隅','地図屋の店先'],['羅針盤','海図','異国の香辛料','望遠鏡','真珠の首飾り','航海日誌'],['干しぶどう','塩漬け肉','異国の果物','ラム酒','焼きたての堅パン','魚のスープ'],['大きな帆船が入港した','見知らぬ島が発見された','嵐を無事に越えた','異国の商人が訪れた','宝の地図が見つかった','出港の鐘が鳴った']],
+[['宇宙港のラウンジ','浮遊都市の展望デッキ','リニアの駅','ロボット市場','月面基地の窓辺','ホログラム公園'],['ホログラムのペット','反重力ボード','万能翻訳機','小型ロボット','月の石','宇宙服のレプリカ'],['宇宙食のカレー','培養肉ステーキ','3Dプリントのパン','無重力ゼリー','合成コーヒー','人工イチゴ'],['ロケットが定刻に打ち上がった','ロボットが突然踊り出した','リニアが開通した','月面から中継が届いた','空飛ぶ車が渋滞した','AIが歌を作った']],
+[['王宮の庭園','謁見の間','城下町の大通り','王立図書館','凱旋門の前','バルコニー'],['王家の紋章入りの指輪','金のティーカップ','長い絨毯','古い王冠','祝いの旗','騎士団のマント'],['王宮の晩餐','祝いのケーキ','特製ローストチキン','果実のタルト','王室ブレンドの紅茶','祝い酒'],['王宮で舞踏会が開かれた','パレードが街を埋め尽くした','祝砲が鳴り響いた','国じゅうで祭りが始まった','他国の使者が訪れた','王家の鐘が鳴り響いた']]];
+const WD=[OB[0],NB[0],OB[1],OB[2],NB[1],OB[3],OB[4],OB[5],NB[2],NB[3]];
+const LP=['昨日の未達に、街じゅうがざわついている。','サボりの気配を察して、住人たちの視線が少し冷たい。','昨日の失点を、住人たちは見て見ぬふりをしてくれた。'],
+LZ=['昨日は動きのない一日だった。','昨日は{t}もお休みモード。','昨日はみんなのんびりしていた。'],
+LL=['昨日の{y}ptで、街がほんの少し前進した。','昨日は{y}pt。小さな一歩も一歩だ。'],
+LM=['昨日は{y}pt。街に活気が出てきた。','昨日の{y}ptで、住人の顔つきが変わった。'],
+LH=['昨日は{y}pt！街じゅうが{t}の話題で持ちきりだ。','昨日の{y}ptは大手柄。住人が拍手を送っている。'],
+TP=['{p}で{f}を食べた住人が「もう一杯」とおかわりを要求している。','{t}は{p}で{i}を手に入れた。使い道は未定。','{e}。住人たちは大騒ぎだ。','{p}で{i}を拾った。たぶん価値があるものだと思う。','住人のひとりが{p}で{f}を食べすぎて動けなくなっていた。','{t}は{p}を散歩した。手を振ると、なぜか全員が振り返してくれた。','{e}。ついでに{f}も配られた。','住人の間で{i}が大流行している。','{p}で{i}を買った。値段は聞かないでほしい。','{p}の近くに{f}の屋台が出た。行列ができている。','{e}。人口は{n}人になった。','今日は{p}に行った。景色が良くて、しばらく動けなかった。','住人の子どもが{i}を自慢してきた。ちょっと羨ましい。','{f}を目当てに{p}へ。結果、期待以上だった。','{p}で住人どうしがケンカ。理由は{i}の取り合いだった。','{e}。{t}は今夜、早く寝ることにした。','{p}に{i}を置いてみたら、なぜか拝まれた。','住人が「{f}が世界を救う」と力説している。否定できない。','{p}で迷子になった。住人に助けられ、{f}をごちそうになった。','見上げると空が広い。{p}から見る景色は、いつも新しい。','{i}を{p}で自慢したら、{f}と交換してくれと言われた。断った。','{e}。{p}がいつもよりにぎやかだ。'],
+RM=['{p}で、まぶしいくらい堂々とした人と目が合った。{w}という名前らしい。','{w}に「あなたが噂のタロウね」と声をかけられた。なぜか背筋が伸びた。','{w}が{p}で走り込みをしていた。フォームまで美しい。','{w}に{f}をすすめられた。「体は資本よ」と言われ、全部食べた。','{e}。{w}が隣で「やるじゃない」と笑った。','{w}の名前を、タロウは今日だけで十回は呼びかけて飲み込んだ。','{p}で{w}とすれ違った。軽く手を振られて、一日機嫌がよかった。','{w}が{i}を見て「いいセンスね」と言った。タロウは舞い上がった。','住人に「{w}さんと知り合いなのか」と聞かれた。まだ知り合い、だと答えた。','{w}と{p}で朝のストレッチ。タロウの体は、あまりに固かった。','{w}に誘われて、{p}で一緒に走った。三分で息切れした。','{w}が{f}を分けてくれた。「負けず嫌いなら食べなさい」。','{e}。{w}とタロウは、同時に同じ方向を見ていた。','タロウは{w}に{i}を貸した。返ってこなくてもいい、と本気で思った。','{w}に悩みを話した。「大丈夫、あなたならやれるわ」の一言が効いた。','{p}で{w}と待ち合わせ。…約束より三十分早く着いてしまった。','{w}との会話で、タロウは初めて冗談で笑わせることに成功した。','{w}が「友人として誇らしいわ」と言った。…友人、か。','{f}を食べながら、{w}と将来の話をした。思ったより遠くを見ている人だった。','住人に「ふたり、仲いいね」と言われた。{w}は涼しい顔で「当然よ」と答えた。','タロウは勇気を出して{w}を誘った。「ええ、いいわよ」即答だった。','初デートの前夜、タロウは服を七回着替えた。','{p}で初デート。{w}の笑顔が眩しくて、景色が頭に入らなかった。','デート中、{w}が{f}を一口くれた。間接…とか考えない。考えない。','{w}と{i}を一緒に選んだ。値段より、悩む時間が楽しかった。','デートの帰り道、{w}と手がふれた。どちらも、気づかないふりをした。','{w}から「次はいつ？」とメッセージが来た。人生で一番速く返信した。','{p}で二回目のデート。今日はちゃんと会話ができた気がする。','{e}。{w}がそっと袖をつかんだ。タロウの心臓が止まりかけた。','{w}が「あなたと歩くペース、嫌いじゃないわ」と言った。最高の褒め言葉だ。','タロウは{w}のことを、毎日考えてしまうと自覚した。','住人たちが「早く告白しろ」と、あからさまに応援してくる。','{w}が{p}で、誰かを待っているようだった。…自分だと信じたい。','タロウは{w}に{i}を贈った。「大切にするわ」の一言で、天にも昇った。','{f}を食べながら、{w}が「最近、あなたのことばかり考えるの」とつぶやいた。','タロウは告白の練習を三日続けた。{p}の木が一番聞いていた。','{e}。{w}が「今日は特別な日になる気がする」と言った。','告白の前夜、タロウは一睡もできなかった。{w}の顔ばかり浮かぶ。','{p}に着くと、{w}はもう待っていた。「遅いわよ」と笑った。','深呼吸して、タロウは{w}に想いを伝えた。…返事は、「私も同じよ」だった。','恋人になった翌朝。タロウは、世界の色が少し変わった気がした。','{w}と恋人として初めての{f}。いつもの味が、なぜか特別だった。','住人たちが「おめでとう」と大騒ぎ。{w}は照れて、少しだけ赤くなった。','恋人と{p}を散歩。街の景色が、少しだけ違って見える。','{w}から{i}をもらった。宝物にして、毎日眺めている。','{w}が「呼び捨てでいいのに」と言った。タロウは三日間悩んで、呼んだ。','{e}。恋人と並んで見られたことが、一番の収穫だった。','{w}が朝のトレーニングにタロウを引っ張り出した。恋人の特権らしい。','{p}で、{w}の肩にそっと寄りかかった。何も言わず、受け止めてくれた。','付き合って最初の月。{w}が「悪くない毎日ね」と言ってくれた。','{w}が風邪を引いた。タロウは{f}を抱えて、街じゅうを走った。','ささいなことでケンカ。{p}で、別々のベンチに座った。','{w}から「言いすぎたわ」と連絡が来た。タロウも「こっちこそ」と返した。','仲直りに{f}を食べた。ケンカのあとの味は、少し甘い。','{w}が「私たち、ちゃんと話し合えるのね」と笑った。','タロウが落ち込んだ日、{w}は黙って隣にいてくれた。','{e}。{w}が「あなたの頑張りは、ちゃんと届いているわ」と言った。','{w}の誕生日。タロウは{i}を用意して、{p}でサプライズを決行した。','{w}が涙ぐんでいた。「嬉しすぎて、顔が追いつかないの」と言った。','「ごめん」と「ありがとう」を、ちゃんと言える関係になった。','ふたりで暮らす相談をした。{p}の近くに家を建てようと思う。','{w}の家族に挨拶へ。緊張でタロウは右手と右足が同時に出た。','{w}の家族に「よろしくね」と言われた。タロウは深く頭を下げた。','家が完成。{i}を飾って、ふたりだけの空間ができた。','ふたりの暮らしが始まった。朝の{f}が、今までで一番おいしい。','家事は交代制と決まった。{w}の方針に、異論は出なかった。','{e}。帰ったら、{w}がいつもの笑顔で待っていた。','{w}と{p}へ出かけた。「うちの街、いい街ね」と言ってくれた。','{w}が料理に挑戦。…味は微妙だったが、タロウは二杯おかわりした。','この部屋に、{w}がいる。それだけで、全部うまくいく気がした。','タロウは指輪のカタログを、{w}に見つからないよう隠して読んでいる。','{i}の中に、指輪を隠そうとした。…失敗した。','{p}でプロポーズ。…返事は「はい」。住人全員が泣いていた。','{w}が「こんなに早く答えが出るなんて」と笑った。ずっと待っていたらしい。','結婚式の準備が始まった。{w}は「主役は任せなさい」と張り切っている。','招待状に「{f}食べ放題」と書いたら、返信が殺到した。','{w}のドレス試着。タロウは感想より先に、言葉を失った。','{e}。式の予定地がにぎやかになった。','タロウは誓いの言葉を練習している。{w}に聞かれて、真っ赤になった。','式の前夜。{w}が「ここまで来たわね」と静かに言った。','結婚式。{f}が山ほど出て、住人たちが踊り明かした。','誓いのキス。拍手が鳴りやまなかった。{w}はずっと笑っていた。','新婚旅行は{p}へ。タロウは世界一の幸せ者だと、本気で思っている。','{w}が{i}をお土産に選んだ。「あなたに似合うわ」と言われた。','新婚生活の朝。{w}の寝癖を、タロウだけが知っている。','{w}と{f}で乾杯。「これからもよろしくね」と言われた。','{e}。ふたりで見ていたら、時間を忘れた。','{w}の家族が遊びに来た。街じゅうが、お祭り騒ぎだった。','結婚して最初の記念日。{w}が{p}を予約してくれていた。','{w}が「幸せすぎて、トレーニングが手につかないの」と笑った。','ふたりで家計簿をつけた。節約も、{w}といると楽しい。','{w}が「いつか家族が増えたら」と言いかけて、顔を赤くした。','{p}で、ふたりで未来の話をした。{w}の夢は、タロウの夢でもある。','{w}が{i}をしまいながら、「これも思い出ね」と微笑んだ。','{e}。ふたりで並んで拍手を送った。','{w}が日誌を読み返して、くすくす笑っていた。','タロウは{w}に「ありがとう」を百回言うと決めた。まだ三回目だ。','住人たちが「お似合いの二人」と歌を作った。…やけに上手い。','{w}がタロウの手を握った。「これからも、ずっと隣よ」。','ふたりの物語は、まだまだ続く。次の目標を決めよう、と{w}が笑った。'],
+RC=['{w}と{p}へ。何度行っても飽きない。','{w}が{f}を作ってくれた。幸せの味がする。','{w}に{i}を贈ったら、倍の笑顔で返ってきた。','{w}と並んで、{e}のを眺めた。','{w}と{p}でのんびり。何もしない日も悪くない。','ケンカしかけたが、{f}で仲直り。','{w}が「{p}に行こう」と言い出した。タロウに断る理由はない。','{i}を巡って、ふたりで小さな言い合い。結局ふたりで使うことになった。','今日の夕飯は{f}。{w}の「おいしい」で、タロウは満足した。','{e}。帰ったら、{w}がいつもの笑顔で待っていた。'];
+const ROMP=2000;
+const set=()=>{S.set=Object.assign({pen:10,w:'ナツキ'},S.set||{});return S.set};
+const ep=m=>m.noPen?0:(m.pen>0?m.pen:set().pen);
+const QT=[['あなたがこの街の主ね。ふうん、悪くない目をしているじゃない。','タロウ、だったかしら。覚えておくわ。一度聞いた名前は忘れないの。','この街、思っていたより活気があるわね。あなたが引っ張っているのでしょう？','朝のトレーニングは日課なの。…あら、見ていたの？','今日の成果、悪くないわね。その調子よ、タロウ。','私に追いつきたいなら、まず毎日続けることね。','遠慮は無用よ。話しかけたいなら、堂々と来なさい。','一歩ずつでいいの。止まらなければ、ちゃんと前に進んでいるわ。'],
+['また会ったわね。偶然…ということにしておいてあげる。','タロウと話していると、時間が早く過ぎるわ。','これ、差し入れ。体は資本よ、ちゃんと食べなさい。','今日は走り込み三十分。あなたも付き合う？','あなたの頑張り、ちゃんと見ているから。','疲れた顔ね。少し休むのも、立派な戦略よ。','ふふ、その笑顔。やっと見せてくれたわね。','私の友人として、胸を張りなさい。'],
+['今度の休み、空いているかしら。予定を空けておきなさい。','お出かけの服、悩んだのよ。…感想は？','隣を歩くなら、歩幅くらい合わせてほしいわ。','今日は楽しかったわ。…また誘いなさい。','あなたの隣、思ったより落ち着くのね。','手？…ええ、特別に許可してあげる。','帰り道がもう少し長ければいいのに。','次はどこに行きましょうか。あなたが決めてね。'],
+['最近、あなたのことばかり考えてしまうの。困ったわ。','タロウ、私に言いたいことがあるんじゃない？','待っているの。…そんなに焦らせないで。','あなたがいない日は、なんだか静かすぎるわ。','強がりはやめにするわ。会えて嬉しい。','その頑張りの先に、私もいたいの。','今日は特別な日になる気がするの。','覚悟はできているわ。あなたはどうかしら。'],
+['恋人としての初仕事よ。まず、一緒にご飯ね。','「恋人」って呼ばれるの、まだ慣れないわ。…悪くないけれど。','今日も頑張るあなたが、一番かっこいいわ。','甘えるのは苦手なの。でも、あなたになら…少しだけ。','私が隣にいる限り、情けない顔はさせないわ。','おはよう、タロウ。今日も一緒に鍛えましょう。','あなたの好きなもの、全部覚えたわ。','ねえ、もう少しだけこうしていていい？'],
+['ケンカしても、最後は笑って帰りましょう。それが私たちの流儀よ。','言い過ぎたわ。…ごめんなさい。','あなたが落ち込んでも、私が背中を押してあげる。','私に隠しごとは無駄よ。顔に出てるわ。','仲直りの方法は、一緒に走ること。行くわよ。','弱さを見せてくれて、ありがとう。','あなたとなら、どんな日も乗り越えられるわ。','今日も隣にいる。それだけで十分でしょう？'],
+['ふたりの部屋、どんな色にしましょうか。','朝ごはんは私が作るわ。…期待しすぎないで。','一緒に暮らすって、思っていたより楽しいのね。','洗濯物は交代制よ。異論は認めるわ。','あなたの寝顔、実は毎朝見ているの。','今日の夕飯は豪華よ。理由は…内緒。','この部屋に、あなたがいる。それが一番の幸せ。','これからも、一緒に積み重ねていきましょう。'],
+['最近、指輪のカタログばかり見ているのは気のせい？','あなたとなら、一生走れる気がするの。','その言葉、待っていたわ。…もちろん、答えは決まっているの。','「はい」以外の答えなんて、持っていないわ。','式の準備、私も手伝うわ。主役を放り出す気はないの。','ドレスの試着、見てくれる？…感想は正直にね。','緊張しているの？大丈夫、私がついているわ。','あなたと歩く道は、きっと最高のコースよ。'],
+['今日から私は、あなたの妻よ。…ふふ、慣れないわね。','誓います。何度でも言うわ、あなたを選んだことを。','新婚旅行、あなたとなら世界の果てでも行けるわ。','これからは「私たち」ね。覚悟していなさい。','毎朝「おはよう」を言える幸せ、噛みしめているの。','あなたの家族は、もう私の家族よ。','今日も二人で、胸を張って歩きましょう。','結婚しても、鍛錬の手は抜かないわよ。'],
+['ねえタロウ。いつか家族が増えたら、にぎやかになるわね。','あなたの隣が、私の定位置よ。','いつまでも負けないわ。あなたにも、年月にも。','この街が大きくなるたび、あなたを誇りに思うの。','何があっても大丈夫。私たち、最強のペアだもの。','またいつか、昔の日誌を一緒に読みましょう。','ありがとう、タロウ。これからもよろしくね。','さあ、次の目標を決めましょう。ふたりなら、きっと届くわ。']];
+const qline=(L,r)=>QT[Math.min(9,Math.floor(r/10))][(2*Math.floor((L-1)/5)+(S.qn%2))%8];
+const R=a=>a[Math.floor(Math.random()*a.length)];
+const hs=q=>{let h=5381;for(const c of q)h=((h<<5)+h+c.codePointAt(0))|0;return h};
+function daily(){
+  PN=penalize();let ch=PN>0;
+  const T=new Date(),td=dk(T);
+  if(S.dd!==td){
+    const e=earned(),L=lvOf(e),E=eraOf(L),L0=S.lvl||1,E0=eraOf(L0),W=WD[E],y=dayEarn(1),sk=stk();
+    const y0=new Date(T.getFullYear(),T.getMonth(),T.getDate()-1).getTime(),pen=S.log.some(l=>l.d<0&&l.t>=y0&&l.t<y0+864e5&&l.l.startsWith('未達'));
+    S.used=S.used||[];S.dn=S.dn||0;
+    const fill=(q,x)=>q.replace(/\{(\w)\}/g,(_,k)=>x[k]);
+    let tx,x;
+    const mkx=()=>({p:R(W[0]),i:R(W[1]),f:R(W[2]),e:R(W[3]),t:nm(E),w:set().w,n:pop(e).toLocaleString(),y,s:sk});
+    const lead=x=>fill(sk>=3&&Math.random()<.5?'連続{s}日の快進撃で、住人たちが胸を張っている。':R(pen?LP:y===0?LZ:y<100?LL:y<300?LM:LH),x);
+    x=mkx();
+    const bl=BL.filter(b=>b[0]>L0&&b[0]<=L).pop();
+    if(S.dd==null)tx='洞穴の入口から、たったひとりの住人タロウが顔を出した。ここから街づくりが始まる。';
+    else if(E>E0)tx=`時代が「${ER[E][1]}」に変わった。${nm(E)}の新しい物語が始まる。`+(bl?`「${bl[1]}」が完成した。`:'');
+    else if(L>L0)tx=`Lv.${L}到達！`+(bl?`「${bl[1]}」が完成した。`:'街がまた少し大きくなった。');
+    else if((S.rm||0)<RM.length&&e>=((S.rm||0)+1)*ROMP){const r=S.rm||0;tx=lead(x)+fill(RM[r],x);S.rm=r+1}
+    else if((S.rm||0)>=RM.length&&S.dn%8===7)tx=lead(x)+fill(R(RC),x);
+    else{let body,k=0;do{x=mkx();body=fill(R(TP),x);k++}while(S.used.includes(hs(body))&&k<50);S.used.push(hs(body));S.used=S.used.slice(-2000);tx=lead(x)+body}
+    if(S.dd!=null&&S.dn%3===2){S.qn=(S.qn||0)+1;tx+='\n'+set().w+'「'+qline(L,S.rm||0)+'」'}
+    S.diary=(S.diary||[]).concat([{d:td,t:tx,i:BL.filter(b=>b[0]<=L).pop()[2]}]).slice(-60);
+    S.dd=td;S.lvl=L;S.dn++;ch=true;
+  }
+  if(ch)save();
+  return ch;
+}
+function vS(){const c=set();return `<div class="sec">設定</div><div class="fm" style="border:1px solid var(--bd);border-radius:14px;box-shadow:none;max-height:none"><label>未達ペナルティの共通ポイント（0でなし・単発は対象外）</label><input id="s1" type="number" inputmode="numeric" min="0" value="${c.pen}"><label>パートナーの名前</label><input id="s2" value="${esc(c.w)}" maxlength="10"><div class="fb"><button class="p" data-a="sset">保存</button></div></div><div class="empty">ミッションごとに、個別のポイントや「ペナルティなし」も選べます。</div>`}
+function town(){
+  const e=earned(),L=lvOf(e),E=eraOf(L),nx=BL.find(b=>b[0]>L),ds=(S.diary||[]).slice(-7).reverse(),pr=L>=MAXL?100:(e%1000)/10;
+  return `<div class="sec">街づくり<span>${ER[E][1]} ・ Lv.${L}/${MAXL} ・ 人口${pop(e).toLocaleString()}人</span></div><div class="card"><div style="font-size:24px;line-height:1.5;letter-spacing:1px">${BL.filter(b=>b[0]<=L).map(b=>b[2]).join('')}</div><div style="height:8px;border-radius:99px;background:var(--bd);margin:8px 0 4px;overflow:hidden"><div style="height:100%;width:${pr}%;background:var(--ac)"></div></div><div style="font-size:12px;color:var(--mut)">${L>=MAXL?'王国が完成しました！':`次のLvまであと${1000-e%1000}pt`}${nx?` ／ 次の建物「${nx[1]}」はLv.${nx[0]}`:''}</div></div><div class="sec">タロウの日誌<span>毎日1通</span></div><div class="card" style="padding:4px 12px">${ds.length?ds.map(x=>`<div class="lg"><div>${x.i} ${esc(x.t).replace(/\n/g,'<br>')}<i>${x.d}</i></div></div>`).join(''):'<div class="empty">日誌はまだありません</div>'}</div>`;
+}
 function vM(){
   let h='';
   for(const ty of Object.keys(TY)){
     const ms=S.missions.filter(m=>m.type===ty),n=ms.filter(doneE).length;
     h+=`<div class="sec">${TY[ty]}<span>${n}/${ms.length}</span></div>`;
-    h+=ms.map(m=>`<div class="row ${doneE(m)?'done':''}"><button class="chk" data-a="done" data-i="${m.id}">${doneE(m)?'✓':''}</button><div class="nm">${esc(m.title)}</div><div class="pt">+${m.pts}</div><button class="ed" data-a="edit" data-k="m" data-i="${m.id}">✎</button></div>`).join('');
+    h+=ms.map(m=>`<div class="row ${doneE(m)?'done':''}"><button class="chk" data-a="done" data-i="${m.id}">${doneE(m)?'✓':''}</button><div class="nm">${esc(m.title)}</div><div class="pt">+${m.pts}${ep(m)&&m.type!=='once'?`<small style="color:var(--dg);display:block;font-size:10px;text-align:right">未達−${ep(m)}</small>`:''}</div><button class="ed" data-a="edit" data-k="m" data-i="${m.id}">✎</button></div>`).join('');
     if(!ms.length)h+=`<div class="empty" style="padding:8px">まだありません</div>`;
   }
   return h+`<button class="add" data-a="add" data-k="m">＋ ミッションを追加</button>`;
@@ -105,7 +255,7 @@ function vM(){
 function vR(){
   const b=bal();
   let h=`<div class="sec">ご褒美リスト<span>ポイントで交換</span></div>`;
-  h+=S.rewards.map(r=>`<div class="row"><div class="nm">${esc(r.name)}</div><div class="pt">${r.cost}pt</div><button class="buy" data-a="buy" data-i="${r.id}" ${b<r.cost?'disabled':''}>交換</button><button class="ed" data-a="edit" data-k="r" data-i="${r.id}">✎</button></div>`).join('');
+  h+=S.rewards.map(r=>`<div class="row">${icon(r)}<div class="nm">${esc(r.name)}</div><div class="pt">${r.cost}pt</div><button class="buy" data-a="buy" data-i="${r.id}" ${b<r.cost?'disabled':''}>交換</button><button class="ed" data-a="edit" data-k="r" data-i="${r.id}">✎</button></div>`).join('');
   if(!S.rewards.length)h+=`<div class="empty">ご褒美を登録しよう（例：好きなスイーツ 50pt）</div>`;
   return h+`<button class="add" data-a="add" data-k="r">＋ ご褒美を追加</button>`;
 }
@@ -132,23 +282,23 @@ function vG(){
   return `<div class="rng">${rb(7,'7日')}${rb(30,'30日')}${rb(90,'90日')}${rb(0,'全期間')}</div>
   <div class="card">${svg}</div>
   <div class="stats"><div>獲得<b>+${earn}</b></div><div>使用<b>−${spend}</b></div><div>現在<b>${bal()}</b></div></div>
-  <div class="sec">履歴</div><div class="card" style="padding:4px 12px">${recent.length?recent.map(([l,i])=>{const d=new Date(l.t);return `<div class="lg"><div>${esc(l.l)}<i>${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}</i></div><div class="pt" style="color:${l.d<0?'var(--dg)':'var(--ac)'}">${l.d>0?'+':'−'}${Math.abs(l.d)}</div><button data-a="undo" data-i="${i}">取消</button></div>`}).join(''):'<div class="empty">まだ記録がありません</div>'}</div>
+  ${town()}<div class="sec">履歴</div><div class="card" style="padding:4px 12px">${recent.length?recent.map(([l,i])=>{const d=new Date(l.t);return `<div class="lg"><div>${esc(l.l)}<i>${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}</i></div><div class="pt" style="color:${l.d<0?'var(--dg)':'var(--ac)'}">${l.d>0?'+':'−'}${Math.abs(l.d)}</div><button data-a="undo" data-i="${i}">取消</button></div>`}).join(''):'<div class="empty">まだ記録がありません</div>'}</div>
   <div class="sec">バックアップ<span>データはこの端末内に保存されます</span></div><div class="card"><textarea id="bk" rows="3" style="width:100%;padding:8px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:12px monospace"></textarea><div class="fb"><button data-a="exp">書き出し</button><button data-a="imp">読み込み</button></div></div>`;
 }
 function vF(){
   const m=form.k==='m',it=form.id?(m?S.missions:S.rewards).find(x=>x.id===form.id):null;
   return `<div class="fm"><h3>${m?'ミッション':'ご褒美'}を${it?'編集':'追加'}</h3>
-  <label>${m?'ミッション名':'ご褒美の名前'}</label><input id="f1" value="${it?esc(m?it.title:it.name):''}" maxlength="60">
+  <label>${m?'ミッション名':'ご褒美の名前'}</label><input id="f1" value="${form.n!=null?esc(form.n):it?esc(m?it.title:it.name):''}" maxlength="60">
   ${m?`<label>種類</label><select id="f2">${Object.keys(TY).map(k=>`<option value="${k}" ${it&&it.type===k?'selected':''}>${TY[k]}</option>`).join('')}</select>`:''}
-  <label>${m?'もらえるポイント':'必要ポイント'}</label><input id="f3" type="number" inputmode="numeric" min="1" value="${it?(m?it.pts:it.cost):''}">
-  <div class="fb"><button data-a="cancel">キャンセル</button>${it?`<button class="d" data-a="del">${arm?'もう一度で削除':'削除'}</button>`:''}<button class="p" data-a="save">保存</button></div></div>`;
+  <label>${m?'もらえるポイント':'必要ポイント'}</label><input id="f3" type="number" inputmode="numeric" min="1" value="${form.c!=null?form.c:it?(m?it.pts:it.cost):''}">
+  ${m?`<label>やらなかった時のペナルティ</label><select id="f5"><option value="d">共通設定に従う（${set().pen}pt）</option><option value="n" ${it&&it.noPen?'selected':''}>ペナルティなし</option></select><label>個別のポイント（空欄なら共通設定）</label><input id="f4" type="number" inputmode="numeric" min="0" value="${it&&it.pen>0?it.pen:''}">`:vIc()}<div class="fb"><button data-a="cancel">キャンセル</button>${it?`<button class="d" data-a="del">${arm?'もう一度で削除':'削除'}</button>`:''}<button class="p" data-a="save">保存</button></div></div>`;
 }
 function render(){
   $('#bal').textContent=bal().toLocaleString();
   const d=S.missions.filter(m=>m.type==='daily'),n=d.filter(doneE).length;
-  $('#today').innerHTML=d.length?`今日のデイリー<br><b style="font-size:18px;display:inline">${n}/${d.length}</b>`:'';
-  $('#tabs').innerHTML=[['m','ミッション'],['r','ご褒美'],['g','グラフ']].map(([k,l])=>`<button data-a="tab" data-i="${k}" class="${tab===k?'on':''}">${l}</button>`).join('');
-  $('#main').innerHTML=tab==='m'?vM():tab==='r'?vR():vG();
+  $('#today').innerHTML=(d.length?`今日のデイリー <b style="font-size:16px">${n}/${d.length}</b><br>`:'')+`🔥連続${stk()}日 ×${mult().toFixed(2)}<br>今日 ${dayEarn(0)}/200pt`;
+  $('#tabs').innerHTML=[['m','ミッション'],['r','ご褒美'],['g','グラフ'],['s','設定']].map(([k,l])=>`<button data-a="tab" data-i="${k}" class="${tab===k?'on':''}">${l}</button>`).join('');
+  $('#main').innerHTML=tab==='m'?vM():tab==='r'?vR():tab==='s'?vS():vG();
   $('#sheet').innerHTML=form?vF():'';
 }
 document.addEventListener('click',e=>{
@@ -159,7 +309,7 @@ document.addEventListener('click',e=>{
   else if(a==='done'){
     const m=S.missions.find(x=>x.id===i),e2=doneE(m);
     if(e2){S.log.splice(S.log.indexOf(e2),1);toast('取り消しました')}
-    else{S.log.push({t:Date.now(),d:m.pts,l:m.title,m:m.id,k:pk(m.type)});toast('クリア！ +'+m.pts+'pt')}
+    else{const mu=mult(),g=Math.round(m.pts*mu);S.log.push({t:Date.now(),d:g,l:m.title,m:m.id,k:pk(m.type)});toast('クリア！ +'+g+'pt'+(mu>1?`（連続ボーナス×${mu.toFixed(2)}）`:''))}
     save();
   }
   else if(a==='buy'){
@@ -169,9 +319,14 @@ document.addEventListener('click',e=>{
   }
   else if(a==='exp'){const j=JSON.stringify(S);$('#bk').value=j;try{navigator.clipboard.writeText(j).then(()=>toast('コピーしました'),()=>toast('枠内の文字をコピーしてね'))}catch(x){toast('枠内の文字をコピーしてね')}return}
   else if(a==='imp'){try{const o=JSON.parse($('#bk').value);if(!Array.isArray(o.missions)||!Array.isArray(o.rewards)||!Array.isArray(o.log))throw 0;S=o;save();toast('読み込みました')}catch(x){toast('読み込めませんでした');return}}
+  else if(a==='sset'){const c=set();c.pen=Math.max(0,parseInt($('#s1').value,10)||0);c.w=$('#s2').value.trim()||'ナツキ';save();toast('保存しました')}
   else if(a==='undo'){S.log.splice(+i,1);save()}
-  else if(a==='add'){form={k,id:null};arm=false}
-  else if(a==='edit'){form={k,id:i};arm=false}
+  else if(a==='add'){form={k,id:null,px:null,img:null,ser:0};arm=false}
+  else if(a==='edit'){const it=(k==='m'?S.missions:S.rewards).find(x=>x.id===i);form={k,id:i,px:it.px||null,img:it.img||null,ser:0};arm=false}
+  else if(a==='ser'){stash();form.ser=+i}
+  else if(a==='pick'){stash();form.px=i;form.img=null}
+  else if(a==='noic'){stash();form.px=null;form.img=null}
+  else if(a==='photo'){$('#ff').click();return}
   else if(a==='cancel'){form=null;arm=false}
   else if(a==='del'){
     if(!arm){arm=true}
@@ -183,12 +338,20 @@ document.addEventListener('click',e=>{
     const m=form.k==='m',key=m?'missions':'rewards';
     let it=form.id?S[key].find(x=>x.id===form.id):null;
     if(!it){it={id:uid()};S[key].push(it)}
-    if(m){it.title=name;it.type=$('#f2').value;it.pts=p}else{it.name=name;it.cost=p}
+    if(m){it.title=name;it.type=$('#f2').value;it.pts=p;it.pen=Math.max(0,parseInt($('#f4').value,10)||0);it.noPen=$('#f5').value==='n';if(!it.at)it.at=Date.now()}else{it.name=name;it.cost=p;it.px=form.px||null;it.img=form.img||null}
     form=null;save();
   }
   render();
 });
+document.addEventListener('change',e=>{
+  const f=e.target.id==='ff'&&e.target.files[0];if(!f)return;
+  const im=new Image(),u=URL.createObjectURL(f);
+  im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=96;const q=Math.min(im.width,im.height);c.getContext('2d').drawImage(im,(im.width-q)/2,(im.height-q)/2,q,q,0,0,96,96);form.img=c.toDataURL('image/jpeg',.82);form.px=null;URL.revokeObjectURL(u);stash();render()};
+  im.onerror=()=>toast('画像を読み込めませんでした');
+  im.src=u;
+});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!form){daily();render();if(PN)toast('未達ペナルティが'+PN+'件ありました')}});
 init();
 </script>
-</body>
+ </body>
 </html>
