@@ -4,19 +4,26 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ミッションクエスト</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#5ab9ea">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ミッション">
 <style>
-:root{--bg:#e9f5ec;--card:#fff;--tx:#2a3a35;--mut:#6f8a80;--ac:#3f8fd2;--ok:#2fae8f;--bd:#a9d4c2;--dg:#d9534f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#152019;--card:#1e2c24;--tx:#e6f2ea;--mut:#8fb0a0;--bd:#33503f}}
-:root[data-theme="dark"]{--bg:#152019;--card:#1e2c24;--tx:#e6f2ea;--mut:#8fb0a0;--bd:#33503f}
+:root{--bg:#eef7fc;--card:#ffffff;--tx:#2c3e50;--mut:#6c8a9c;--ac:#3498db;--ok:#2ecc71;--bd:#b0e0e6;--dg:#e74c3c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a252f;--card:#243342;--tx:#ecf0f1;--mut:#95a5a6;--bd:#34495e}}
+:root[data-theme="dark"]{--bg:#1a252f;--card:#243342;--tx:#ecf0f1;--mut:#95a5a6;--bd:#34495e}
 html{color-scheme:light dark;scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 -apple-system,"Hiragino Sans","Noto Sans JP",system-ui,sans-serif}
-.w{max-width:560px;margin:0 auto;padding:16px 14px 90px}
-.hero{background:#4a9fd8;color:#fff;border-radius:18px;border:2px dashed #d7f0ff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-end}
-.hero small{opacity:.85;font-size:10px}.hero b{font-size:32px;line-height:1.1;display:block}
-.hero .t{text-align:right;font-size:10px;opacity:.9}
+.w{max-width:560px;margin:0 auto;padding:16px 14px 90px;position:relative}
+.hero{background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;border-radius:18px;border:3px dashed #a0d8ef;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-end;box-shadow:0 4px 10px rgba(52,152,219,0.2)}
+.hero small{opacity:.9;font-size:11px}.hero b{font-size:32px;line-height:1.1;display:block}
+.hero .t{text-align:right;font-size:11px;opacity:.95}
 .tabs{display:flex;gap:6px;margin:14px 0}
-.tabs button{flex:1;padding:10px 0;border:1px solid var(--bd);background:var(--card);color:var(--mut);border-radius:12px;font:inherit;font-weight:600}
+.tabs button{flex:1;padding:10px 0;border:2px dashed var(--bd);background:var(--card);color:var(--mut);border-radius:14px;font:inherit;font-weight:600}
 .tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
 .sec{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 6px;font-weight:700}
 .sec span{font-size:12px;color:var(--mut);font-weight:500}
@@ -29,7 +36,7 @@ body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 -apple-system,"
 .ed{border:0;background:none;color:var(--mut);font-size:16px;padding:4px}
 .buy{border:0;background:var(--ac);color:#fff;border-radius:10px;padding:8px 12px;font:inherit;font-weight:700}
 .buy[disabled]{background:var(--bd);color:var(--mut)}
-.add{width:100%;padding:12px;border:1.5px dashed var(--bd);background:none;color:var(--mut);border-radius:14px;font:inherit;margin-top:6px}
+.add{width:100%;padding:12px;border:2px dashed var(--bd);background:none;color:var(--mut);border-radius:14px;font:inherit;margin-top:6px}
 .empty{color:var(--mut);text-align:center;padding:22px 10px;font-size:14px}
 .rng{display:flex;gap:6px;margin-bottom:8px}
 .rng button{flex:1;padding:7px 0;border:1px solid var(--bd);background:var(--card);color:var(--mut);border-radius:10px;font:inherit}
@@ -41,18 +48,20 @@ body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 -apple-system,"
 .lg i{font-style:normal;color:var(--mut);font-size:11px;display:block}
 .lg button{border:0;background:none;color:var(--mut);font-size:12px;text-decoration:underline}
 #sheet{position:fixed;left:0;right:0;bottom:0;z-index:20}
-.fm{background:var(--card);border-top:1px solid var(--bd);box-shadow:0 -8px 30px rgba(0,0,0,.18);border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));max-width:560px;margin:0 auto}
+.fm{background:var(--card);border-top:1px solid var(--bd);box-shadow:0 -8px 30px rgba(0,0,0,.18);border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));max-width:560px;margin:0 auto;max-height:88vh;overflow-y:auto}
 .fm h3{margin:0 0 10px}
 .fm label{display:block;font-size:12px;color:var(--mut);margin:8px 0 3px}
 .fm input,.fm select{width:100%;padding:11px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
 .fb{display:flex;gap:8px;margin-top:14px}
 .fb button{flex:1;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-weight:700}
 .fb .p{background:var(--ac);border-color:var(--ac);color:#fff}.fb .d{color:var(--dg)}
-.fm{max-height:88vh;overflow-y:auto}
 #pop{position:fixed;inset:0;background:rgba(20,50,45,.6);display:flex;align-items:center;justify-content:center;z-index:40;padding:20px}
 .pb{background:var(--card);border:3px dashed var(--ac);border-radius:26px;padding:22px 18px;text-align:center;max-width:420px;width:100%}
 .pn{font-size:60px;font-weight:800;color:var(--ac);line-height:1.1}.pt2{font-size:17px;font-weight:700;margin:10px 0 16px;line-height:1.7}
 .pb button{border:0;background:var(--ac);color:#fff;border-radius:99px;padding:12px 40px;font:inherit;font-weight:800;font-size:18px}
+.bar{display:flex;align-items:center;justify-content:space-between;margin:0 2px 10px}.ttl{display:flex;align-items:center;gap:7px;font-weight:700;font-size:14px}
+.gear{width:28px;height:28px;border-radius:9px;border:2px dashed var(--bd);background:var(--card);color:var(--mut);font-size:16px;padding:0;line-height:1}
+.sl{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}.sp{min-width:100%;scroll-snap-align:start;padding:4px 12px}
 .ic{width:42px;height:42px;border-radius:10px;flex:none;object-fit:cover;background:#fbf7ee;border:1px solid var(--bd);display:block}
 .ic svg{width:100%;height:100%;display:block}
 .sr{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.sr button{flex:1 0 28%;padding:6px 0;border:1px solid var(--bd);background:var(--bg);color:var(--mut);border-radius:10px;font:inherit;font-size:13px}.sr button.on{border-color:var(--ac);color:var(--ac);font-weight:700}
@@ -60,13 +69,33 @@ body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 -apple-system,"
 .pv{display:flex;gap:8px;align-items:center}.pv button{flex:1;padding:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:10px;font:inherit}
 #toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 14px);transform:translate(-50%,-80px);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:700;transition:transform .25s;z-index:30;white-space:nowrap}
 #toast.on{transform:translate(-50%,0)}
+.hero{position:relative;overflow:hidden;padding:12px 16px 28px}
+.hero::after{content:'';position:absolute;left:0;right:0;bottom:0;height:10px;background:#2ecc71;border-top:2px solid #a8e6cf}
+.hg{position:absolute;left:0;bottom:12px;width:100%;height:24px;pointer-events:none}
+.sec{justify-content:flex-start}.sec span{margin-left:auto}
+.sec::before{content:'';width:16px;height:14px;margin-right:6px;flex:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Crect x='7' y='6' width='2' height='8' fill='%232ecc71'/%3E%3Crect x='2' y='1' width='12' height='6' fill='%2327ae60'/%3E%3C/svg%3E") no-repeat}
+.ft{margin-top:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ft,:root:not([data-theme="light"]) .bunt{filter:brightness(.8)}}
+:root[data-theme="dark"] .ft,:root[data-theme="dark"] .bunt{filter:brightness(.8)}
+.sec.rb::before{display:none}.sec.rb span{margin-left:0}
+.sec.rb .rib{background:var(--c);color:var(--tc);clip-path:polygon(0 0,100% 0,93% 50%,100% 100%,0 100%);padding:2px 20px 2px 8px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:5px}
+.sec.rb .dl{flex:1;border-top:2px dotted var(--c);margin:0 8px;height:0}
+.sd{position:absolute;top:0;bottom:0;width:12px;display:none;background-repeat:repeat-y;pointer-events:none}
+.sd.l{left:3px}.sd.r{right:3px;transform:scaleX(-1)}
+.w.tm .sd,.w.tg .sd{display:block}
+.w.tm .sd{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='46' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='8' height='46' fill='%23e0c3fc'/%3E%3Crect x='0' y='11' width='8' height='1' fill='%238ec5fc'/%3E%3Crect x='0' y='33' width='8' height='1' fill='%238ec5fc'/%3E%3Crect x='2' y='16' width='3' height='7' fill='%23e84393'/%3E%3Crect x='8' y='22' width='4' height='12' fill='%23ff7675'/%3E%3Crect x='9' y='22' width='2' height='2' fill='%23fdcb6e'/%3E%3Crect x='8' y='34' width='4' height='2' fill='%23ff7675'/%3E%3C/svg%3E")}
+.w.tg .sd{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='34' shape-rendering='crispEdges'%3E%3Crect x='5' y='2' width='2' height='3' fill='%2300b894'/%3E%3Crect x='4' y='5' width='4' height='3' fill='%2355efc4'/%3E%3Crect x='3' y='8' width='6' height='3' fill='%2300b894'/%3E%3Crect x='5' y='11' width='2' height='3' fill='%23fdcb6e'/%3E%3Crect x='9' y='24' width='2' height='2' fill='%23fdcb6e'/%3E%3Crect x='1' y='20' width='1' height='1' fill='%23fdcb6e'/%3E%3Crect x='2' y='30' width='1' height='1' fill='%23fdcb6e'/%3E%3C/svg%3E")}
+.w.tm,.w.tg{padding-left:22px;padding-right:22px}
+body[data-tab="m"]{--bg:#eef7fc}body[data-tab="g"]{--bg:#f3e8ff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body[data-tab]{--bg:#1a252f}:root:not([data-theme="light"]) .sd{filter:brightness(.8)}}
+:root[data-theme="dark"] body[data-tab]{--bg:#1a252f}:root[data-theme="dark"] .sd{filter:brightness(.8)}
 </style>
 </head>
 <body>
-<div class="w">
-  <div class="hero"><div><small>所持ポイント</small><b id="bal">0</b></div><div class="t" id="today"></div></div>
+<div class="w"><i class="sd l"></i><i class="sd r"></i><svg class="bunt" viewBox="0 0 340 16" aria-hidden="true" style="width:100%;display:block;margin:-6px 0 4px"><path d="M0 3 Q170 12 340 3" fill="none" stroke="#e84393" stroke-width="1.5"/><polygon points="8,3 21,3 14.5,15" fill="#ff7675"/><polygon points="35,5 48,5 41.5,17" fill="#fdcb6e"/><polygon points="62,6 75,6 68.5,18" fill="#74b9ff"/><polygon points="89,7 102,7 95.5,19" fill="#55efc4"/><polygon points="116,8 129,8 122.5,20" fill="#a29bfe"/><polygon points="143,9 156,9 149.5,21" fill="#fd79a8"/><polygon points="170,9 183,9 176.5,21" fill="#00cec9"/><polygon points="197,9 210,9 203.5,21" fill="#ffeaa7"/><polygon points="224,8 237,8 230.5,20" fill="#ff7675"/><polygon points="251,7 264,7 257.5,19" fill="#74b9ff"/><polygon points="278,6 291,6 284.5,18" fill="#a29bfe"/><polygon points="305,5 318,5 311.5,17" fill="#55efc4"/></svg>
+  <div class="bar"><span class="ttl"><svg viewBox="0 0 100 100" width="24" height="24"><rect width="100" height="100" rx="22" fill="#3498db"/><polygon points="12,84 12,72 30,72 30,60 48,60 48,48 66,48 66,36 88,36 88,84" fill="#fff"/><circle cx="57" cy="28" r="5.5" fill="#ffd9b8"/><rect x="52" y="33" width="10" height="13" rx="3" fill="#e84393"/><polygon points="68,34 70,20 75,27 78,16 81,27 86,20 88,34" fill="#fdcb6e"/></svg>ミッションクエスト</span><button class="gear" data-a="tab" data-i="s" aria-label="設定">⚙</button></div><div class="hero"><div><small>所持ポイント</small><b id="bal">0</b></div><div class="t" id="today"></div><svg class="hg" viewBox="0 0 320 24" preserveAspectRatio="xMidYMax meet" shape-rendering="crispEdges" aria-hidden="true"><g fill="#81ecec"><rect x="150" y="5" width="26" height="6"/><rect x="155" y="1" width="12" height="5"/><rect x="165" y="3" width="8" height="4"/></g><rect x="116" y="15" width="3" height="8" fill="#fdcb6e"/><rect x="112" y="5" width="11" height="11" fill="#00b894"/><rect x="114" y="7" width="4" height="4" fill="#55efc4"/><rect x="138" y="19" width="3" height="8" fill="#fdcb6e"/><rect x="134" y="9" width="11" height="11" fill="#00b894"/><rect x="136" y="11" width="4" height="4" fill="#55efc4"/><rect x="20" y="18" width="2" height="2" fill="#fd79a8"/><rect x="20" y="20" width="1" height="4" fill="#00b894"/><rect x="44" y="19" width="2" height="2" fill="#ffeaa7"/><rect x="44" y="21" width="1" height="4" fill="#00b894"/><rect x="70" y="18" width="2" height="2" fill="#fd79a8"/><rect x="70" y="20" width="1" height="4" fill="#00b894"/><rect x="176" y="19" width="2" height="2" fill="#ffeaa7"/><rect x="176" y="21" width="1" height="4" fill="#00b894"/><rect x="300" y="18" width="2" height="2" fill="#fd79a8"/><rect x="300" y="20" width="1" height="4" fill="#00b894"/></svg></div>
   <div class="tabs" id="tabs"></div>
-  <div id="main"></div>
+  <div id="main"></div><div class="ft"><svg viewBox="0 0 340 70" style="width:100%;display:block" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 40 Q60 14 130 36 T260 30 T340 38 V70 H0Z" fill="#a8e6cf"/><path d="M0 52 Q80 32 170 50 T340 46 V70 H0Z" fill="#55efc4"/><rect y="54" width="340" height="16" fill="#00b894"/><rect y="54" width="340" height="2" fill="#81ecec"/><rect x="24" y="42" width="3" height="8" fill="#fdcb6e"/><rect x="20" y="32" width="11" height="11" fill="#00b894"/><rect x="22" y="34" width="4" height="4" fill="#55efc4"/><rect x="50" y="46" width="3" height="8" fill="#fdcb6e"/><rect x="46" y="36" width="11" height="11" fill="#00b894"/><rect x="48" y="38" width="4" height="4" fill="#55efc4"/><rect x="154" y="44" width="3" height="8" fill="#fdcb6e"/><rect x="150" y="34" width="11" height="11" fill="#00b894"/><rect x="152" y="36" width="4" height="4" fill="#55efc4"/><rect x="80" y="56" width="2" height="2" fill="#fd79a8"/><rect x="80" y="58" width="1" height="4" fill="#00b894"/><rect x="104" y="58" width="2" height="2" fill="#ffeaa7"/><rect x="104" y="60" width="1" height="4" fill="#00b894"/><rect x="200" y="56" width="2" height="2" fill="#fd79a8"/><rect x="200" y="58" width="1" height="4" fill="#00b894"/><rect x="228" y="58" width="2" height="2" fill="#ffeaa7"/><rect x="228" y="60" width="1" height="4" fill="#00b894"/><rect x="120" y="50" width="2" height="10" fill="#fdcb6e"/><rect x="132" y="50" width="2" height="10" fill="#fdcb6e"/><rect x="144" y="50" width="2" height="10" fill="#fdcb6e"/><rect x="156" y="50" width="2" height="10" fill="#fdcb6e"/><rect x="168" y="50" width="2" height="10" fill="#fdcb6e"/><rect x="120" y="53" width="50" height="2" fill="#fdcb6e"/><g fill="#fff"><rect x="40" y="10" width="26" height="6"/><rect x="45" y="6" width="12" height="5"/><rect x="55" y="8" width="8" height="4"/></g><g fill="#fff"><rect x="200" y="16" width="26" height="6"/><rect x="205" y="12" width="12" height="5"/><rect x="215" y="14" width="8" height="4"/></g><g transform="translate(0,16)"><rect x="270" y="38" width="12" height="14" fill="#fff"/><rect x="282" y="32" width="12" height="20" fill="#fff"/><rect x="294" y="26" width="12" height="26" fill="#fff"/><rect x="306" y="20" width="14" height="32" fill="#fff"/><rect x="286" y="22" width="4" height="4" fill="#ffd9b8"/><rect x="286" y="26" width="4" height="6" fill="#ff7675"/><polygon points="308,20 309,12 312,16 314,9 316,16 319,12 320,20" fill="#fdcb6e"/></g></svg></div>
 </div>
 <div id="sheet"></div>
 <div id="toast"></div>
@@ -103,7 +132,7 @@ async function init(){
   if(PN)toast('未達ペナルティが'+PN+'件ありました');
 }
 
-const PAL={k:'#3a2a2a',w:'#fff',r:'#e84a4a',p:'#f7a8c4',y:'#f7d44a',o:'#f09a3a',b:'#8a5a3a',s:'#b8bcc4',h:'#6a6e78',u:'#4a8ee8',g:'#5cb85c'};
+const PAL={k:'#2d3436',w:'#ffffff',r:'#ff7675',p:'#fd79a8',y:'#ffeaa7',o:'#fab1a0',b:'#e17055',s:'#dfe6e9',h:'#6c5ce7',u:'#74b9ff',g:'#55efc4',v:'#a29bfe',c:'#00cec9',m:'#fdcb6e'};
 const SER=[['スイーツ',[
 ['ケーキ','..........|....r.....|...rrr....|.kkkkkkkk.|.kwwwwwwk.|.kppppppk.|.kwwwwwwk.|.kppppppk.|.kkkkkkkk.|..........'],
 ['ドーナツ','..........|...kkkk...|..kppppk..|.kppkkppk.|.kpk..kpk.|.kpk..kpk.|.kppkkppk.|..kppppk..|...kkkk...|..........'],
@@ -213,9 +242,9 @@ RM=['{p}で、まぶしいくらい堂々とした人と目が合った。{w}と
 RC=['{w}と{p}へ。何度行っても飽きない。','{w}が{f}を作ってくれた。幸せの味がする。','{w}に{i}を贈ったら、倍の笑顔で返ってきた。','{w}と並んで、{e}のを眺めた。','{w}と{p}でのんびり。何もしない日も悪くない。','ケンカしかけたが、{f}で仲直り。','{w}が「{p}に行こう」と言い出した。タロウに断る理由はない。','{i}を巡って、ふたりで小さな言い合い。結局ふたりで使うことになった。','今日の夕飯は{f}。{w}の「おいしい」で、タロウは満足した。','{e}。帰ったら、{w}がいつもの笑顔で待っていた。'];
 const ROMP=10000;
 const MS=[3,5,10,15,20,25,30,45,60,75,90,105,120];
-const PH=[[['{n}日連続。三日坊主は卒業だな。','{n}日目。ここからが本番だぞ。','よくここまで来た。まだ{n}日だがな。','{n}日続いた。その調子で止まるな。','{n}日連続達成。今日も気を抜くな。'],['明日もやる。それが習慣になる。','続ける力は才能より強い。','褒めるのはまだ早い。だが悪くない。','次は5日だ。行け。']],[['{n}日連続。やるじゃないか。','{n}日目、いい流れだ。','{n}日も続いたな。体が覚え始めているぞ。','{n}日連続！ 本物になってきた。','もう{n}日。サボる理由が減ってきたな。'],['この勢いを殺すな。','次の壁は10日だ。','調子に乗るのは10日を超えてからだ。','自分を褒めていい。ただし明日もやれ。']],[['{n}日連続だと？ 大したものだ。','10日の壁を越えた。お前は本物だ。','{n}日。ここまで来る者は少ない。','{n}日連続！ もう習慣の領域だ。','{n}日目。胸を張れ、見事だ。'],['だが満足するな。次は15日だ。','その積み重ねが街を育てている。','ここからが差がつく場所だ。','よくやった。そして、明日もやれ。']],[['{n}日連続。圧倒的だ。','{n}日。もう誰もお前を三日坊主とは呼べない。','{n}日続けるとは、大した覚悟だな。','{n}日連続！ 実力が数字に表れている。','{n}日目。お前の努力は本物だ。'],['20日の景色を見に行くぞ。','手を抜くな。だが、誇れ。','この積み重ねは誰にも奪えない。','最高だ。だが、まだ終わりではない。']],[['{n}日連続！ 驚異的だ。','{n}日。もはや尊敬に値する。','{n}日続けた者だけが辿り着く場所だ。','{n}日連続。お前は超一流だ。','{n}日目。ここまでやり抜いた者に敬意を。'],['その背中が全員を引っ張っている。','称賛は受け取れ。次の節目へ進め。','この先も、お前なら届く。','最高の{n}日だった。さあ、続けるぞ。']]],PL=[['{n}日連続。もう誰も止められない。','{n}日。習慣は才能を超えたぞ。','{n}日続けた者だけが見える景色がある。','{n}日連続！ 王者の風格だ。'],['次の節目も取りに行け。','胸を張れ。ただし明日もやる。','その背中が、街を引っ張っている。','称賛は受け取った。さあ、次だ。']],OP=['ふふっ、','ふっ……',''],CS=['日々の精進は裏切らないわ。','限界なんて、私が決めるまで存在しなくてよ。','筋肉痛は成長の証よ。歓迎しなさい。','努力を惜しむ人間に、頂は見えないわ。','今日の汗は、明日の自信になるのよ。','私が認めたのだから、胸を張りなさい。','妥協は、私の辞書にないわ。','やると決めたなら、最後までやり抜きなさい。','結果は、積み重ねた時間が語るわ。','上を目指す覚悟はあるわね？','私の隣に立つなら、これくらい当然よ。','止まらない限り、道は続いているわ。'],US=['今日の紅茶は、いつもより香りが立っているわね。','礼儀は、強さの一部よ。','たまには優雅に休むのも、鍛錬のうちだわ。','身だしなみは心の姿勢。整えておきなさい。','上質な時間は、自分で作るものよ。','一流は、静かに結果を出すものだわ。'],TS=['……っ！ な、何よ、その顔は！','べ、別に、嬉しいわけじゃないわよ。','な、なにを見ているの？ 目をそらしてちょうだい。','そ、そんなこと、急に言わないでちょうだい。','か、勘違いしないでよ。たまたまなんだから！','い、今のは聞き流しなさい。'],PS=[['この街、悪くないわね。{y}、あなたが主なの？','{y}、覚えておくわ。一度聞いた名前は忘れないの。','初対面にしては、いい目をしているわね。','街の活気は、主の姿勢で決まるものよ。','{y}、挨拶は先にするものよ。','少しは期待しているわ、{y}。'],['また会ったわね。偶然、ということにしておくわ。','{y}と話していると、時間があっという間ね。','差し入れよ。体は資本なのだから食べなさい。','{y}の頑張り、ちゃんと見ているわ。','一緒に走る？ 付き合ってあげてもよくてよ。','友人として、誇らしいと思っているわ。'],['次の休み、空けておきなさい、{y}。','お出かけの服、少し悩んだのだけれど……どうかしら。','歩幅は合わせてちょうだい。ふふっ、冗談よ。','今日は楽しかったわ。また誘いなさい。','{y}の隣、思ったより落ち着くのね。','帰り道が、もう少し長ければいいのに。'],['最近、{y}のことを考える時間が増えたわ。','言いたいことがあるなら、聞いてあげてもよくてよ。','待つのは得意ではないのよ。早く言いなさい。','{y}がいない日は、街が静かすぎるわ。','強がるのはやめにするわ。会えて嬉しいの。','覚悟はできているわ。{y}はどうかしら。'],['恋人としての初仕事よ。まず一緒に食事ね。','恋人と呼ばれるのは、まだ慣れないわ。','今日も努力する{y}が、一番素敵よ。','甘えるのは苦手なの。でも少しだけ。','隣にいる限り、情けない顔はさせないわ。','おはよう、{y}。今日も一緒に鍛えましょう。'],['ケンカしても最後は笑って帰るのよ。それが流儀。','言い過ぎたわ。悪かったわね。','落ち込んでも、私が背中を押してあげる。','隠しごとは無駄よ。顔に出ているもの。','仲直りの方法は、一緒に走ること。行くわよ。','弱さを見せてくれて、感謝するわ。'],['ふたりの部屋、どんな色にしましょうか。','朝食は私が作るわ。期待しすぎないでちょうだい。','一緒に暮らすのは、思ったより楽しいのね。','洗濯は交代制よ。異論は認めないわ。','毎朝、{y}の寝顔を見ているのよ。内緒ね。','これからも積み重ねていきましょう。'],['指輪のカタログばかり見ているわね。気づいているわよ。','{y}となら、一生走り続けられる気がするの。','答えは、もうずっと決まっているのよ。','式の準備は私も手伝うわ。主役は譲らないけれど。','ドレスの試着、見てくれるかしら。正直にね。','緊張しているの？ 私がついているわ。'],['今日から私は、{y}の妻よ。慣れないわね。','何度でも誓うわ。あなたを選んだことを。','新婚旅行、{y}となら世界の果てまで行けるわ。','これからは「私たち」よ。覚悟なさい。','毎朝「おはよう」を言える幸せを、噛みしめているの。','結婚しても、鍛錬の手は抜かないわよ。'],['いつか家族が増えたら、にぎやかになるわね。','{y}の隣が、私の定位置よ。','年月にも、負けるつもりはないわ。','街が大きくなるたび、{y}を誇りに思うの。','最強のペアだもの。何があっても大丈夫よ。','昔の日誌、いつか一緒に読みましょう。']],QTY=['c','c','t','c','u','c','u','c'];
+const PH=[[['{n}日連続。三日坊主は卒業だな。','{n}日目。ここからが本番だぞ。','よくここまで来た。まだ{n}日だがな。','{n}日続いた。その調子で止まるな。','{n}日連続達成。今日も気を抜くな。'],['明日もやる。それが習慣になる。','続ける力は才能より強い。','褒めるのはまだ早い。だが悪くない。','次は5日だ。行け。']],[['{n}日連続。やるじゃないか。','{n}日目、いい流れだ。','{n}日も続いたな。体が覚え始めているぞ。','{n}日連続！ 本物になってきた。','もう{n}日。サボる理由が減ってきたな。'],['この勢いを殺すな。','次の壁は10日だ。','調子に乗るのは10日を超えてからだ。','自分を褒めていい。ただし明日もやれ。']],[['{n}日連続だと？ 大したものだ。','10日の壁を越えた。お前は本物だ。','{n}日。ここまで来る者は少ない。','{n}日連続！ もう習慣の領域だ。','{n}日目。胸を張れ、見事だ。'],['だが満足するな。次は15日だ。','その積み重ねが街を育てている。','ここからが差がつく場所だ。','よくやった。そして、明日もやれ。']],[['{n}日連続。圧倒的だ。','{n}日。もう誰もお前を三日坊主とは呼べない。','{n}日続けるとは、大した覚悟だな。','{n}日連続！ 実力が数字に表れている。','{n}日目。お前の努力は本物だ。'],['20日の景色を見に行くぞ。','手を抜くな。だが、誇れ。','この積み重ねは誰にも奪えない。','最高だ。だが、まだ終わりではない。']],[['{n}日連続！ 驚異的だ。','{n}日。もはや尊敬に値する。','{n}日続けた者だけが辿り着く場所だ。','{n}日連続。お前は超一流だ。','{n}日目。ここまでやり抜いた者に敬意を。'],['その背中が全員を引っ張っている。','称賛は受け取れ。次の節目へ進め。','この先も、お前なら届く。','最高の{n}日だった。さあ、続けるぞ。']]],PL=[['{n}日連続。もう誰も止められない。','{n}日。習慣は才能を超えたぞ。','{n}日続けた者だけが見える景色がある。','{n}日連続！ 王者の風格だ。'],['次の節目も取りに行け。','胸を張れ。ただし明日もやる。','その背中が、街を引っ張っている。','称賛は受け取った。さあ、次だ。']],OP=['ふふっ、','ふっ……',''],CS=['日々の精進は裏切らないわ。','限界なんて、私が決めるまで存在しなくてよ。','筋肉痛は成長の証よ。歓迎しなさい。','努力を惜しむ人間に、頂は見えないわ。','今日の汗は、明日の自信になるのよ。','私が認めたのだから、胸を張りなさい。','妥協は、私の辞書にないわ。','やると決めたなら、最後までやり抜きなさい。','結果は、積み重ねた時間が語るわ。','上を目指す覚悟はあるわね？','私の隣に立つなら、これくらい当然よ。','止まらない限り、道は続いているわ。'],US=['今日の紅茶は、いつもより香りが立っているわね。','礼儀は、強さの一部よ。','たまには優雅に休むのも、鍛錬のうちだわ。','身だしなみは心の姿勢。整えておきなさい。','上質な時間は、自分で作るものよ。','一流は、静かに結果を出すものだわ。'],TS=['……っ！ な、何よ、その顔は！','べ、別に、嬉しいわけじゃないわよ。','な、なにを見ているの？ 目をそらしてちょうだい。','そ、そんなこと、急に言わないでちょうだい。','か、勘違いしないでよ。たまたまなんだから！','い、今のは聞き流しなさい。'],PS=[['この街、悪くないわね。{y}、あなたが主なの？','{y}、覚えておくわ。一度聞いた名前は忘れないの。','初対面にしては、いい目をしているわね。','街の活気は,主の姿勢で決まるものよ。','{y}、挨拶は先にするものよ。','少しは期待しているわ、{y}。'],['また会ったわね。偶然、ということにしておくわ。','{y}と話していると、時間があっという間ね。','差し入れよ。体は資本なのだから食べなさい。','{y}の頑張り、ちゃんと見ているわ。','一緒に走る？ 付き合ってあげてもよくてよ。','友人として、誇らしいと思っているわ。'],['次の休み、空けておきなさい、{y}。','お出かけの服、少し悩んだのだけれど……どうかしら。','歩幅は合わせてちょうだい。ふふっ、冗談よ。','今日は楽しかったわ。また誘いなさい。','あなたの隣、思ったより落ち着くのね。','帰り道が、もう少し長ければいいのに。'],['最近、{y}のことを考える時間が増えたわ。','言いたいことがあるなら、聞いてあげてもよくてよ。','待つのは得意ではないのよ。早く言いなさい。','{y}がいない日は、街が静かすぎるわ。','強がるのはやめにするわ。会えて嬉しいの。','覚悟はできているわ。{y}はどうかしら。'],['恋人としての初仕事よ。まず一緒に食事ね。','恋人と呼ばれるのは、まだ慣れないわ。','今日も努力する{y}が、一番素敵よ。','甘えるのは苦手なの。でも少しだけ。','隣にいる限り、情けない顔はさせないわ。','おはよう、{y}。今日も一緒に鍛えましょう。'],['ケンカしても最後は笑って帰るのよ。それが流儀。','言い過ぎたわ。悪かったわね。','落ち込んでも、私が背中を押してあげる。','隠しごとは無駄よ。顔に出ているもの。','仲直りの方法は、一緒に走ること。行くわよ。','弱さを見せてくれて、感謝するわ。'],['ふたりの部屋、どんな色にしましょうか。','朝食は私が作るわ。期待しすぎないでちょうだい。','一緒に暮らすのは、思ったより楽しいのね。','洗濯は交代制よ。異論は認めないわ。','毎朝、{y}の寝顔を見ているのよ。内緒ね。','これからも積み重ねていきましょう。'],['指輪のカタログばかり見ているわね。気づいているわよ。','{y}となら、一生走り続けられる気がするの。','答えは、もうずっと決まっているのよ。','式の準備は私も手伝うわ。主役は譲らないけれど。','ドレスの試着、見てくれるかしら。正直にね。','緊張しているの？ 私がついているわ。'],['今日から私は、{y}の妻よ。慣れないわね。','何度でも誓うわ。あなたを選んだことを。','新婚旅行、{y}となら世界の果てまで行けるわ。','これからは「私たち」よ。覚悟なさい。','毎朝「おはよう」を言える幸せを、噛みしめているの。','結婚しても、鍛錬の手は抜かないわよ。'],['いつか家族が増えたら、にぎやかになるわね。','{y}の隣が、私の定位置よ。','年月にも、負けるつもりはないわ。','街が大きくなるたび、{y}を誇りに思うの。','最強のペアだもの。何があっても大丈夫よ。','昔の日誌、いつか一緒に読みましょう。']],QTY=['c','c','t','c','u','c','u','c'];
 const MUST={0:'{w}「ふふっ、あなたが噂のタロウね。覚えておくわ」',22:'{w}「な、何よ。べ、別に緊張なんてしていないわ。……エスコート、期待しているわよ」',39:'{w}「……ふふっ。私も同じ気持ちよ、タロウ。これからは隣で、胸を張りなさい」',40:'{w}「恋人になったからといって、手は抜かないわよ。ふたりで上を目指すの。いいわね？」',72:'{w}「そんなこと、聞くまでもなくてよ。……はい。喜んで、お受けするわ」',80:'{w}「誓うわ。この先もずっと、あなたの隣で。ふふっ、覚悟なさい」',99:'{w}「ありがとう、タロウ。次の目標も、ふたりで超えていきましょう」'};
-Object.assign(MUST,{41:'{w}「恋人としての初めての食事ね。……べ、別に浮かれてなんていないわよ。ふふっ」',44:'{w}「それ、私が選んだのよ。気に入らなくても大切にしなさい。……気に入ってくれたなら、嬉しいわ」',45:'{w}「な、何よ急に名前で呼んで……！ …………悪くないわね。もう一度、呼んでちょうだい」',48:'{w}「……少しだけ、こうしていていいかしら。強がるのは、あなたの前では疲れてしまうの」',51:'{w}「……っ！ 言い過ぎたのは私の方よ。わかっているわ。でも、すぐには謝れないの」',53:'{w}「仲直りよ。ふふっ、ケンカのあとの食事は、いつもより美味しいものね」',57:'{w}「私の誕生日を覚えていたの？ ……な、泣いてなんていないわ！ ありがとう、タロウ」',58:'{w}「嬉しすぎて、言葉が追いつかないのよ。……こんな私を見せるのは、あなただけだわ」',61:'{w}「家族への挨拶、堂々としていたわよ。……惚れ直した、なんて言わないから！」',63:'{w}「ここが、ふたりの家なのね。……ふふっ、悪くないわ。大切に使いましょう」',68:'{w}「料理は……修行中よ！ 次こそは完璧にしてみせるから、覚悟していなさい」',71:'{w}「見えているわよ、タロウ。……見なかったことにしてあげるから、準備を続けなさい」',74:'{w}「式の準備は、トレーニングと同じよ。一歩ずつ、積み重ねていくの。一緒に頑張りましょう」',79:'{w}「前夜に眠れないのは、お互い様ね。……明日、あなたの隣で誓うわ」',81:'{w}「誓いのキス、だなんて……。な、何でもないわ。幸せよ、タロウ」',82:'{w}「世界の果てだろうと、あなたとなら。……これからも、私の隣を走りなさい」',88:'{w}「ふふっ、一年。あっという間だったわね。来年も、再来年も、ずっと隣にいなさい」',92:'{w}「あなたの夢は、私の夢でもあるの。一緒に叶えましょう。胸を張って、ね」',96:'{w}「百回も？ ふふっ、数えておいてあげるわ。……私は、もう数え切れないくらい思っているけれど」',98:'{w}「この手、離さないでちょうだい。……私も、離さないから」'});
+Object.assign(MUST,{41:'{w}「恋人としての初めての食事ね。……べ、別に浮かれてなんていないわよ。ふふっ」',44:'{w}「それ、私が選んだのよ。気に入らなくても大切にしなさい。……気に入ってくれたなら、嬉しいわ」',45:'{w}「な、何よ急に名前で呼んで……！ …………悪くないわね。もう一度、呼んでちょうだい」',48:'{w}「……少しだけ、こうしていていいかしら。強がるのは、あなたの前では疲れてしまうの」',51:'{w}「……っ！ 言い過ぎたのは私の方よ。わかっているわ。ポイントも失信したけれど」',53:'{w}「仲直りよ。ふふっ、ケンカのあとの食事は、いつもより美味しいものね」',57:'{w}「私の誕生日を覚えていたの？ ……な、泣いてなんていないわ！ ありがとう、タロウ」',58:'{w}「嬉しすぎて、言葉が追いつかないのよ。……こんな私を見せるのは、あなただけだわ」',61:'{w}「家族への挨拶、堂々としていたわよ。……惚れ直した、なんて言わないから！」',63:'{w}「ここが、ふたりの家なのね。……ふふっ、悪くないわ。大切に使いましょう」',68:'{w}「料理は……修行中よ！ 次こそは完璧にしてみせるから、覚悟していなさい」',71:'{w}「見えているわよ、タロウ。……見なかったことにしてあげるから、準備を続けなさい」',74:'{w}「式の準備は、トレーニングと同じよ。一歩ずつ、積み重ねていくの。一緒に頑張りましょう」',79:'{w}「前夜に眠れないのは、お互い様ね。……明日、あなたの隣で誓うわ」',81:'{w}「誓いのキス、だなんて……。な、何でもないわ。幸せよ、タロウ」',82:'{w}「世界の果てだろうと、あなたとなら。……これからも、私の隣を走りなさい」',88:'{w}「ふふっ、一年。あっという間だったわね。来年も、再来年も、ずっと隣にいなさい」',92:'{w}「あなたの夢は、私の夢でもあるの。一緒に叶えましょう。胸を張って、ね」',96:'{w}「百回も？ ふふっ、数えておいてあげるわ。……私は、もう数え切れないくらい思っているけれど」',98:'{w}「この手、離さないでちょうだい。……私も、離さないから」'});
 const ES_A=['夕暮れの路地','雨上がりの舗道','早朝のホーム','窓辺の午後','冬の夜道','夏の終わりの空','春先の風','秋の公園','深夜の台所','誰もいない教室','港の朝','商店街の夕方','雪の降る前の空気','ひとりの帰り道','古い喫茶店','日曜の午後','朝焼けの川沿い','梅雨の晴れ間','夜明け前の街','祭りのあとの広場','木漏れ日の坂道','終電の車内','湯気の立つ台所','静かな図書館','秋晴れの丘','ベランダの夜風','海辺の昼下がり','使い込んだ手帳'],ES_B=['が、ひそやかに色を変えていく。','が、遠い記憶をそっと連れてくる。','が、言葉にならない余白を残している。','が、昨日より少しだけ優しい。','が、時間の流れをゆるやかにほどいていく。','に、懐かしい匂いが溶けている。','には、小さな物語が眠っている。','は、胸の奥のざわめきを静めてくれる。','を見ていると、心の置き場所が見つかる。','は、何も語らないまま多くを教えてくれる。','が、ふいに輪郭を取り戻した。','が、季節の境目で息を整えている。','は、いつもより少し遠く見えた。','が、静けさという贈り物をくれる。','に立つと、自分の影が少し軽くなる。','が、ささやかな希望の形をしている。','の空気は、薄いガラスのように澄んでいた。','は、思い出よりも先に心へ届く。','が、ひとり言の相手になってくれる。','には、まだ名前のない感情が漂う。','が、ゆっくりと夜の色に染まっていく。','は、何度見ても初めての顔をする。','が、今日という日を静かに閉じていく。','の気配が、肩の力を抜いてくれる。','は、足音まで穏やかにしてしまう。','が、胸の奥に小さな灯をともす。','を抜ける風が、考えごとを連れ去っていく。','が、平凡な一日に句読点を打つ。','は、言い訳をしなくていい場所だった。','が、忘れていた感覚を呼び起こす。','に流れる時間は、いつも少し甘い。','が、心の輪郭をやわらかく縁取る。','は、季節のページをそっとめくった。','が、何気ない幸せの在りかを教えてくれる。','の静けさが、言葉より雄弁だった。','は、明日への助走のように感じられた。','が、疲れた心にそっと毛布をかける。','に漂う光は、琥珀のようにやわらかい。','が、歩幅を自然にゆるめてくれる。','は、ただそこにあるだけで十分だった。'];
 const qlineN=(b,k,r)=>{const ph=Math.min(9,Math.floor(r/10)),y=ph>=4&&k%2?'あなた':'タロウ',ty=QTY[k],ps=PS[ph][(b+k)%6].replace(/\{y\}/g,y);return ty==='t'?TS[(b+k*2)%6]:OP[(b+k)%3]+ps+(ty==='c'?CS[(b*5+k*3)%12]:US[(b+k)%6])};
 function msgOf(n){let ti=0;MS.forEach((x,i)=>{if(n>=x)ti=i});let h,t;
@@ -234,19 +263,7 @@ const essayBox=()=>{const e=essay();return `<div style="margin:12px 2px 2px;font
 const pinBox=()=>{const p=(S.pin||[])[0];return p?`<div class="card" style="border:3px dashed var(--ac);margin-top:10px"><div style="font-size:12px;color:var(--ac);font-weight:700">特別な日誌</div>${p.r!=null?'<canvas id="evt" width="48" height="30" style="width:75%;display:block;margin:6px auto;image-rendering:pixelated;border-radius:10px"></canvas>':''}<div style="margin:6px 0">${esc(p.t).replace(/\n/g,'<br>')}</div><div class="fb"><button class="p" data-a="pinok">OK!</button></div></div>`:''};
 const set=()=>{S.set=Object.assign({pen:10,w:'ナツキ'},S.set||{});return S.set};
 const ep=m=>m.noPen?0:(m.pen>0?m.pen:set().pen);
-const QT=[['あなたがこの街の主ね。ふうん、悪くない目をしているじゃない。','タロウ、だったかしら。覚えておくわ。一度聞いた名前は忘れないの。','この街、思っていたより活気があるわね。あなたが引っ張っているのでしょう？','朝のトレーニングは日課なの。…あら、見ていたの？','今日の成果、悪くないわね。その調子よ、タロウ。','私に追いつきたいなら、まず毎日続けることね。','遠慮は無用よ。話しかけたいなら、堂々と来なさい。','一歩ずつでいいの。止まらなければ、ちゃんと前に進んでいるわ。'],
-['また会ったわね。偶然…ということにしておいてあげる。','タロウと話していると、時間が早く過ぎるわ。','これ、差し入れ。体は資本よ、ちゃんと食べなさい。','今日は走り込み三十分。あなたも付き合う？','あなたの頑張り、ちゃんと見ているから。','疲れた顔ね。少し休むのも、立派な戦略よ。','ふふ、その笑顔。やっと見せてくれたわね。','私の友人として、胸を張りなさい。'],
-['今度の休み、空いているかしら。予定を空けておきなさい。','お出かけの服、悩んだのよ。…感想は？','隣を歩くなら、歩幅くらい合わせてほしいわ。','今日は楽しかったわ。…また誘いなさい。','あなたの隣、思ったより落ち着くのね。','手？…ええ、特別に許可してあげる。','帰り道がもう少し長ければいいのに。','次はどこに行きましょうか。あなたが決めてね。'],
-['最近、あなたのことばかり考えてしまうの。困ったわ。','タロウ、私に言いたいことがあるんじゃない？','待っているの。…そんなに焦らせないで。','あなたがいない日は、なんだか静かすぎるわ。','強がりはやめにするわ。会えて嬉しい。','その頑張りの先に、私もいたいの。','今日は特別な日になる気がするの。','覚悟はできているわ。あなたはどうかしら。'],
-['恋人としての初仕事よ。まず、一緒にご飯ね。','「恋人」って呼ばれるの、まだ慣れないわ。…悪くないけれど。','今日も頑張るあなたが、一番かっこいいわ。','甘えるのは苦手なの。でも、あなたになら…少しだけ。','私が隣にいる限り、情けない顔はさせないわ。','おはよう、タロウ。今日も一緒に鍛えましょう。','あなたの好きなもの、全部覚えたわ。','ねえ、もう少しだけこうしていていい？'],
-['ケンカしても、最後は笑って帰りましょう。それが私たちの流儀よ。','言い過ぎたわ。…ごめんなさい。','あなたが落ち込んでも、私が背中を押してあげる。','私に隠しごとは無駄よ。顔に出てるわ。','仲直りの方法は、一緒に走ること。行くわよ。','弱さを見せてくれて、ありがとう。','あなたとなら、どんな日も乗り越えられるわ。','今日も隣にいる。それだけで十分でしょう？'],
-['ふたりの部屋、どんな色にしましょうか。','朝ごはんは私が作るわ。…期待しすぎないで。','一緒に暮らすって、思っていたより楽しいのね。','洗濯物は交代制よ。異論は認めるわ。','あなたの寝顔、実は毎朝見ているの。','今日の夕飯は豪華よ。理由は…内緒。','この部屋に、あなたがいる。それが一番の幸せ。','これからも、一緒に積み重ねていきましょう。'],
-['最近、指輪のカタログばかり見ているのは気のせい？','あなたとなら、一生走れる気がするの。','その言葉、待っていたわ。…もちろん、答えは決まっているの。','「はい」以外の答えなんて、持っていないわ。','式の準備、私も手伝うわ。主役を放り出す気はないの。','ドレスの試着、見てくれる？…感想は正直にね。','緊張しているの？大丈夫、私がついているわ。','あなたと歩く道は、きっと最高のコースよ。'],
-['今日から私は、あなたの妻よ。…ふふ、慣れないわね。','誓います。何度でも言うわ、あなたを選んだことを。','新婚旅行、あなたとなら世界の果てでも行けるわ。','これからは「私たち」ね。覚悟していなさい。','毎朝「おはよう」を言える幸せ、噛みしめているの。','あなたの家族は、もう私の家族よ。','今日も二人で、胸を張って歩きましょう。','結婚しても、鍛錬の手は抜かないわよ。'],
-['ねえタロウ。いつか家族が増えたら、にぎやかになるわね。','あなたの隣が、私の定位置よ。','いつまでも負けないわ。あなたにも、年月にも。','この街が大きくなるたび、あなたを誇りに思うの。','何があっても大丈夫。私たち、最強のペアだもの。','またいつか、昔の日誌を一緒に読みましょう。','ありがとう、タロウ。これからもよろしくね。','さあ、次の目標を決めましょう。ふたりなら、きっと届くわ。']];
-const qline=(L,r)=>QT[Math.min(9,Math.floor(r/10))][(2*Math.floor((L-1)/5)+(S.qn%2))%8];
-const R=a=>a[Math.floor(Math.random()*a.length)];
-const hs=q=>{let h=5381;for(const c of q)h=((h<<5)+h+c.codePointAt(0))|0;return h};
+
 function daily(){
   PN=penalize();let ch=PN>0;if(chargeFee())ch=true;
   const T=new Date(),td=dk(T);
@@ -267,7 +284,7 @@ function daily(){
     else if((S.rm||0)>=RM.length&&S.dn%8===7)tx=lead(x)+fill(R(RC),x);
     else{let body,k=0;do{x=mkx();body=fill(R(TP),x);k++}while(S.used.includes(hs(body))&&k<50);S.used.push(hs(body));S.used=S.used.slice(-2000);tx=lead(x)+body}
     if(S.dd!=null&&S.dn%3===2){const b=Math.floor((L-1)/5);if(S.qb!==b){S.qb=b;S.qu=0}if(S.qu<8){tx+='\n'+set().w+'「'+qlineN(b,S.qu,S.rm||0)+'」';S.qu++}}
-    S.diary=(S.diary||[]).concat([{d:td,t:tx,i:BL.filter(b=>b[0]<=L).pop()[2]}]).slice(-60);
+    S.diary=(S.diary||[]).concat([{d:td,t:tx,i:BL.filter(b=>b[0]<=L).pop()[2]}]).slice(-180);
     S.dd=td;S.lvl=L;S.dn++;ch=true;
   }
   if(!S.es){essay();ch=true}
@@ -276,17 +293,43 @@ function daily(){
 }
 function vS(){const c=set();return `<div class="sec">設定</div><div class="fm" style="border:1px solid var(--bd);border-radius:14px;box-shadow:none;max-height:none"><label>未達ペナルティの共通ポイント（0でなし・単発は対象外）</label><input id="s1" type="number" inputmode="numeric" min="0" value="${c.pen}"><label>パートナーの名前</label><input id="s2" value="${esc(c.w)}" maxlength="10"><div class="fb"><button class="p" data-a="sset">保存</button></div></div><div class="empty">ミッションごとに、個別のポイントや「ペナルティなし」も選べます。</div>`}
 function town(){
-  const e=earned(),L=lvOf(e),E=eraOf(L),nx=BL.find(b=>b[0]>L),ds=(S.diary||[]).slice(-7).reverse(),pr=L>=MAXL?100:(e%1000)/10;
-  return `<div class="sec">街づくり<span>${ER[E][1]} ・ Lv.${L}/${MAXL} ・ 人口${pop(e).toLocaleString()}人</span></div><div class="card"><div style="font-size:24px;line-height:1.5;letter-spacing:1px">${BL.filter(b=>b[0]<=L).map(b=>b[2]).join('')}</div><div style="height:8px;border-radius:99px;background:var(--bd);margin:8px 0 4px;overflow:hidden"><div style="height:100%;width:${pr}%;background:var(--ac)"></div></div><div style="font-size:12px;color:var(--mut)">${L>=MAXL?'王国が完成しました！':`次のLvまであと${1000-e%1000}pt`}${nx?` ／ 次の建物「${nx[1]}」はLv.${nx[0]}`:''}</div></div>${pinBox()}<div class="sec">タロウの日誌<span>毎日1通</span></div><div class="card" style="padding:4px 12px">${ds.length?ds.map(x=>`<div class="lg"><div>${x.i} ${esc(x.t).replace(/\n/g,'<br>')}<i>${x.d}</i></div></div>`).join(''):'<div class="empty">日誌はまだありません</div>'}</div>`;
+  const e=earned(),L=lvOf(e),E=eraOf(L),nx=BL.find(b=>b[0]>L),ds=(S.diary||[]).slice().reverse(),pg=[];for(let i=0;i<ds.length;i+=7)pg.push(ds.slice(i,i+7)),pr=L>=MAXL?100:(e%1000)/10;
+  return `<div class="sec">街づくり<span>${ER[E][1]} ・ Lv.${L}/${MAXL} ・ 人口${pop(e).toLocaleString()}人</span></div><div class="card"><div style="font-size:24px;line-height:1.5;letter-spacing:1px">${BL.filter(b=>b[0]<=L).map(b=>b[2]).join('')}</div><div style="height:8px;border-radius:99px;background:var(--bd);margin:8px 0 4px;overflow:hidden"><div style="height:100%;width:${pr}%;background:var(--ac)"></div></div><div style="font-size:12px;color:var(--mut)">${L>=MAXL?'王国が完成しました！':`次のLvまであと${1000-e%1000}pt`}${nx?` ／ 次の建物「${nx[1]}」はLv.${nx[0]}`:''}</div></div>${pinBox()}<div class="sec">タロウの日誌<span>毎日1通</span></div><div class="sl">${pg.length?pg.map((q,i)=>`<div class="card sp"><div style="font-size:11px;color:var(--mut);text-align:right">${i+1}/${pg.length}${pg.length>1&&i<pg.length-1?'　← 横にスライドで過去分':''}</div>${q.map(x=>`<div class="lg"><div>${x.i} ${esc(x.t).replace(/\n/g,'<br>')}<i>${x.d}</i></div></div>`).join('')}</div>`).join(''):'<div class="card sp"><div class="empty">日誌はまだありません</div></div>'}</div>`;
 }
-const ILE=[0,0,1,2,2,2,0,5,5,6,6,3,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9],SNm=['草原を散歩','焚き火であったまる','畑仕事','街の広場でひと休み','海辺でのんびり','山登りに挑戦','トレーニング','カフェで休憩','電車でお出かけ','車でドライブ','新しい車を購入','お城を見学','川で魚釣り','洞窟の壁画づくり','羊のお世話','土器づくり','神殿にお参り','市場で買い物','風車の丘を散歩','鍛冶屋の見学','港で出航を見送る','灯台からの眺め','工場見学','劇場で観劇','野球観戦','映画館へ','空港から旅立ち','摩天楼を見上げる','ロケットの打ち上げ','月面基地を訪問','王宮のパレード','花火大会'],TMn=['朝','昼','夕方','夜','雨の日'],SKY=[['#cdebff','#8fd08a'],['#8fd3ff','#6dc36b'],['#ffc38a','#7db06a'],['#1e2a55','#2f5a45'],['#9aa9b8','#6c8f78']];
+const ILE=[0,0,1,2,2,2,0,5,5,6,6,3,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9],SNm=['草原を散歩','焚き火であったまる','畑仕事','街の広場でひと休み','海辺でのんびり','山登りに挑戦','トレーニング','カフェで休憩','電車でお出かけ','車でドライブ','新しい車を購入','お城を見学','川で魚釣り','洞窟の壁画づくり','羊のお世話','土器づくり','神殿にお参り','市場で買い物','風車の丘を散歩','鍛冶屋の見学','港で出航を見送る','灯台からの眺め','工場見学','劇場で観劇','野球観戦','映画館へ','空港から旅立ち','摩天楼を見上げる','ロケットの打ち上げ','月面基地を訪問','王宮のパレード','花火大会'],TMn=['朝','昼','夕方','夜','雨の日'],
+SKY=[
+  ['#81ecec','#a8e6cf'],
+  ['#74b9ff','#55efc4'],
+  ['#ffb8b8','#ffeaa7'],
+  ['#2d3436','#6c5ce7'],
+  ['#a29bfe','#dfe6e9']
+];
 const VE=[1,3,5,5,6,6,6,6,7,7,8,9,9],VBAD=[6,8,9,10,12,13,20,21,29],VN=['馬','馬車','自転車','気球','バイク','セダン','カブリオレ','バス','高級車','スポーツカー','空飛ぶ車','王室の馬車','リムジン'],PZ=['のんびり','手を振る','ジャンプ','ダッシュ','ひと休み','腕組み','力こぶ','背伸び','ピース','考え中','指さし','お辞儀','乾杯','読書'];
-const NP=14,POK={6:[0,2,5,6,12,14,15,19,22,24],10:[0,3,4,5,7,16,17,18,20,21,23,25,26,27,28,29,30,31],11:[3,11,16,17,23,25,30],12:[1,7,17,31],13:[7,23]},PONY=['KK.','HHK','HHK','.HK','.HK','.KK'];
+const NP=14,POK={6:[0,2,5,6,12,14,15,19,22,24],10:[0,3,4,5,7,16,17,18,20,21,23,25,26,27,28,29,30,31],11:[3,11,16,17,23,25,30],12:[1,7,17,31],13:[7,23]},
+PONY_HERO=['.KKKK..','KKHHHH.','.KHHHH.','..KHHH.','...KHH.','....KK.'];
 const pzOK=(p,sc)=>!POK[p]||POK[p].includes(sc);
 const modeOf=(m,s)=>m<NP?{k:-1,pz:pzOK(m,s)?m:m%5}:VBAD.includes(s)?{k:-1,pz:(m-NP)%5}:{k:m-NP,pz:0};
 const illTag=i=>{if(i.s===9)return '運転中';const o=modeOf(i.m,i.s);return o.k>=0?VN[o.k]+'に乗って':PZ[o.pz]};
 const EVT={0:[3,1,0,7,4,7,''],22:[7,1,0,8,1,0,''],39:[18,2,0,0,5,1,'h'],40:[0,0,2,1,3,3,'hs'],41:[7,1,12,12,0,3,''],44:[3,1,0,0,1,1,'g'],45:[0,2,1,1,1,1,'h'],48:[4,2,4,4,0,1,'h'],51:[0,4,5,5,5,2,''],53:[7,1,0,0,9,1,'h'],57:[3,3,0,2,0,6,'c'],58:[3,3,0,0,0,6,'cs'],61:[3,1,11,0,9,7,''],63:[0,1,2,1,3,3,'ks'],68:[7,1,0,9,0,2,''],71:[3,1,9,0,9,7,'r'],72:[18,2,0,0,5,6,'rh'],74:[3,1,0,10,0,3,''],79:[0,3,4,4,0,1,'s'],80:[30,1,2,1,3,6,'hs'],81:[30,1,0,0,1,1,'h'],82:[26,1,1,1,3,3,''],88:[31,3,0,0,0,3,'s'],92:[0,2,10,0,0,0,'s'],96:[3,1,11,1,9,7,''],98:[0,2,0,0,1,1,'h'],99:[31,3,2,2,3,3,'hs']};
-const BODY=['.KKKKKKKK.','KHHHHHHHHK','KHHSSSSHHK','KHSESSESHK','KHSSSSSSHK','.KSSMMSSK.','..KKSSKK..','.KCCCCCCK.','KSCCCCCCSK','.KCCCCCCK.','..KPPPPK..','..KPKKPK..','..KBK.KBK.','..KKK.KKK.'];
+
+// ポップで華やかな服・ドレスのスプライトベース
+const HEROINE_BODY=[
+'.KKKKKKKK.',
+'KHHHHHHHHK',
+'KHHSSSSHHK',
+'KHSESSESHK',
+'KHSSSSSSHK',
+'.KSSMMSSK.',
+'..KKSSKK..',
+'.KCCCCCCK.',
+'KSCCCCCCSK',
+'.KDDDDDDK.',
+'..KLLLLK..',
+'..KPKKPK..',
+'..KBK.KBK.',
+'..KKK.KKK.'
+];
+
 function illInfo(){
   const T=new Date(),E=eraOf(lvOf(earned()));S.es=S.es||{s:Math.floor(Math.random()*1e9),d:dk(T)};
   const n=Math.max(0,Math.round((new Date(T.getFullYear(),T.getMonth(),T.getDate())-new Date(S.es.d+'T00:00:00'))/864e5));
@@ -295,71 +338,98 @@ function illInfo(){
 }
 const ildec=id=>({id,s:id%32,t:Math.floor(id/32)%5,v:Math.floor(id/160)%17,m:Math.floor(id/2720),hv:(id*7)%100<18&&(S.rm||0)>=1});
 const illBox=()=>{const i=illInfo();return `<div class="card" style="padding:8px;margin-top:6px"><canvas id="ill" width="48" height="30" style="width:75%;display:block;margin:0 auto;image-rendering:pixelated;border-radius:10px"></canvas><div style="font-size:12px;color:var(--mut);margin-top:6px">${TMn[i.t]}、${SNm[i.s]}（${illTag(i)}）${i.hv?`（${esc(set().w)}と一緒）`:''}<span style="float:right">No.${i.id+1}/73440</span></div></div>`};
+
 function drawIll(fid,ev){
   const c=$(ev!=null?'#evt':'#ill');if(!c)return;const g=c.getContext('2d');let {id,s,t,v,hv,m}=fid==null?illInfo():ildec(fid);const EV=ev!=null?(EVT[ev]||[0,1,0,0,0,0,'']):null;if(EV){s=EV[0];t=EV[1];v=3;hv=true}const [sk,gd]=SKY[t];
   const r=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(x,y,w,h)};
   const tri=(cx,top,h,col)=>{for(let i=0;i<h;i++)r(cx-i,top+i,2*i+1,1,col)};
   const spr=(rows,pal,x,y)=>rows.forEach((row,j)=>[...row].forEach((ch,i)=>{if(ch!=='.')r(x+i,y+j,1,1,pal[ch])}));
-  const shirt='hsl('+(v*21)+',65%,58%)',Y0=9;
-  const car=(x,y,col,dr,pa)=>{r(x,y+5,22,6,col);r(x+5,y+1,11,5,col);r(x+7,y+2,3,3,'#cfe8f5');r(x+11,y+2,3,3,'#cfe8f5');r(x+3,y+10,4,4,'#222');r(x+15,y+10,4,4,'#222');r(x+19,y+6,3,2,'#fff6a0');if(dr){r(x+7,y+3,2,2,'#ffd9b8');r(x+7,y+2,2,1,'#6b4a2e')}if(pa){r(x+11,y+3,2,2,'#ffd9b8');r(x+11,y+2,2,1,'#e39a3b')}};
+  const shirt='hsl('+(v*25+200)+',85%,65%)',Y0=9;
+  
+  // POPなポップカラー乗り物（車）
+  const car=(x,y,col,dr,pa)=>{
+    r(x,y+4,22,7,'#ff7675');
+    r(x+4,y+1,13,4,'#ffeaa7');
+    r(x+6,y+2,4,3,'#74b9ff');
+    r(x+12,y+2,4,3,'#74b9ff');
+    r(x+3,y+10,4,4,'#2d3436');
+    r(x+15,y+10,4,4,'#2d3436');
+    r(x+19,y+5,3,2,'#fdcb6e');
+    if(dr){r(x+7,y+3,2,2,'#ffd9b8');r(x+7,y+2,2,1,'#e17055')}
+    if(pa){r(x+13,y+3,2,2,'#ffd9b8');r(x+13,y+1,2,2,'#d63031')}
+  };
+
   r(0,0,48,30,sk);
-  if(t===3)[[5,4],[14,9],[24,3],[31,10],[43,6],[9,14]].forEach(q=>r(q[0],q[1],1,1,'#fff'));
-  if(t<4)r([5,38,40,38][t],t===2?14:5,5,5,t===3?'#f4f1d0':t===2?'#ff9a4a':'#ffe45e');
-  if(t===4)[[4,3],[22,6],[34,2]].forEach(q=>r(q[0],q[1],9,3,'#cfd6dd'));
-  r(0,23,48,7,{4:'#f2e0b0',9:'#555',13:'#4a3a2a',20:'#a37a4a',26:'#666',29:'#8a8a98'}[s]||gd);
+  if(t===3)[[5,4],[14,9],[24,3],[31,10],[43,6],[9,14]].forEach(q=>r(q[0],q[1],1,1,'#ffeaa7'));
+  if(t<4)r([5,38,40,38][t],t===2?14:5,5,5,t===3?'#fdcb6e':t===2?'#ff7675':'#ffeaa7');
+  if(t===4)[[4,3],[22,6],[34,2]].forEach(q=>r(q[0],q[1],9,3,'#dfe6e9'));
+  r(0,23,48,7,{4:'#ffeaa7',9:'#636e72',13:'#fdcb6e',20:'#e17055',26:'#b2bec3',29:'#a29bfe'}[s]||gd);
+  
+  // 背景ポップオブジェクト全般
   const SC=[
-  ()=>{r(37,17,2,6,'#8a5a3a');r(34,11,8,7,'#3f9e55');[[6,25,'#ff7aa8'],[13,27,'#fff27a'],[22,26,'#ff7aa8'],[29,28,'#fff27a']].forEach(q=>r(q[0],q[1],1,1,q[2]))},
-  ()=>{r(30,6,16,17,'#6b5a4a');r(34,12,8,11,'#2a2018');r(22,23,6,1,'#5a3a28');r(23,20,4,3,'#e8632a');r(24,18,2,2,'#ffd23f')},
-  ()=>{[24,27].forEach(y=>r(22,y,24,2,'#8a5a3a'));for(let k=0;k<6;k++)r(24+k*4,22,2,3,'#5cb85c');r(40,13,1,9,'#8a5a3a');r(38,13,5,1,'#8a5a3a')},
-  ()=>{r(2,12,10,11,'#f2a7a0');r(1,9,12,3,'#c94c4c');r(34,10,12,13,'#a7c8f2');r(33,7,14,3,'#4c6fc9');r(21,19,6,4,'#bcd9ff');r(23,16,2,3,'#9ac4ff')},
-  ()=>{r(0,15,48,8,'#4aa3df');r(34,14,8,2,'#8a5a3a');r(37,9,3,5,'#fff');[[4,17],[16,19],[26,16]].forEach(q=>r(q[0],q[1],5,1,'#fff'))},
-  ()=>{tri(14,5,18,'#7d8f99');tri(34,9,14,'#8fa3ad');r(13,5,3,2,'#fff');r(33,9,3,2,'#fff')},
-  ()=>{r(0,0,48,23,'#e8dcc8');r(0,23,48,7,'#b08a5a');r(6,5,10,13,'#cfe8f5');r(30,21,8,1,'#444');r(29,19,2,4,'#444');r(37,19,2,4,'#444')},
-  ()=>{r(26,8,20,15,'#d9a066');r(25,8,22,3,'#e8505b');r(29,13,8,6,'#cfe8f5');r(15,20,6,1,'#8a5a3a');r(16,21,1,2,'#8a5a3a');r(19,21,1,2,'#8a5a3a');r(17,19,2,1,'#fff')},
-  ()=>{r(0,22,48,1,'#777');r(16,11,32,11,'#e0e6ee');r(16,16,32,2,'#3f8fd2');for(let k=0;k<4;k++)r(19+k*7,12,4,3,'#7ab8e8');r(18,22,3,2,'#333');r(40,22,3,2,'#333')},
+  ()=>{r(37,17,2,6,'#fdcb6e');r(34,11,8,7,'#55efc4');[[6,25,'#fd79a8'],[13,27,'#ffeaa7'],[22,26,'#fd79a8'],[29,28,'#ffeaa7']].forEach(q=>r(q[0],q[1],1,1,q[2]))},
+  ()=>{r(30,6,16,17,'#ff7675');r(34,12,8,11,'#ffeaa7');r(22,23,6,1,'#fdcb6e');r(23,20,4,3,'#e17055');r(24,18,2,2,'#fdcb6e')},
+  ()=>{[24,27].forEach(y=>r(22,y,24,2,'#fdcb6e'));for(let k=0;k<6;k++)r(24+k*4,22,2,3,'#00b894');r(40,13,1,9,'#fdcb6e');r(38,13,5,1,'#fdcb6e')},
+  ()=>{r(2,12,10,11,'#fab1a0');r(1,9,12,3,'#ff7675');r(34,10,12,13,'#74b9ff');r(33,7,14,3,'#0984e3');r(21,19,6,4,'#81ecec');r(23,16,2,3,'#00cec9')},
+  ()=>{r(0,15,48,8,'#74b9ff');r(34,14,8,2,'#fdcb6e');r(37,9,3,5,'#fff');[[4,17],[16,19],[26,16]].forEach(q=>r(q[0],q[1],5,1,'#fff'))},
+  ()=>{tri(14,5,18,'#a29bfe');tri(34,9,14,'#74b9ff');r(13,5,3,2,'#fff');r(33,9,3,2,'#fff')},
+  ()=>{r(0,0,48,23,'#ffeaa7');r(0,23,48,7,'#fdcb6e');r(6,5,10,13,'#81ecec');r(30,21,8,1,'#2d3436');r(29,19,2,4,'#2d3436');r(37,19,2,4,'#2d3436')},
+  ()=>{r(26,8,20,15,'#fab1a0');r(25,8,22,3,'#ff7675');r(29,13,8,6,'#81ecec');r(15,20,6,1,'#fdcb6e');r(16,21,1,2,'#fdcb6e');r(19,21,1,2,'#fdcb6e');r(17,19,2,1,'#fff')},
+  ()=>{r(0,22,48,1,'#b2bec3');r(16,11,32,11,'#dfe6e9');r(16,16,32,2,'#74b9ff');for(let k=0;k<4;k++)r(19+k*7,12,4,3,'#81ecec');r(18,22,3,2,'#2d3436');r(40,22,3,2,'#2d3436')},
   ()=>{for(let k=0;k<5;k++)r(2+k*10,26,5,1,'#fff');car(12,10,shirt,1,hv)},
-  ()=>{r(30,6,12,4,'#ffd23f');r(35,10,2,13,'#8a5a3a');car(24,10,shirt,0,0)},
-  ()=>{r(24,6,20,17,'#c9c3d6');r(22,3,4,20,'#b4aec6');r(42,3,4,20,'#b4aec6');r(33,1,5,3,'#e8505b');r(31,15,6,8,'#5a4a6a')},
-  ()=>{r(0,17,48,6,'#4aa3df');[[4,19],[14,21],[26,18]].forEach(q=>r(q[0],q[1],5,1,'#cfe8ff'));for(let i=0;i<9;i++)r(17+i,15-i,1,1,'#5a3a28');r(26,7,1,11,'#fff');r(30,19,4,1,'#f2a24a')},
-  ()=>{r(0,0,48,23,'#6b5a4a');r(22,7,9,3,'#c94c4c');r(29,5,3,3,'#c94c4c');r(23,10,1,3,'#c94c4c');r(28,10,1,3,'#c94c4c');r(34,6,2,7,'#e8d9b0');r(33,7,4,1,'#e8d9b0');r(38,9,5,1,'#e8d9b0');r(40,12,3,3,'#e8632a')},
-  ()=>{r(22,19,24,1,'#8a5a3a');[22,30,38,45].forEach(x=>r(x,17,1,6,'#8a5a3a'));r(28,19,7,4,'#f4f4f4');r(26,20,3,2,'#555');r(29,23,1,1,'#555');r(33,23,1,1,'#555');r(38,20,5,3,'#f4f4f4');r(37,20,2,2,'#555')},
-  ()=>{r(30,12,12,11,'#b5654a');r(34,17,4,6,'#2a1a10');r(35,7,2,5,'#ddd');r(36,4,3,3,'#ccc');r(24,20,3,3,'#c2773a');r(24,19,3,1,'#a85f2c');r(44,20,3,3,'#c2773a')},
-  ()=>{r(24,7,22,3,'#d9cdb2');r(25,6,20,1,'#efe6d2');for(let k=0;k<5;k++)r(26+k*4,10,2,13,'#efe6d2');r(23,22,24,1,'#cfc3a8')},
-  ()=>{r(28,15,10,8,'#c9a36a');r(27,12,12,3,'#e8505b');r(31,12,2,3,'#fff');r(35,12,2,3,'#fff');r(41,19,3,4,'#c2773a');r(44,20,3,3,'#e8b23a');r(29,18,3,2,'#e85b3a');r(33,18,3,2,'#7ac05a')},
-  ()=>{r(34,10,6,13,'#d9c9a8');tri(37,6,4,'#8a5a3a');for(let i=1;i<6;i++)[[1,1],[-1,-1],[1,-1],[-1,1]].forEach(d=>r(37+d[0]*i,12+d[1]*i,1,1,'#8a5a3a'));r(36,11,2,2,'#5a3a28')},
-  ()=>{r(28,10,16,13,'#7a6a5a');r(27,8,18,3,'#4a3a2a');r(33,16,5,6,'#e8632a');r(34,14,3,2,'#ffd23f');r(22,20,5,2,'#444');r(23,22,3,1,'#444');r(40,18,3,5,'#444')},
-  ()=>{r(0,16,48,7,'#3a86c8');r(22,17,18,3,'#8a5a3a');r(30,5,1,12,'#5a3a28');r(36,7,1,10,'#5a3a28');r(24,6,5,9,'#f4f0e0');r(31,6,4,9,'#f4f0e0');r(37,8,4,7,'#f4f0e0');r(30,4,3,2,'#e8505b')},
-  ()=>{r(0,19,48,4,'#3a86c8');r(36,6,6,16,'#f4f4f4');r(36,10,6,3,'#e8505b');r(36,16,6,3,'#e8505b');r(35,4,8,3,'#ffd23f');r(20,5,15,2,'#fff6a0')},
-  ()=>{r(26,12,20,11,'#9a7a6a');r(30,5,3,7,'#7a5a4a');r(38,7,3,5,'#7a5a4a');r(31,2,4,3,'#ccc');r(34,0,5,2,'#ddd');for(let k=0;k<4;k++)r(28+k*4,15,2,2,'#ffe45e')},
-  ()=>{r(24,8,22,15,'#e8d9c0');r(24,10,22,3,'#c94c4c');for(let k=0;k<6;k++)r(26+k*3,11,1,1,'#ffe45e');r(33,16,4,7,'#5a3a28');r(26,15,3,8,'#cfc3a8');r(41,15,3,8,'#cfc3a8')},
-  ()=>{r(0,9,48,10,'#b9b9c9');for(let k=0;k<12;k++)r(2+k*4,11+(k%3)*2,2,2,['#e8505b','#3f8fd2','#ffe45e'][k%3]);r(0,19,48,2,'#2f7a4a');r(36,22,3,1,'#fff');r(20,14,1,1,'#fff')},
-  ()=>{r(26,6,20,17,'#3a3a55');r(28,8,16,4,'#ffd23f');r(29,14,4,6,'#e8505b');r(35,14,4,6,'#3f8fd2');r(41,14,3,6,'#5cb85c')},
-  ()=>{r(20,14,24,4,'#f4f4f4');r(44,15,3,3,'#f4f4f4');r(30,18,8,2,'#ccc');r(20,10,4,5,'#3f8fd2');for(let k=0;k<6;k++)r(25+k*3,15,1,1,'#7ab8e8');r(0,22,48,1,'#fff')},
-  ()=>{r(26,4,6,19,'#6c8fb0');r(33,9,6,14,'#8fb0c8');r(40,2,6,21,'#5a7a9a');for(let y=6;y<22;y+=3)[28,35,42].forEach(x=>r(x,y,1,1,'#ffe45e'))},
-  ()=>{r(36,6,4,14,'#f4f4f4');r(37,3,2,3,'#e8505b');r(34,16,2,5,'#e8505b');r(40,16,2,5,'#e8505b');r(37,20,2,3,'#ffb02e');r(33,22,3,2,'#ddd');r(30,23,14,1,'#777')},
-  ()=>{r(0,0,48,23,'#0e1230');[[4,3],[12,8],[20,2],[28,9],[44,12]].forEach(q=>r(q[0],q[1],1,1,'#fff'));r(36,4,8,8,'#3f8fd2');r(38,6,3,2,'#5cb85c');r(27,16,14,7,'#cfe8f5');r(28,15,12,1,'#cfe8f5')},
-  ()=>{r(26,6,20,17,'#e8d9f0');r(24,3,4,20,'#d8c9e8');r(44,3,4,20,'#d8c9e8');r(25,1,3,2,'#e8505b');r(0,8,48,1,'#ffd23f');for(let k=0;k<12;k++)r(k*4,9,2,2,k%2?'#e8505b':'#3f8fd2');r(8,23,32,3,'#c94c4c')},
-  ()=>{[[14,6,'#ff7aa8'],[30,8,'#ffd23f'],[40,5,'#7ae8ff']].forEach(b=>[[0,-3],[0,3],[-3,0],[3,0],[-2,-2],[2,-2],[-2,2],[2,2],[0,0]].forEach(d=>r(b[0]+d[0],b[1]+d[1],1,1,b[2])))}];
+  ()=>{r(30,6,12,4,'#ffeaa7');r(35,10,2,13,'#e17055');car(24,10,shirt,0,0)},
+  ()=>{r(24,6,20,17,'#a29bfe');r(22,3,4,20,'#74b9ff');r(42,3,4,20,'#74b9ff');r(33,1,5,3,'#ff7675');r(31,15,6,8,'#6c5ce7')},
+  ()=>{r(0,17,48,6,'#74b9ff');[[4,19],[14,21],[26,18]].forEach(q=>r(q[0],q[1],5,1,'#81ecec'));for(let i=0;i<9;i++)r(17+i,15-i,1,1,'#fdcb6e');r(26,7,1,11,'#fff');r(30,19,4,1,'#ffeaa7')},
+  ()=>{r(0,0,48,23,'#fdcb6e');r(22,7,9,3,'#ff7675');r(29,5,3,3,'#ff7675');r(23,10,1,3,'#ff7675');r(28,10,1,3,'#ff7675');r(34,6,2,7,'#ffeaa7');r(33,7,4,1,'#ffeaa7');r(38,9,5,1,'#ffeaa7');r(40,12,3,3,'#e17055')},
+  ()=>{r(22,19,24,1,'#fdcb6e');[22,30,38,45].forEach(x=>r(x,17,1,6,'#fdcb6e'));r(28,19,7,4,'#fff');r(26,20,3,2,'#2d3436');r(29,23,1,1,'#2d3436');r(33,23,1,1,'#2d3436');r(38,20,5,3,'#fff');r(37,20,2,2,'#2d3436')},
+  ()=>{r(30,12,12,11,'#e17055');r(34,17,4,6,'#2d3436');r(35,7,2,5,'#dfe6e9');r(36,4,3,3,'#b2bec3');r(24,20,3,3,'#fdcb6e');r(24,19,3,1,'#e17055');r(44,20,3,3,'#fdcb6e')},
+  ()=>{r(24,7,22,3,'#ffeaa7');r(25,6,20,1,'#fff');for(let k=0;k<5;k++)r(26+k*4,10,2,13,'#fff');r(23,22,24,1,'#fdcb6e')},
+  ()=>{r(28,15,10,8,'#ffeaa7');r(27,12,12,3,'#ff7675');r(31,12,2,3,'#fff');r(35,12,2,3,'#fff');r(41,19,3,4,'#e17055');r(44,20,3,3,'#fdcb6e');r(29,18,3,2,'#ff7675');r(33,18,3,2,'#55efc4')},
+  ()=>{r(34,10,6,13,'#ffeaa7');tri(37,6,4,'#e17055');for(let i=1;i<6;i++)[[1,1],[-1,-1],[1,-1],[-1,1]].forEach(d=>r(37+d[0]*i,12+d[1]*i,1,1,'#e17055'));r(36,11,2,2,'#fdcb6e')},
+  ()=>{r(28,10,16,13,'#b2bec3');r(27,8,18,3,'#636e72');r(33,16,5,6,'#e17055');r(34,14,3,2,'#ffeaa7');r(22,20,5,2,'#2d3436');r(23,22,3,1,'#2d3436');r(40,18,3,5,'#2d3436')},
+  ()=>{r(0,16,48,7,'#74b9ff');r(22,17,18,3,'#fdcb6e');r(30,5,1,12,'#e17055');r(36,7,1,10,'#e17055');r(24,6,5,9,'#fff');r(31,6,4,9,'#fff');r(37,8,4,7,'#fff');r(30,4,3,2,'#ff7675')},
+  ()=>{r(0,19,48,4,'#74b9ff');r(36,6,6,16,'#fff');r(36,10,6,3,'#ff7675');r(36,16,6,3,'#ff7675');r(35,4,8,3,'#ffeaa7');r(20,5,15,2,'#ffeaa7')},
+  ()=>{r(26,12,20,11,'#fab1a0');r(30,5,3,7,'#e17055');r(38,7,3,5,'#e17055');r(31,2,4,3,'#dfe6e9');r(34,0,5,2,'#b2bec3');for(let k=0;k<4;k++)r(28+k*4,15,2,2,'#ffeaa7')},
+  ()=>{r(24,8,22,15,'#ffeaa7');r(24,10,22,3,'#ff7675');for(let k=0;k<6;k++)r(26+k*3,11,1,1,'#fdcb6e');r(33,16,4,7,'#2d3436');r(26,15,3,8,'#dfe6e9');r(41,15,3,8,'#dfe6e9')},
+  ()=>{r(0,9,48,10,'#a29bfe');for(let k=0;k<12;k++)r(2+k*4,11+(k%3)*2,2,2,['#ff7675','#74b9ff','#ffeaa7'][k%3]);r(0,19,48,2,'#55efc4');r(36,22,3,1,'#fff');r(20,14,1,1,'#fff')},
+  ()=>{r(26,6,20,17,'#2d3436');r(28,8,16,4,'#fdcb6e');r(29,14,4,6,'#ff7675');r(35,14,4,6,'#74b9ff');r(41,14,3,6,'#55efc4')},
+  ()=>{r(20,14,24,4,'#fff');r(44,15,3,3,'#fff');r(30,18,8,2,'#dfe6e9');r(20,10,4,5,'#74b9ff');for(let k=0;k<6;k++)r(25+k*3,15,1,1,'#81ecec');r(0,22,48,1,'#fff')},
+  ()=>{r(26,4,6,19,'#74b9ff');r(33,9,6,14,'#a29bfe');r(40,2,6,21,'#0984e3');for(let y=6;y<22;y+=3)[28,35,42].forEach(x=>r(x,y,1,1,'#ffeaa7'))},
+  ()=>{r(36,6,4,14,'#fff');r(37,3,2,3,'#ff7675');r(34,16,2,5,'#ff7675');r(40,16,2,5,'#ff7675');r(37,20,2,3,'#fdcb6e');r(33,22,3,2,'#dfe6e9');r(30,23,14,1,'#b2bec3')},
+  ()=>{r(0,0,48,23,'#1e272e');[[4,3],[12,8],[20,2],[28,9],[44,12]].forEach(q=>r(q[0],q[1],1,1,'#fff'));r(36,4,8,8,'#74b9ff');r(38,6,3,2,'#55efc4');r(27,16,14,7,'#81ecec');r(28,15,12,1,'#81ecec')},
+  ()=>{r(26,6,20,17,'#a29bfe');r(24,3,4,20,'#74b9ff');r(44,3,4,20,'#74b9ff');r(25,1,3,2,'#ff7675');r(0,8,48,1,'#fdcb6e');for(let k=0;k<12;k++)r(k*4,9,2,2,k%2?'#ff7675':'#74b9ff');r(8,23,32,3,'#ff7675')},
+  ()=>{[[14,6,'#fd79a8'],[30,8,'#ffeaa7'],[40,5,'#81ecec']].forEach(b=>[[0,-3],[0,3],[-3,0],[3,0],[-2,-2],[2,-2],[-2,2],[2,2],[0,0]].forEach(d=>r(b[0]+d[0],b[1]+d[1],1,1,b[2])))}];
   SC[s]();
-  const ph=Math.min(9,Math.floor((S.rm||0)/10)),hp=ph<2?{C:'#2ec4b6',P:'#2b3a67'}:ph<8?{C:'#fff',P:'#f2a7c3'}:{C:'#fff',P:'#fff'},B={K:'#3a2a2a',S:'#ffd9b8',E:'#3b2a5a',M:'#d4505a',B:'#fff'};
-  const TP={...B,H:'#6b4a2e',C:shirt,P:'#3b5aa8'},HP={...B,...hp,H:'#e39a3b'},TH='#6b4a2e',HH='#e39a3b';
-  const face=(x,y,e)=>{const p=(a,b,c)=>r(x+a,y+b,1,1,c),Q='#f59aa0',E='#3b2a5a',K='#3a2a2a',S='#ffd9b8';
+
+  // ★ヒロイン（有栖川夏葉）カラーパレット＆表情
+  const ph=Math.min(9,Math.floor((S.rm||0)/10));
+  const B={K:'#2d3436',S:'#ffd9b8',E:'#2d3436',M:'#d63031',B:'#ffffff'};
+  const TP={...B,H:'#d63031',C:shirt,P:'#2d3436',D:'#00cec9',L:'#2d3436'}; // 通常時（赤ジャケット＆ターコイズアクセント＆黒ドレス）
+  const HP={...B,H:'#d63031',C:'#ff7675',P:'#2d3436',D:'#00cec9',L:'#2d3436'}; // ヒロイン時
+  const TH='#d63031',HH='#d63031';
+
+  const face=(x,y,e)=>{
+    const p=(a,b,c)=>r(x+a,y+b,1,1,c),Q='#fd79a8',E='#2d3436',K='#2d3436',S='#ffd9b8';
     if(e===1){[2,3,6,7].forEach(a=>p(a,4,Q));p(5,5,S)}
     else if(e===2){p(1,4,S);p(8,4,S);p(2,4,Q);p(7,4,Q);p(3,2,K);p(6,2,K);p(5,5,S)}
-    else if(e===3){p(2,3,E);p(7,3,E);p(4,6,'#d4505a');p(5,6,'#d4505a')}
-    else if(e===4){p(3,4,E);p(6,4,E);p(5,5,S);p(4,6,'#d4505a')}
+    else if(e===3){p(2,3,E);p(7,3,E);p(4,6,'#d63031');p(5,6,'#d63031')}
+    else if(e===4){p(3,4,E);p(6,4,E);p(5,5,S);p(4,6,'#d63031')}
     else if(e===5){p(3,2,K);p(6,2,K)}
-    else if(e===6){p(2,3,E);p(7,3,E);p(2,4,'#8fd3ff');p(7,4,'#8fd3ff')}
-    else if(e===7){p(6,2,K);p(4,5,S);p(6,5,'#d4505a')}
+    else if(e===6){p(2,3,E);p(7,3,E);p(2,4,'#74b9ff');p(7,4,'#74b9ff')}
+    else if(e===7){p(6,2,K);p(4,5,S);p(6,5,'#d63031')}
     else if(e===8){p(2,3,E);p(7,3,E);p(5,5,S)}
-    else if(e===9){p(5,5,S);r(x+10,y+3,1,2,'#8fd3ff')}};
-  const bust=(x,y,pal)=>{spr(BODY.slice(0,10),pal,x,y);face(x,y,pal===HP?exH:exT)},head=(x,y,h)=>{r(x,y,2,2,'#ffd9b8');r(x,y-1,2,1,h)};
-  const wheel=(x,y,z)=>{r(x,y,z,z,'#222');r(x+1,y+1,z-2,z-2,'#999')};
+    else if(e===9){p(5,5,S);r(x+10,y+3,1,2,'#74b9ff')}
+  };
+
+  const bust=(x,y,pal)=>{spr(HEROINE_BODY.slice(0,10),pal,x,y);face(x,y,pal===HP?exH:exT)};
+  const head=(x,y,h)=>{r(x,y,2,2,'#ffd9b8');r(x,y-1,2,1,h)};
+  const wheel=(x,y,z)=>{r(x,y,z,z,'#2d3436');r(x+1,y+1,z-2,z-2,'#b2bec3')};
+
   const char=(x,y0,pal,pz,fem)=>{
-    let rows=BODY,y=y0;const ex=pal===HP?exH:exT,S_=pal.S,K='#3a2a2a',w=fem?-1:1;
-    if(pz===3)rows=[...BODY.slice(0,11),'.KPP..PPK.','KBK....KBK','KKK....KKK'];
-    if(pz===4)rows=[...BODY.slice(0,11),'.KPPPPPPK.','.KBBKKBBK.','.KKKKKKKK.'];
-    if(pz===2||pz===7){y=y0-(pz===2?2:1);if(pz===2)r(x+2,23,6,1,'rgba(0,0,0,.2)')}
+    let rows=HEROINE_BODY,y=y0;const ex=pal===HP?exH:exT,S_=pal.S,K='#2d3436',w=fem?-1:1;
+    if(pz===3)rows=[...HEROINE_BODY.slice(0,11),'.KPP..PPK.','KBK....KBK','KKK....KKK'];
+    if(pz===4)rows=[...HEROINE_BODY.slice(0,11),'.KPPPPPPK.','.KBBKKBBK.','.KKKKKKKK.'];
+    if(pz===2||pz===7){y=y0-(pz===2?2:1);if(pz===2)r(x+2,23,6,1,'rgba(0,0,0,.15)')}
     let hx=x,hy=y;
     if(pz===11){spr(rows.slice(7),pal,x,y0+7);hx=x+2;hy=y0+2;spr(rows.slice(0,7),pal,hx,hy)}else spr(rows,pal,x,y);
     face(hx,hy,ex);
@@ -368,46 +438,57 @@ function drawIll(fid,ev){
     if(pz===2){A(1,4,4);A(-1,4,4)}
     if(pz===3){r(x-3,y+9,2,1,'#fff');r(x-4,y+11,3,1,'#fff')}
     if(pz===5)r(x+2,y+8,6,1,S_);
-    if(pz===6){A(1,5,3);A(-1,5,3);r(x+11,y+3,1,1,'#fff27a')}
+    if(pz===6){A(1,5,3);A(-1,5,3);r(x+11,y+3,1,1,'#ffeaa7')}
     if(pz===7){A(1,0,8);A(-1,0,8)}
     if(pz===8){A(w,4,4);r(w>0?x+10:x-1,y+2,1,2,S_);r(w>0?x+12:x-3,y+2,1,2,S_)}
     if(pz===9){r(x+6,y+6,2,1,S_);r(x+7,y+7,1,1,S_);r(x+11,y+2,1,1,'#fff');r(x+12,y,2,2,'#fff')}
     if(pz===10){r(x+10,y+8,3,1,S_);r(x+13,y+8,1,1,K);r(x+8,y+8,1,1,pal.C)}
-    if(pz===12){A(w,4,4);const cx=w>0?x+11:x-4;r(cx,y+2,2,2,'#fff');r(cx,y+2,2,1,'#e8b23a')}
-    if(pz===13){r(x+2,y+8,6,4,'#3f8fd2');r(x+3,y+9,4,2,'#fff')}
-    if(fem)spr(PONY,{K:K,H:pal.H},hx+10,hy+1);
-    else{const a=v%4;if(a===1){r(hx+1,hy,8,2,'#e8505b');r(hx+7,hy+2,3,1,'#e8505b')}if(a===2)r(hx+1,hy+2,8,1,'#fff');if(a===3)r(hx+2,hy+6,6,1,'#e8505b')}
+    if(pz===12){A(w,4,4);const cx=w>0?x+11:x-4;r(cx,y+2,2,2,'#fff');r(cx,y+2,2,1,'#fdcb6e')}
+    if(pz===13){r(x+2,y+8,6,4,'#74b9ff');r(x+3,y+9,4,2,'#fff')}
+    
+    // ★有栖川夏葉ポニーテール描画
+    if(fem)spr(PONY_HERO,{K:K,H:pal.H},hx+9,hy);
+    else{const a=v%4;if(a===1){r(hx+1,hy,8,2,'#ff7675');r(hx+7,hy+2,3,1,'#ff7675')}if(a===2)r(hx+1,hy+2,8,1,'#fff');if(a===3)r(hx+2,hy+6,6,1,'#ff7675')}
   };
-  const hr=(x,c,sd)=>{r(x+2,14,14,6,c);r(x+14,10,4,6,c);r(x+17,9,5,3,c);r(x+20,8,1,1,'#3a2a2a');r(x,14,2,5,'#3a2a2a');r(x+13,9,2,6,'#3a2a2a');[3,7,12,15].forEach(d=>r(x+d,20,2,3,'#6a4026'));if(sd)r(x+7,13,4,2,'#c94c4c')};
+
+  const hr=(x,c,sd)=>{r(x+2,14,14,6,c);r(x+14,10,4,6,c);r(x+17,9,5,3,c);r(x+20,8,1,1,'#2d3436');r(x,14,2,5,'#2d3436');r(x+13,9,2,6,'#2d3436');[3,7,12,15].forEach(d=>r(x+d,20,2,3,'#e17055'));if(sd)r(x+7,13,4,2,'#ff7675')};
+  
   const VF=[
-  ()=>{hr(10,'#8a5a3a',1);bust(15,4,TP);if(hv)char(36,Y0,HP,1,1)},
-  ()=>{hr(1,'#f4f4f4',0);r(17,16,7,1,'#5a3a28');r(24,9,16,11,'#8a3a4a');r(23,7,18,3,'#5a2a3a');r(27,11,4,4,'#cfe8f5');r(33,11,4,4,'#cfe8f5');head(28,12,TH);if(hv)head(34,12,HH);wheel(26,18,5);wheel(34,18,5)},
-  ()=>{wheel(11,17,6);wheel(28,17,6);r(14,16,15,1,shirt);r(16,15,3,1,'#222');r(29,14,3,1,'#222');r(30,15,1,2,'#222');bust(17,5,TP);if(hv)char(38,Y0,HP,1,1)},
-  ()=>{for(let y=0;y<11;y++){const w=Math.floor(7*Math.sqrt(1-((y-5)/5.5)**2));r(24-w,y,2*w+1,1,y%4<2?shirt:'#fff')}r(19,11,1,7,'#5a3a28');r(29,11,1,7,'#5a3a28');if(hv)bust(25,10,HP);bust(19,10,TP);r(18,18,12,5,'#8a5a3a');r(18,18,12,1,'#6a4026')},
-  ()=>{wheel(11,18,5);wheel(30,18,5);r(14,16,18,3,shirt);r(14,15,5,1,'#222');r(30,13,3,1,'#222');r(31,14,1,3,'#222');if(hv)bust(9,5,HP);bust(17,5,TP)},
+  ()=>{hr(10,'#d63031',1);bust(15,4,TP);if(hv)char(36,Y0,HP,1,1)},
+  ()=>{hr(1,'#fff',0);r(17,16,7,1,'#fdcb6e');r(24,9,16,11,'#ff7675');r(23,7,18,3,'#d63031');r(27,11,4,4,'#81ecec');r(33,11,4,4,'#81ecec');head(28,12,TH);if(hv)head(34,12,HH);wheel(26,18,5);wheel(34,18,5)},
+  ()=>{wheel(11,17,6);wheel(28,17,6);r(14,16,15,1,shirt);r(16,15,3,1,'#2d3436');r(29,14,3,1,'#2d3436');r(30,15,1,2,'#2d3436');bust(17,5,TP);if(hv)char(38,Y0,HP,1,1)},
+  ()=>{for(let y=0;y<11;y++){const w=Math.floor(7*Math.sqrt(1-((y-5)/5.5)**2));r(24-w,y,2*w+1,1,y%4<2?shirt:'#fff')}r(19,11,1,7,'#fdcb6e');r(29,11,1,7,'#fdcb6e');if(hv)bust(25,10,HP);bust(19,10,TP);r(18,18,12,5,'#ffeaa7');r(18,18,12,1,'#fdcb6e')},
+  ()=>{wheel(11,18,5);wheel(30,18,5);r(14,16,18,3,shirt);r(14,15,5,1,'#2d3436');r(30,13,3,1,'#2d3436');r(31,14,1,3,'#2d3436');if(hv)bust(9,5,HP);bust(17,5,TP)},
   ()=>car(12,10,shirt,1,hv),
-  ()=>{if(hv)bust(21,4,HP);bust(12,4,TP);r(10,13,24,7,shirt);r(10,16,24,1,'#fff');r(32,10,2,4,'#cfe8f5');r(34,15,1,2,'#fff6a0');wheel(13,19,5);wheel(27,19,5)},
-  ()=>{r(6,8,36,13,'#f2b632');for(let k=0;k<7;k++)r(8+k*5,10,4,4,'#cfe8f5');head(9,11,TH);if(hv)head(14,11,HH);r(6,16,36,1,'#fff');wheel(11,19,5);wheel(33,19,5)},
-  ()=>{r(8,15,28,6,'#23233a');r(13,10,13,6,'#23233a');r(15,11,4,4,'#9fc4dd');r(20,11,4,4,'#9fc4dd');r(8,18,28,1,'#d4af37');r(34,16,2,2,'#fff6a0');head(16,12,TH);if(hv)head(21,12,HH);wheel(11,19,5);wheel(28,19,5)},
-  ()=>{r(9,18,26,4,shirt);r(15,14,10,4,shirt);r(16,15,3,2,'#cfe8f5');r(20,15,3,2,'#cfe8f5');r(9,16,4,3,shirt);r(33,19,2,2,'#fff6a0');r(17,15,2,2,'#ffd9b8');r(17,15,2,1,TH);if(hv){r(21,15,2,2,'#ffd9b8');r(21,15,2,1,HH)}wheel(13,20,4);wheel(27,20,4)},
-  ()=>{car(12,4,shirt,1,hv);[15,27].forEach(x=>{r(x,17,4,2,'#7ae8ff');r(x+1,19,2,2,'#e8f9ff')});r(10,23,26,1,'rgba(0,0,0,.2)')},
-  ()=>{hr(0,'#f4f4f4',0);hr(5,'#e8e8e8',0);r(18,16,6,1,'#5a3a28');r(24,8,18,12,'#d4af37');r(23,5,20,3,'#c94c4c');r(31,2,4,3,'#ffd23f');r(27,10,5,5,'#cfe8f5');r(35,10,5,5,'#cfe8f5');head(28,12,TH);if(hv)head(36,12,HH);wheel(26,18,6);wheel(36,18,6)},
-  ()=>{r(2,15,42,6,'#1a1a2a');r(8,10,28,6,'#1a1a2a');for(let k=0;k<5;k++)r(10+k*5,11,4,4,'#9fc4dd');head(11,12,TH);if(hv)head(16,12,HH);r(2,18,42,1,'#d4af37');wheel(7,19,5);wheel(34,19,5)}];
+  ()=>{if(hv)bust(21,4,HP);bust(12,4,TP);r(10,13,24,7,shirt);r(10,16,24,1,'#fff');r(32,10,2,4,'#81ecec');r(34,15,1,2,'#ffeaa7');wheel(13,19,5);wheel(27,19,5)},
+  ()=>{r(6,8,36,13,'#ffeaa7');for(let k=0;k<7;k++)r(8+k*5,10,4,4,'#81ecec');head(9,11,TH);if(hv)head(14,11,HH);r(6,16,36,1,'#fff');wheel(11,19,5);wheel(33,19,5)},
+  ()=>{r(8,15,28,6,'#2d3436');r(13,10,13,6,'#2d3436');r(15,11,4,4,'#81ecec');r(20,11,4,4,'#81ecec');r(8,18,28,1,'#fdcb6e');r(34,16,2,2,'#ffeaa7');head(16,12,TH);if(hv)head(21,12,HH);wheel(11,19,5);wheel(28,19,5)},
+  ()=>{r(9,18,26,4,shirt);r(15,14,10,4,shirt);r(16,15,3,2,'#81ecec');r(20,15,3,2,'#81ecec');r(9,16,4,3,shirt);r(33,19,2,2,'#ffeaa7');r(17,15,2,2,'#ffd9b8');r(17,15,2,1,TH);if(hv){r(21,15,2,2,'#ffd9b8');r(21,15,2,1,HH)}wheel(13,20,4);wheel(27,20,4)},
+  ()=>{car(12,4,shirt,1,hv);[15,27].forEach(x=>{r(x,17,4,2,'#81ecec');r(x+1,19,2,2,'#fff')});r(10,23,26,1,'rgba(0,0,0,.15)')},
+  ()=>{hr(0,'#fff',0);hr(5,'#dfe6e9',0);r(18,16,6,1,'#fdcb6e');r(24,8,18,12,'#fdcb6e');r(23,5,20,3,'#ff7675');r(31,2,4,3,'#ffeaa7');r(27,10,5,5,'#81ecec');r(35,10,5,5,'#81ecec');head(28,12,TH);if(hv)head(36,12,HH);wheel(26,18,6);wheel(36,18,6)},
+  ()=>{r(2,15,42,6,'#2d3436');r(8,10,28,6,'#2d3436');for(let k=0;k<5;k++)r(10+k*5,11,4,4,'#81ecec');head(11,12,TH);if(hv)head(16,12,HH);r(2,18,42,1,'#fdcb6e');wheel(7,19,5);wheel(34,19,5)}];
+
   const md=modeOf(m,s),k=EV?-1:md.k,pz=EV?EV[2]:md.pz,exT=EV?EV[4]:(id*31+s)%10,exH=EV?EV[5]:(id*17+v)%10,hz0=EV?EV[3]:(k>=0?1:(pz+2)%NP),hz=EV||pzOK(hz0,s)?hz0:hz0%5;
   if(k>=0)VF[k]();
   else if(s!==9){const tx=EV?10:s===8?2:s===10?3:8;char(tx,Y0,TP,pz,0);if(hv)char(tx+(EV?12:s===10?10:11),Y0,HP,hz,1)}
-  const heart=(x,y)=>{r(x,y,2,1,'#ff7aa8');r(x+3,y,2,1,'#ff7aa8');r(x,y+1,5,2,'#ff7aa8');r(x+1,y+3,3,1,'#ff7aa8');r(x+2,y+4,1,1,'#ff7aa8')},spark=(x,y)=>{r(x,y-1,1,3,'#fff27a');r(x-1,y,3,1,'#fff27a')};
-  const PR={h:()=>heart(21,3),s:()=>{spark(6,5);spark(41,4);spark(33,8)},r:()=>{r(22,7,4,3,'#ffd23f');r(23,8,2,1,sk);r(23,6,2,1,'#7ae8ff')},g:()=>{r(21,4,6,5,'#e8505b');r(23,4,2,5,'#ffd23f');r(21,6,6,1,'#ffd23f');r(22,3,4,1,'#ffd23f')},c:()=>{r(20,5,8,4,'#fff');r(20,7,8,2,'#f2a7c3');r(23,3,2,2,'#ffd23f')},k:()=>{r(36,14,8,6,'#f2a7a0');tri(40,11,4,'#c94c4c');r(39,17,2,3,'#5a3a28')}};
+
+  const heart=(x,y)=>{r(x,y,2,1,'#fd79a8');r(x+3,y,2,1,'#fd79a8');r(x,y+1,5,2,'#fd79a8');r(x+1,y+3,3,1,'#fd79a8');r(x+2,y+4,1,1,'#fd79a8')},spark=(x,y)=>{r(x,y-1,1,3,'#ffeaa7');r(x-1,y,3,1,'#ffeaa7')};
+  const PR={h:()=>heart(21,3),s:()=>{spark(6,5);spark(41,4);spark(33,8)},r:()=>{r(22,7,4,3,'#fdcb6e');r(23,8,2,1,sk);r(23,6,2,1,'#81ecec')},g:()=>{r(21,4,6,5,'#ff7675');r(23,4,2,5,'#fdcb6e');r(21,6,6,1,'#fdcb6e');r(22,3,4,1,'#fdcb6e')},c:()=>{r(20,5,8,4,'#fff');r(20,7,8,2,'#fd79a8');r(23,3,2,2,'#fdcb6e')},k:()=>{r(36,14,8,6,'#fab1a0');tri(40,11,4,'#ff7675');r(39,17,2,3,'#fdcb6e')}};
   if(EV)[...EV[6]].forEach(ch=>PR[ch]&&PR[ch]());
-  if(t===3){g.fillStyle='rgba(10,20,70,.3)';g.fillRect(0,0,48,30)}
-  if(t===2){g.fillStyle='rgba(255,140,60,.14)';g.fillRect(0,0,48,30)}
-  if(t===4)[[3,2],[9,8],[15,3],[20,12],[27,6],[33,1],[38,10],[44,5],[6,15],[18,18],[30,16],[41,19]].forEach(q=>r(q[0],q[1],1,3,'#e8f4ff'));
+  if(t===3){g.fillStyle='rgba(45,52,54,.25)';g.fillRect(0,0,48,30)}
+  if(t===2){g.fillStyle='rgba(255,118,117,.12)';g.fillRect(0,0,48,30)}
+  if(t===4)[[3,2],[9,8],[15,3],[20,12],[27,6],[33,1],[38,10],[44,5],[6,15],[18,18],[30,16],[41,19]].forEach(q=>r(q[0],q[1],1,3,'#ffffff'));
 }
+
+const TCOL={"daily": ["#ffeaa7", "#2d3436"], "weekly": ["#74b9ff", "#fff"], "monthly": ["#a29bfe", "#fff"], "once": ["#fd79a8", "#2d3436"]},TICO={"daily": "<svg width=\"14\" height=\"14\" viewBox=\"0 0 14 14\" shape-rendering=\"crispEdges\"><g fill=\"#fff\"><rect x=\"4\" y=\"4\" width=\"6\" height=\"6\"/><rect x=\"6\" y=\"1\" width=\"2\" height=\"2\"/><rect x=\"6\" y=\"11\" width=\"2\" height=\"2\"/><rect x=\"1\" y=\"6\" width=\"2\" height=\"2\"/><rect x=\"11\" y=\"6\" width=\"2\" height=\"2\"/></g></svg>", "weekly": "<svg width=\"14\" height=\"14\" viewBox=\"0 0 14 14\" shape-rendering=\"crispEdges\"><rect x=\"3\" y=\"1\" width=\"1\" height=\"12\" fill=\"#fdcb6e\"/><rect x=\"4\" y=\"2\" width=\"7\" height=\"5\" fill=\"#fff\"/></svg>", "monthly": "<svg width=\"14\" height=\"14\" viewBox=\"0 0 14 14\" shape-rendering=\"crispEdges\"><rect x=\"3\" y=\"2\" width=\"7\" height=\"10\" fill=\"#fff\"/><rect x=\"5\" y=\"4\" width=\"6\" height=\"6\" style=\"fill:var(--c)\"/></svg>", "once": "<svg width=\"14\" height=\"14\" viewBox=\"0 0 14 14\" shape-rendering=\"crispEdges\"><g fill=\"#fff\"><rect x=\"5\" y=\"1\" width=\"4\" height=\"12\"/><rect x=\"1\" y=\"5\" width=\"12\" height=\"4\"/><rect x=\"3\" y=\"3\" width=\"8\" height=\"8\"/></g></svg>"};
+const dl=()=>{const q=new Date();return (q.getMonth()+1)+'/'+q.getDate()+'（'+'日月火水木金土'[q.getDay()]+'）'};
+const srt=(a,k,key)=>{const o=(S.sort||{})[k]||'a',b=[...a];if(o==='h')b.sort((x,y)=>y[key]-x[key]);else if(o==='l')b.sort((x,y)=>x[key]-y[key]);else if(o==='n')b.sort((x,y)=>(x.title||x.name).localeCompare(y.title||y.name,'ja'));return b};
+const sortBar=k=>`<div class="rng" style="margin:6px 0 0">${[['a','追加順'],['h','ポイント高'],['l','ポイント低'],['n','名前順']].map(([v,l])=>`<button data-a="sort" data-k="${k}" data-i="${v}" class="${((S.sort||{})[k]||'a')===v?'on':''}">${l}</button>`).join('')}</div>`;
 function vM(){
-  let h='';
+  let h=sortBar('m');
   for(const ty of Object.keys(TY)){
-    const ms=S.missions.filter(m=>m.type===ty),n=ms.filter(doneE).length;
-    h+=`<div class="sec">${TY[ty]}<span>${n}/${ms.length}</span></div>`;
+    const ms=srt(S.missions.filter(m=>m.type===ty),'m','pts'),n=ms.filter(doneE).length;
+    h+=`<div class="sec rb"><span class="rib" style="--c:${TCOL[ty][0]};--tc:${TCOL[ty][1]}">${TICO[ty]}${TY[ty]}</span><span class="dl" style="--c:${TCOL[ty][0]}"></span><span>${n}/${ms.length}</span></div>`;
     h+=ms.map(m=>`<div class="row ${doneE(m)?'done':''}"><button class="chk" data-a="done" data-i="${m.id}">${doneE(m)?'✓':''}</button>${icon(m)}<div class="nm">${esc(m.title)}${m.note?`<small style="display:block;color:var(--mut);font-size:11px">${esc(m.note)}</small>`:''}</div><div class="pt">+${m.pts}${ep(m)&&m.type!=='once'?`<small style="color:var(--dg);display:block;font-size:10px;text-align:right">未達−${ep(m)}</small>`:''}</div><button class="ed" data-a="edit" data-k="m" data-i="${m.id}">✎</button></div>`).join('');
     if(!ms.length)h+=`<div class="empty" style="padding:8px">まだありません</div>`;
   }
@@ -415,8 +496,8 @@ function vM(){
 }
 function vR(){
   const b=bal();
-  let h=`<div class="sec">ご褒美リスト<span>ポイントで交換</span></div>`;
-  h+=S.rewards.map(r=>`<div class="row">${icon(r)}<div class="nm">${esc(r.name)}</div><div class="pt">${r.cost}pt</div><button class="buy" data-a="buy" data-i="${r.id}" ${b<r.cost?'disabled':''}>交換</button><button class="ed" data-a="edit" data-k="r" data-i="${r.id}">✎</button></div>`).join('');
+  let h=sortBar('r')+`<div class="sec">ご褒美リスト<span>ポイントで交換</span></div>`;
+  h+=srt(S.rewards,'r','cost').map(r=>`<div class="row">${icon(r)}<div class="nm">${esc(r.name)}</div><div class="pt">${r.cost}pt</div><button class="buy" data-a="buy" data-i="${r.id}" ${b<r.cost?'disabled':''}>交換</button><button class="ed" data-a="edit" data-k="r" data-i="${r.id}">✎</button></div>`).join('');
   if(!S.rewards.length)h+=`<div class="empty">ご褒美を登録しよう（例：好きなスイーツ 50pt）</div>`;
   const hs2=S.log.filter(l=>l.d<0&&l.l.startsWith('交換')).sort((a,b)=>b.t-a.t).slice(0,20);
   return h+`<button class="add" data-a="add" data-k="r">＋ ご褒美を追加</button><div class="sec">獲得履歴</div><div class="card" style="padding:4px 12px">${hs2.length?hs2.map(l=>{const d=new Date(l.t);return `<div class="lg"><div>${esc(l.l.replace('交換：',''))}<i>${d.getMonth()+1}/${d.getDate()}</i></div><div class="pt" style="color:var(--dg)">−${-l.d}</div></div>`}).join(''):'<div class="empty">まだ交換していません</div>'}</div>`;
@@ -453,10 +534,11 @@ function vF(){
   ${m?`<label>ひと言コメント（任意）</label><input id="f6" value="${it?esc(it.note||''):''}" maxlength="40"><label>やらなかった時のペナルティ</label><select id="f5"><option value="d">共通設定に従う（${set().pen}pt）</option><option value="n" ${it&&it.noPen?'selected':''}>ペナルティなし</option></select><label>個別のポイント（空欄なら共通設定）</label><input id="f4" type="number" inputmode="numeric" min="0" value="${it&&it.pen>0?it.pen:''}">`:''}${vIc()}<div class="fb"><button data-a="cancel">キャンセル</button>${it?`<button class="d" data-a="del">${arm?'もう一度で削除':'削除'}</button>`:''}<button class="p" data-a="save">保存</button></div></div>`;
 }
 function render(){
+  document.body.dataset.tab=tab;const wq=$('.w');if(wq)wq.className='w '+({m:'tm',g:'tg'}[tab]||'');
   $('#bal').textContent=bal().toLocaleString();
   const d=S.missions.filter(m=>m.type==='daily'),n=d.filter(doneE).length;
-  $('#today').innerHTML=(d.length?`今日のデイリー <b style="font-size:13px">${n}/${d.length}</b><br>`:'')+`🔥連続${stk()}日 ×${mult().toFixed(4)}<br>今日 ${dayEarn(0)}/200pt`;
-  $('#tabs').innerHTML=[['m','ミッション'],['r','ご褒美'],['g','グラフ'],['s','設定']].map(([k,l])=>`<button data-a="tab" data-i="${k}" class="${tab===k?'on':''}">${l}</button>`).join('');
+  $('#today').innerHTML=(d.length?`${dl()}のデイリー <b style="font-size:13px">${n}/${d.length}</b><br>`:'')+`🔥連続${stk()}日 ×${mult().toFixed(4)}<br>今日 ${dayEarn(0)}/200pt`;
+  $('#tabs').innerHTML=[['m','ミッション'],['r','ご褒美'],['g','グラフ']].map(([k,l])=>`<button data-a="tab" data-i="${k}" class="${tab===k?'on':''}">${l}</button>`).join('');
   $('#main').innerHTML=tab==='m'?vM():tab==='r'?vR():tab==='s'?vS():vG();
   $('#sheet').innerHTML=form?vF():'';
   if(form&&form.vals)for(const k in form.vals){const e=$('#'+k);if(e)e.value=form.vals[k]}
@@ -484,6 +566,7 @@ document.addEventListener('click',e=>{
   else if(a==='popok'){const q=$('#pop');if(q)q.remove();return}
   else if(a==='pinok'){(S.pin||[]).shift();save()}
   else if(a==='share'){const f=new File([JSON.stringify(S)],'mission-backup-'+dk(new Date())+'.json',{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f]}).catch(()=>{});else{const u=URL.createObjectURL(f),q=document.createElement('a');q.href=u;q.download=f.name;q.click();URL.revokeObjectURL(u)}return}
+  else if(a==='sort'){S.sort=S.sort||{};S.sort[k]=i;save()}
   else if(a==='sset'){const c=set();c.pen=Math.max(0,parseInt($('#s1').value,10)||0);c.w=$('#s2').value.trim()||'ナツキ';save();toast('保存しました')}
   else if(a==='undo'){S.log.splice(+i,1);save()}
   else if(a==='add'){form={k,id:null,px:null,img:null,ser:0};arm=false}
