@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ミッションクエスト</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#4a9fd8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ミッション">
+<style>
+:root{--bg:#e9f5ec;--card:#fff;--tx:#2a3a35;--mut:#6f8a80;--ac:#3f8fd2;--ok:#2fae8f;--bd:#a9d4c2;--dg:#d9534f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#152019;--card:#1e2c24;--tx:#e6f2ea;--mut:#8fb0a0;--bd:#33503f}}
+:root[data-theme="dark"]{--bg:#152019;--card:#1e2c24;--tx:#e6f2ea;--mut:#8fb0a0;--bd:#33503f}
+html{color-scheme:light dark;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 -apple-system,"Hiragino Sans","Noto Sans JP",system-ui,sans-serif}
+.w{max-width:560px;margin:0 auto;padding:16px 14px 90px;position:relative}
+.hero{background:#4a9fd8;color:#fff;border-radius:18px;border:2px dashed #d7f0ff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-end}
+.hero small{opacity:.85;font-size:10px}.hero b{font-size:32px;line-height:1.1;display:block}
+.hero .t{text-align:right;font-size:10px;opacity:.9}
+.tabs{display:flex;gap:6px;margin:14px 0}
+.tabs button{flex:1;padding:10px 0;border:1px solid var(--bd);background:var(--card);color:var(--mut);border-radius:12px;font:inherit;font-weight:600}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.sec{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 6px;font-weight:700}
+.sec span{font-size:12px;color:var(--mut);font-weight:500}
+.row{display:flex;align-items:center;gap:12px;background:var(--card);border:2px dashed var(--bd);border-radius:18px;padding:11px 12px;margin-bottom:7px}
+.chk{width:30px;height:30px;border-radius:50%;border:2px solid var(--bd);background:none;color:#fff;font-size:16px;flex:none;padding:0}
+.done .chk{background:var(--ok);border-color:var(--ok)}
+.done .nm{text-decoration:line-through;color:var(--mut)}
+.nm{flex:1;min-width:0;word-break:break-word}
+.pt{font-weight:700;color:var(--ac);white-space:nowrap}
+.ed{border:0;background:none;color:var(--mut);font-size:16px;padding:4px}
+.buy{border:0;background:var(--ac);color:#fff;border-radius:10px;padding:8px 12px;font:inherit;font-weight:700}
+.buy[disabled]{background:var(--bd);color:var(--mut)}
+.add{width:100%;padding:12px;border:1.5px dashed var(--bd);background:none;color:var(--mut);border-radius:14px;font:inherit;margin-top:6px}
+.empty{color:var(--mut);text-align:center;padding:22px 10px;font-size:14px}
+.rng{display:flex;gap:6px;margin-bottom:8px}
+.rng button{flex:1;padding:7px 0;border:1px solid var(--bd);background:var(--card);color:var(--mut);border-radius:10px;font:inherit}
+.rng button.on{border-color:var(--ac);color:var(--ac);font-weight:700}
+.card{background:var(--card);border:2px dashed var(--bd);border-radius:18px;padding:12px}
+.stats{display:flex;gap:8px;margin:8px 0}.stats div{flex:1;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:8px 10px;font-size:12px;color:var(--mut)}
+.stats b{display:block;font-size:18px;color:var(--tx)}
+.lg{display:flex;justify-content:space-between;gap:8px;padding:8px 2px;border-bottom:1px solid var(--bd);font-size:14px;align-items:center}
+.lg i{font-style:normal;color:var(--mut);font-size:11px;display:block}
+.lg button{border:0;background:none;color:var(--mut);font-size:12px;text-decoration:underline}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:20}
+.fm{background:var(--card);border-top:1px solid var(--bd);box-shadow:0 -8px 30px rgba(0,0,0,.18);border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));max-width:560px;margin:0 auto}
+.fm h3{margin:0 0 10px}
+.fm label{display:block;font-size:12px;color:var(--mut);margin:8px 0 3px}
+.fm input,.fm select{width:100%;padding:11px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
+.fb{display:flex;gap:8px;margin-top:14px}
+.fb button{flex:1;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-weight:700}
+.fb .p{background:var(--ac);border-color:var(--ac);color:#fff}.fb .d{color:var(--dg)}
+.fm{max-height:88vh;overflow-y:auto}
+#pop{position:fixed;inset:0;background:rgba(20,50,45,.6);display:flex;align-items:center;justify-content:center;z-index:40;padding:20px}
+.pb{background:var(--card);border:3px dashed var(--ac);border-radius:26px;padding:22px 18px;text-align:center;max-width:420px;width:100%}
+.pn{font-size:60px;font-weight:800;color:var(--ac);line-height:1.1}.pt2{font-size:17px;font-weight:700;margin:10px 0 16px;line-height:1.7}
+.pb button{border:0;background:var(--ac);color:#fff;border-radius:99px;padding:12px 40px;font:inherit;font-weight:800;font-size:18px}
+.bar{display:flex;align-items:center;justify-content:space-between;margin:0 2px 10px}.ttl{display:flex;align-items:center;gap:7px;font-weight:700;font-size:14px}
+.gear{width:28px;height:28px;border-radius:9px;border:2px dashed var(--bd);background:var(--card);color:var(--mut);font-size:16px;padding:0;line-height:1}
+.sl{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}.sp{min-width:100%;scroll-snap-align:start;padding:4px 12px}
+.ic{width:42px;height:42px;border-radius:10px;flex:none;object-fit:cover;background:#fbf7ee;border:1px solid var(--bd);display:block}
+.ic svg{width:100%;height:100%;display:block}
+.sr{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.sr button{flex:1 0 28%;padding:6px 0;border:1px solid var(--bd);background:var(--bg);color:var(--mut);border-radius:10px;font:inherit;font-size:13px}.sr button.on{border-color:var(--ac);color:var(--ac);font-weight:700}
+.pg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.pg button{padding:4px;border:2px solid var(--bd);background:#fbf7ee;border-radius:10px}.pg button.on{border-color:var(--ac)}.pg svg{width:100%;display:block}
+.pv{display:flex;gap:8px;align-items:center}.pv button{flex:1;padding:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:10px;font:inherit}
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 14px);transform:translate(-50%,-80px);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:700;transition:transform .25s;z-index:30;white-space:nowrap}
+#toast.on{transform:translate(-50%,0)}
+.hero{position:relative;overflow:hidden;padding:12px 16px 28px}
+.hero::after{content:'';position:absolute;left:0;right:0;bottom:0;height:10px;background:#6dc36b;border-top:2px solid #8fd08a}
+.hg{position:absolute;left:0;bottom:12px;width:100%;height:24px;pointer-events:none}
+.tabs button{border:2px dashed var(--bd);border-radius:14px}
+.sec{justify-content:flex-start}.sec span{margin-left:auto}
+.sec::before{content:'';width:16px;height:14px;margin-right:6px;flex:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Crect x='7' y='6' width='2' height='8' fill='%233f9e55'/%3E%3Crect x='2' y='1' width='12' height='6' fill='%235cb85c'/%3E%3C/svg%3E") no-repeat}
+.ft{margin-top:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ft,:root:not([data-theme="light"]) .bunt{filter:brightness(.7)}}
+:root[data-theme="dark"] .ft,:root[data-theme="dark"] .bunt{filter:brightness(.7)}
+.sec.rb::before{display:none}.sec.rb span{margin-left:0}
+.sec.rb .rib{background:var(--c);color:var(--tc);clip-path:polygon(0 0,100% 0,93% 50%,100% 100%,0 100%);padding:2px 20px 2px 8px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:5px}
+.sec.rb .dl{flex:1;border-top:2px dotted var(--c);margin:0 8px;height:0}
+.sd{position:absolute;top:0;bottom:0;width:12px;display:none;background-repeat:repeat-y;pointer-events:none}
+.sd.l{left:3px}.sd.r{right:3px;transform:scaleX(-1)}
+.w.tm .sd,.w.tg .sd{display:block}
+.w.tm .sd{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='46' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='8' height='46' fill='%23c9c3d6'/%3E%3Crect x='0' y='11' width='8' height='1' fill='%23a39cb8'/%3E%3Crect x='0' y='33' width='8' height='1' fill='%23a39cb8'/%3E%3Crect x='2' y='16' width='3' height='7' fill='%236a5a8a'/%3E%3Crect x='8' y='22' width='4' height='12' fill='%23e8505b'/%3E%3Crect x='9' y='22' width='2' height='2' fill='%23ffd23f'/%3E%3Crect x='8' y='34' width='4' height='2' fill='%23e8505b'/%3E%3C/svg%3E")}
+.w.tg .sd{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='34' shape-rendering='crispEdges'%3E%3Crect x='5' y='2' width='2' height='3' fill='%232f7a4a'/%3E%3Crect x='4' y='5' width='4' height='3' fill='%233f9e55'/%3E%3Crect x='3' y='8' width='6' height='3' fill='%232f7a4a'/%3E%3Crect x='5' y='11' width='2' height='3' fill='%238a5a3a'/%3E%3Crect x='9' y='24' width='2' height='2' fill='%23ffd23f'/%3E%3Crect x='1' y='20' width='1' height='1' fill='%23ffd23f'/%3E%3Crect x='2' y='30' width='1' height='1' fill='%23ffd23f'/%3E%3C/svg%3E")}
+.w.tm,.w.tg{padding-left:22px;padding-right:22px}
+body[data-tab="m"]{--bg:#eef0f6}body[data-tab="g"]{--bg:#e6f3fb}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body[data-tab]{--bg:#152019}:root:not([data-theme="light"]) .sd{filter:brightness(.75)}}
+:root[data-theme="dark"] body[data-tab]{--bg:#152019}:root[data-theme="dark"] .sd{filter:brightness(.75)}
+</style>
+</head>
+<body>
+<div class="w"><i class="sd l"></i><i class="sd r"></i><svg class="bunt" viewBox="0 0 340 16" aria-hidden="true" style="width:100%;display:block;margin:-6px 0 4px"><path d="M0 3 Q170 12 340 3" fill="none" stroke="#8a5a3a" stroke-width="1.5"/><polygon points="8,3 21,3 14.5,15" fill="#e8505b"/><polygon points="35,5 48,5 41.5,17" fill="#ffd23f"/><polygon points="62,6 75,6 68.5,18" fill="#3f8fd2"/><polygon points="89,7 102,7 95.5,19" fill="#5cb85c"/><polygon points="116,8 129,8 122.5,20" fill="#e8505b"/><polygon points="143,9 156,9 149.5,21" fill="#ffd23f"/><polygon points="170,9 183,9 176.5,21" fill="#3f8fd2"/><polygon points="197,9 210,9 203.5,21" fill="#5cb85c"/><polygon points="224,8 237,8 230.5,20" fill="#e8505b"/><polygon points="251,7 264,7 257.5,19" fill="#ffd23f"/><polygon points="278,6 291,6 284.5,18" fill="#3f8fd2"/><polygon points="305,5 318,5 311.5,17" fill="#5cb85c"/></svg>
+  <div class="bar"><span class="ttl"><svg viewBox="0 0 100 100" width="24" height="24"><rect width="100" height="100" rx="22" fill="#4a9fd8"/><polygon points="12,84 12,72 30,72 30,60 48,60 48,48 66,48 66,36 88,36 88,84" fill="#fff"/><circle cx="57" cy="28" r="5.5" fill="#ffd9b8"/><rect x="52" y="33" width="10" height="13" rx="3" fill="#e8505b"/><polygon points="68,34 70,20 75,27 78,16 81,27 86,20 88,34" fill="#ffd23f"/></svg>ミッションクエスト</span><button class="gear" data-a="tab" data-i="s" aria-label="設定">⚙</button></div><div class="hero"><div><small>所持ポイント</small><b id="bal">0</b></div><div class="t" id="today"></div><svg class="hg" viewBox="0 0 320 24" preserveAspectRatio="xMidYMax meet" shape-rendering="crispEdges" aria-hidden="true"><g fill="#8cc5ee"><rect x="150" y="5" width="26" height="6"/><rect x="155" y="1" width="12" height="5"/><rect x="165" y="3" width="8" height="4"/></g><rect x="116" y="15" width="3" height="8" fill="#8a5a3a"/><rect x="112" y="5" width="11" height="11" fill="#3f9e55"/><rect x="114" y="7" width="4" height="4" fill="#5cb85c"/><rect x="138" y="19" width="3" height="8" fill="#8a5a3a"/><rect x="134" y="9" width="11" height="11" fill="#3f9e55"/><rect x="136" y="11" width="4" height="4" fill="#5cb85c"/><rect x="20" y="18" width="2" height="2" fill="#ff7aa8"/><rect x="20" y="20" width="1" height="4" fill="#3f9e55"/><rect x="44" y="19" width="2" height="2" fill="#fff27a"/><rect x="44" y="21" width="1" height="4" fill="#3f9e55"/><rect x="70" y="18" width="2" height="2" fill="#ff7aa8"/><rect x="70" y="20" width="1" height="4" fill="#3f9e55"/><rect x="176" y="19" width="2" height="2" fill="#fff27a"/><rect x="176" y="21" width="1" height="4" fill="#3f9e55"/><rect x="300" y="18" width="2" height="2" fill="#ff7aa8"/><rect x="300" y="20" width="1" height="4" fill="#3f9e55"/></svg></div>
+  <div class="tabs" id="tabs"></div>
+  <div id="main"></div><div class="ft"><svg viewBox="0 0 340 70" style="width:100%;display:block" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 40 Q60 14 130 36 T260 30 T340 38 V70 H0Z" fill="#bfe6c0"/><path d="M0 52 Q80 32 170 50 T340 46 V70 H0Z" fill="#9bd49b"/><rect y="54" width="340" height="16" fill="#6dc36b"/><rect y="54" width="340" height="2" fill="#8fd08a"/><rect x="24" y="42" width="3" height="8" fill="#8a5a3a"/><rect x="20" y="32" width="11" height="11" fill="#3f9e55"/><rect x="22" y="34" width="4" height="4" fill="#5cb85c"/><rect x="50" y="46" width="3" height="8" fill="#8a5a3a"/><rect x="46" y="36" width="11" height="11" fill="#3f9e55"/><rect x="48" y="38" width="4" height="4" fill="#5cb85c"/><rect x="154" y="44" width="3" height="8" fill="#8a5a3a"/><rect x="150" y="34" width="11" height="11" fill="#3f9e55"/><rect x="152" y="36" width="4" height="4" fill="#5cb85c"/><rect x="80" y="56" width="2" height="2" fill="#ff7aa8"/><rect x="80" y="58" width="1" height="4" fill="#3f9e55"/><rect x="104" y="58" width="2" height="2" fill="#fff27a"/><rect x="104" y="60" width="1" height="4" fill="#3f9e55"/><rect x="200" y="56" width="2" height="2" fill="#ff7aa8"/><rect x="200" y="58" width="1" height="4" fill="#3f9e55"/><rect x="228" y="58" width="2" height="2" fill="#fff27a"/><rect x="228" y="60" width="1" height="4" fill="#3f9e55"/><rect x="120" y="50" width="2" height="10" fill="#8a5a3a"/><rect x="132" y="50" width="2" height="10" fill="#8a5a3a"/><rect x="144" y="50" width="2" height="10" fill="#8a5a3a"/><rect x="156" y="50" width="2" height="10" fill="#8a5a3a"/><rect x="168" y="50" width="2" height="10" fill="#8a5a3a"/><rect x="120" y="53" width="50" height="2" fill="#8a5a3a"/><g fill="#fff"><rect x="40" y="10" width="26" height="6"/><rect x="45" y="6" width="12" height="5"/><rect x="55" y="8" width="8" height="4"/></g><g fill="#fff"><rect x="200" y="16" width="26" height="6"/><rect x="205" y="12" width="12" height="5"/><rect x="215" y="14" width="8" height="4"/></g><g transform="translate(0,16)"><rect x="270" y="38" width="12" height="14" fill="#fff"/><rect x="282" y="32" width="12" height="20" fill="#fff"/><rect x="294" y="26" width="12" height="26" fill="#fff"/><rect x="306" y="20" width="14" height="32" fill="#fff"/><rect x="286" y="22" width="4" height="4" fill="#ffd9b8"/><rect x="286" y="26" width="4" height="6" fill="#e8505b"/><polygon points="308,20 309,12 312,16 314,9 316,16 319,12 320,20" fill="#ffd23f"/></g></svg></div>
+</div>
+<div id="sheet"></div>
+<div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TY={daily:'デイリー',weekly:'ウィークリー',monthly:'マンスリー',once:'単発'};
+let S={missions:[],rewards:[],log:[]},tab='m',range=30,form=null,arm=false,ref=null;
+const pad=n=>String(n).padStart(2,'0');
+const dk=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+function pk(type,d=new Date()){
+  if(type==='daily')return dk(d);
+  if(type==='weekly'){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()-((d.getDay()+6)%7));return 'W'+dk(x)}
+  if(type==='monthly')return d.getFullYear()+'-'+pad(d.getMonth()+1);
+  return 'once';
+}
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const bal=()=>S.log.reduce((a,l)=>a+l.d,0);
+const doneE=m=>S.log.find(l=>l.m===m.id&&l.k===pk(m.type));
+let tt;function toast(s){const t=$('#toast');t.textContent=s;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1600)}
+
+async function save(){
+  try{localStorage.setItem('mq',JSON.stringify(S))}catch(e){}
+}
+async function init(){
+  let L=null;
+  try{L=JSON.parse(localStorage.getItem('mq'))}catch(e){}
+  if(!L)try{
+    const user=await claude.use('user'),db=await claude.use('db');
+    if(user&&db){const id=await user.id();if(id){ref=db.collection('data/users/'+id).doc('state');const s=await ref.get();if(s.exists&&s.data().json)L=JSON.parse(s.data().json)}}
+  }catch(e){ref=null}
+  if(L)S=Object.assign(S,L);
+  daily();save();render();
+  if(PN)toast('未達ペナルティが'+PN+'件ありました');
+}
+
+const PAL={k:'#3a2a2a',w:'#fff',r:'#e84a4a',p:'#f7a8c4',y:'#f7d44a',o:'#f09a3a',b:'#8a5a3a',s:'#b8bcc4',h:'#6a6e78',u:'#4a8ee8',g:'#5cb85c'};
+const SER=[['スイーツ',[
+['ケーキ','..........|....r.....|...rrr....|.kkkkkkkk.|.kwwwwwwk.|.kppppppk.|.kwwwwwwk.|.kppppppk.|.kkkkkkkk.|..........'],
+['ドーナツ','..........|...kkkk...|..kppppk..|.kppkkppk.|.kpk..kpk.|.kpk..kpk.|.kppkkppk.|..kppppk..|...kkkk...|..........'],
+['アイス','...kkkk...|..kppppk..|.kppppppk.|.kwwwwwwk.|..kwwwwk..|..kooook..|...kook...|...kook...|....kk....|..........'],
+['コーヒー','..........|...s..s...|....s.s...|.kkkkkkk..|.kbbbbbkkk|.kbbbbbk.k|.kbbbbbkkk|..kbbbbk..|...kkkk...|..........']]],
+['ゲーム',[
+['コントローラー','..........|.kkkkkkkk.|kssssssssk|ksshssursk|kshhhsuyuk|ksshssursk|kssssssssk|.kkkkkkkk.|..........|..........'],
+['カセット','.kkkkkkkk.|.kssssssk.|.kuuuuuuk.|.kuwwwwuk.|.kuwrrwuk.|.kuwwwwuk.|.kuuuuuuk.|.kssssssk.|.khhhhhhk.|.kkkkkkkk.'],
+['ダイス','..........|.kkkkkkkk.|.kwwwwwwk.|.kwrrwwwk.|.kwrrwwwk.|.kwwwrrwk.|.kwwwrrwk.|.kwwwwwwk.|.kkkkkkkk.|..........'],
+['ヘッドホン','..kkkkkk..|.kssssssk.|.ks....sk.|.ks....sk.|kuuk..kuuk|kuuk..kuuk|kuuk..kuuk|.kk....kk.|..........|..........']]],
+['ごほうび',[
+['宝箱','..........|.kkkkkkkk.|kbbbbbbbbk|kbbbbbbbbk|kkkkyykkkk|kbbbyybbbk|kbbbbbbbbk|kbbbbbbbbk|.kkkkkkkk.|..........'],
+['ギフト','..........|...rr.rr..|..rrrrrrr.|.kkkyykkk.|.kppyyppk.|.kppyyppk.|.kppyyppk.|.kppyyppk.|.kkkkkkkk.|..........'],
+['コイン','..........|...kkkk...|..kyyyyk..|.kyyoyyyk.|.kyyoyyyk.|.kyyoyyyk.|.kyyyyyyk.|..kyyyyk..|...kkkk...|..........'],
+['ハート','..........|.kkk..kkk.|kpppkkpppk|kpwppppppk|kppppppppk|.kppppppk.|..kppppk..|...kppk...|....kk....|..........']]],
+['お出かけ',[
+['車','..........|...kkkk...|..kuuuuk..|.krrrrrrk.|krrrrrrrrk|kyrrrrrryk|kkkkkkkkkk|.khhk.khhk|..kk..kk..|..........'],
+['かばん','..........|...kkkk...|...k..k...|.kkkkkkkk.|kooooooook|kooooooook|kyyyyyyyyk|kooooooook|kkkkkkkkkk|..........'],
+['ポップコーン','..........|..w.ww.w..|.wwyywwyw.|.kkkkkkkk.|.krwrwrwk.|.krwrwrwk.|.krwrwrwk.|..krwrwk..|..krwrwk..|...kkkk...'],
+['ビリヤード','..........|bbbbbbbbbb|bggggggggb|bgwgggyggb|bggggyrugb|bgggggyggb|bggggggggb|bbbbbbbbbb|kb......bk|kk......kk']]],
+['食べ物',[
+['ラーメン','...s..s...|....s..s..|.kkkkkkkk.|kyyowwyyyk|kyyyyyyyyk|.krrrrrrk.|.krrrrrrk.|..krrrrk..|...kkkk...|..........'],
+['バーガー','..........|..kooook..|.koowoook.|kggggggggk|kyyyyyyyyk|kbbbbbbbbk|.kooooook.|..kkkkkk..|..........|..........'],
+['おにぎり','..........|....kk....|...kwwk...|..kwwwwk..|.kwwwwwwk.|.kwkkkkwk.|.kwkkkkwk.|.kkkkkkkk.|..........|..........'],
+['ピザ','..........|kkkkkkkkkk|kooooooook|.kyryyryk.|.kyyyyyyk.|..kyyryk..|...kyyk...|....kk....|..........|..........']]]];
+SER.push(['からだ',[['ダンベル','..........|..........|..........|.kk....kk.|.khkkkkhk.|.khkkkkhk.|.kk....kk.|..........|..........|..........'],['シューズ','..........|..........|....kk....|...kwwk...|...kwwk...|..kwwwwkk.|.kwwrrwwk.|.kkkkkkkk.|..........|..........'],['ボトル','..........|....kk....|....uu....|...kuuk...|...kuuk...|...kwwk...|...kuuk...|...kuuk...|....kk....|..........'],['りんご','..........|.....g....|....gk....|..krrwrk..|.krrrrrrk.|.krrrrrrk.|.krrrrrrk.|..krrrrk..|...kkkk...|..........'],['ねる','..........|..........|.k........|.kwwkuuuu.|.kwwkuuuu.|.kkkkkkkk.|.k......k.|..........|..........|..........'],['時計','..........|...kkkk...|..kwwwwk..|.kwwkwwwk.|.kwwkkwwk.|.kwwwwwwk.|.kwwwwwwk.|..kwwwwk..|...kkkk...|..........'],['しずく','..........|....k.....|...kuk....|...kuk....|..kuuuk...|.kuwuuuk..|.kuuuuuk..|..kuuuk...|...kkk....|..........'],['朝日','..........|....y.....|..y.yy.y..|...yyyy...|.yyyyyyyy.|.yyyyyyyy.|...yyyy...|..y.yy.y..|....y.....|..........'],['ハート','..........|..........|..rr..rr..|.rrrrrrrr.|.rwrrrrrr.|.rrrrrrrr.|..rrrrrr..|...rrrr...|....rr....|..........'],['メダル','..........|...r..b...|...r..b...|....rb....|...kyyk...|..kyyyyk..|..kyoyyk..|...kyyk...|....kk....|..........']]],['まなび',[['本','..........|..........|.kkkkkkk..|.kuuwwwk..|.kuuwwwk..|.kuuwwwk..|.kuuwwwk..|.kkkkkkk..|..........|..........'],['えんぴつ','..........|.......kk.|......kyk.|.....kyk..|....kyk...|...kyk....|..kpk.....|.kkk......|..........|..........'],['ノート','..........|..k.k.k...|.kwwwwwwk.|.kwkkkkwk.|.kwwwwwwk.|.kwkkkkwk.|.kwwwwwwk.|.kwkkkwwk.|.kkkkkkkk.|..........'],['パソコン','..........|..........|.kkkkkkkk.|.kuuuuuuk.|.kuwuuuuk.|.kuuuuuuk.|.kkkkkkkk.|...kssk...|..kkkkkk..|..........'],['ひらめき','..........|...kkkk...|..kyyyyk..|.kyywyyyk.|.kyyyyyyk.|..kyyyyk..|...kssk...|...kssk...|....kk....|..........'],['手紙','..........|..........|.kkkkkkkk.|.kkwwwwkk.|.kwkwwkwk.|.kwwkkwwk.|.kwwwwwwk.|.kkkkkkkk.|..........|..........'],['おんぷ','..........|....kkkk..|....kuuk..|....k.kk..|....k..k..|....k..k..|..kkk.kkk.|..kuk.kuk.|..kkk.kkk.|..........'],['絵筆','..........|.......rk.|......rk..|.....bk...|....bk....|...bk.....|..kbk.....|.kuuk.....|..kk......|..........'],['スマホ','..........|..kkkkkk..|..kuuuuk..|..kuwwuk..|..kuuuuk..|..kuuuuk..|..kuuuuk..|..kkrrkk..|..kkkkkk..|..........'],['地球','..........|...kkkk...|..kuuggk..|.kuggguuk.|.kuggguuk.|.kuuugguk.|.kuuuuuuk.|..kuuuuk..|...kkkk...|..........']]],['くらし',[['ほうき','..........|.......kb.|......kb..|.....kb...|....kb....|...kyyk...|..kyyyyk..|.kyyyyyyk.|.kkkkkkkk.|..........'],['シャツ','..........|.k..kk..k.|.kkkuukkk.|.kuuuuuuk.|.kuuuuuuk.|..kuuuuk..|..kuuuuk..|..kuuuuk..|..kkkkkk..|..........'],['お皿','..........|..........|...kkkk...|..kwwwwk..|.kwwrrwwk.|.kwwrrwwk.|..kwwwwk..|...kkkk...|..........|..........'],['買い物','..........|...k..k...|...kkkk...|.kooooook.|.kooooook.|.kooooook.|.kooooook.|..kkkkkk..|..........|..........'],['かぎ','..........|..kkkk....|.kyyyyk...|.ky..yk...|.kyyyyk...|..kkyk....|....yk....|....yyk...|....kk....|..........'],['お金','..........|...kkkk...|....kk....|...kyyk...|..kyyyyk..|.kyyooyyk.|.kyyyyyyk.|..kyyyyk..|...kkkk...|..........'],['植木鉢','..........|....g.g...|...ggg....|....gg....|....g.....|..kooook..|..kooook..|...kook...|...kkkk...|..........'],['なべ','..........|...s..s...|..s..s....|.kkkkkkkk.|.khhhhhhk.|.khhhhhhk.|.khhhhhhk.|..kkkkkk..|..........|..........'],['カレンダー','..........|.kkkkkkkk.|.krrrrrrk.|.kwwwwwwk.|.kwkwkwwk.|.kwwwwwwk.|.kwkwkwwk.|.kwwwwwwk.|.kkkkkkkk.|..........'],['ベル','..........|....kk....|...kyyk...|..kyyyyk..|..kyyyyk..|.kyyyyyyk.|.kkkkkkkk.|....yy....|..........|..........']]]);
+const SC={};
+function sv(key){
+  if(SC[key])return SC[key];
+  const [a,b]=key.split('-'),it=SER[a]&&SER[a][1][b];if(!it)return '';
+  let r='';it[1].split('|').forEach((row,y)=>[...row].forEach((c,x)=>{if(PAL[c])r+=`<rect x="${x}" y="${y}" width="1" height="1" fill="${PAL[c]}"/>`}));
+  return SC[key]=`<svg viewBox="0 0 10 10" shape-rendering="crispEdges">${r}</svg>`;
+}
+const icon=r=>r.img?`<img class="ic" src="${r.img}" alt="">`:r.px?`<div class="ic">${sv(r.px)}</div>`:'';
+const stash=()=>{form.vals=form.vals||{};document.querySelectorAll('#sheet input,#sheet select').forEach(e=>{if(e.id&&e.type!=='file')form.vals[e.id]=e.value})};
+function vIc(){
+  const cur=form.img?`<img class="ic" src="${form.img}" alt="">`:form.px?`<div class="ic">${sv(form.px)}</div>`:'<div class="ic"></div>';
+  const s=form.ser||0;
+  return `<label>アイコン</label><div class="pv">${cur}<button data-a="photo">📷 写真を選ぶ</button><button data-a="noic">なし</button></div><input id="ff" type="file" accept="image/*" hidden>
+  <div class="sr">${SER.map((x,i)=>`<button data-a="ser" data-i="${i}" class="${s===i?'on':''}">${x[0]}</button>`).join('')}</div>
+  <div class="pg">${SER[s][1].map((x,j)=>`<button data-a="pick" data-i="${s}-${j}" class="${form.px===s+'-'+j?'on':''}" title="${x[0]}">${sv(s+'-'+j)}</button>`).join('')}</div>`;
+}
+const BL=[[1,'洞穴','🕳️'],[2,'焚き火','🔥'],[4,'石器','🪨'],[7,'毛皮のテント','⛺'],[10,'狩り場','🏹'],[14,'壁画','🎨'],[19,'干し肉棚','🍖'],[25,'畑','🌾'],[29,'土器','🏺'],[33,'わらの家','🛖'],[37,'家畜小屋','🐑'],[41,'巨石の輪','🗿'],[45,'井戸','🪣'],[50,'神殿','🏛️'],[58,'市場','🏪'],[66,'石橋','🌉'],[75,'水道橋','🏞️'],[85,'港','⚓'],[95,'巻物の蔵','📜'],[110,'城壁','🧱'],[118,'教会','⛪'],[126,'鍛冶屋','⚒️'],[135,'水車小屋','⚙️'],[144,'酒場','🍺'],[152,'修道院','🔔'],[160,'小さな城','🏰'],[166,'騎士団','🛡️'],[170,'帆船','⛵'],[180,'羅針盤','🧭'],[190,'貿易港','🚢'],[200,'香辛料倉庫','🌶️'],[210,'地図工房','🗺️'],[220,'灯台','🗼'],[230,'学校','🏫'],[240,'図書館','📚'],[250,'劇場','🎭'],[260,'鉄道','🚂'],[270,'工場','🏭'],[280,'郵便局','📮'],[290,'ビル','🏢'],[300,'病院','🏥'],[310,'電車','🚃'],[320,'球場','🏟️'],[330,'映画館','🎬'],[340,'観覧車','🎡'],[350,'摩天楼','🌆'],[360,'空港','✈️'],[370,'大学','🎓'],[380,'ショッピングモール','🛍️'],[390,'スタジアム','🏆'],[400,'通信塔','📡'],[410,'高速鉄道','🚄'],[420,'ソーラー街区','☀️'],[430,'ロボット工場','🤖'],[440,'宇宙港','🚀'],[450,'王宮','🏯'],[465,'王家の庭園','🌳'],[480,'祝祭の花火','🎆'],[500,'建国記念碑','🎖️'],[510,'王立劇場','🎻'],[520,'騎士団本部','⚔️'],[530,'王立科学院','🔬'],[540,'噴水広場','⛲'],[550,'王立動物園','🦁'],[560,'水上バス','🚤'],[570,'王立美術館','🖼️'],[580,'国営放送局','📺'],[590,'王立天文台','🔭'],[600,'王立銀行','🏦'],[610,'国立競技場','🥇'],[620,'クルーズ港','🛳️'],[630,'王家の温室','🌺'],[640,'国立博物館','🦖'],[650,'王立音楽堂','🎼'],[660,'国際空港','🛫'],[670,'時計塔','🕰️'],[680,'王立植物園','🌷'],[690,'国立水族館','🐠'],[700,'王立大病院','🩺'],[710,'スケート場','⛸️'],[720,'風力発電所','🌀'],[730,'王立スタジオ','🎥'],[740,'海上都市','🏝️'],[750,'王国鉄道','🚆'],[760,'王立研究所','🧪'],[770,'遊園地','🎢'],[780,'国立公園','🏕️'],[790,'王立レストラン','🍽️'],[800,'王立ホテル','🏨'],[810,'国際会議場','🌐'],[820,'宇宙センター','🛰️'],[830,'月面基地','🌙'],[840,'スキー場','⛷️'],[850,'ビーチリゾート','🏖️'],[880,'王家の宝物庫','💎'],[900,'平和の記念碑','🕊️'],[920,'星空ドーム','✨'],[950,'虹の橋','🌈'],[980,'王国の大時計','⏰'],[1000,'王国','👑']];
+const ER=[[1,'旧石器時代','狩人'],[25,'新石器時代','族長'],[50,'古代文明','村長'],[110,'中世','領主'],[170,'大航海時代','提督'],[230,'産業革命','町長'],[290,'近代','市長'],[350,'現代','知事'],[410,'未来','総督'],[450,'王国','王']];
+const nm=E=>ER[E][2]+'タロウ';
+const MAXL=1000;
+const earned=()=>S.log.reduce((a,l)=>a+(l.d>0?l.d:0),0);
+const lvOf=e=>Math.min(MAXL,1+Math.floor(e/1000));
+const eraOf=L=>ER.filter(x=>L>=x[0]).length-1;
+const pop=e=>1+Math.floor(e/50);
+function dayEarn(o){const T=new Date(),a=new Date(T.getFullYear(),T.getMonth(),T.getDate()-o).getTime();return S.log.reduce((q,l)=>q+(l.d>0&&l.t>=a&&l.t<a+864e5?l.d:0),0)}
+function stkAt(o){let n=0;while(n<400&&dayEarn(o+n+1)>=200)n++;return n}
+const stk=()=>stkAt(0);
+const dayClear=o=>{const T=new Date(),a=new Date(T.getFullYear(),T.getMonth(),T.getDate()-o).getTime();return S.log.some(l=>l.d>0&&l.t>=a&&l.t<a+864e5)};
+const mult=(n=stk())=>Math.pow(1.007,Math.min(n,180));
+let PN=0;
+function chargeFee(){
+  const N=new Date(),late=N.getHours()*60+N.getMinutes()>=1430;
+  if(!S.fd){S.fd=dk(new Date(N.getFullYear(),N.getMonth(),N.getDate()-(late?0:1)));S.t0=Date.now();return true}
+  let ch=false;
+  for(let o=400;o>=(late?0:1);o--){
+    const d=new Date(N.getFullYear(),N.getMonth(),N.getDate()-o),k=dk(d);
+    if(k<=S.fd)continue;
+    const n=stkAt(o);let q=0;const t0=new Date(S.t0||Date.now()),tz=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate()).getTime();
+    while(q<400&&!dayClear(o+q)&&new Date(N.getFullYear(),N.getMonth(),N.getDate()-o-q).getTime()>=tz)q++;
+    const f=Math.round(n>0?150*mult(n):150+Math.max(0,q-1));
+    S.log.push({t:d.getTime()+85800000,d:-f,l:'管理費',k:'fee'+k});S.fd=k;ch=true;
+  }
+  return ch;
+}
+function penalize(){
+  const N=new Date(),t0=new Date(N.getFullYear(),N.getMonth(),N.getDate());let n=0;
+  S.missions.forEach(m=>{
+    const q=ep(m);if(!q||m.type==='once')return;
+    if(!m.at)m.at=Date.now();
+    const cur=pk(m.type),st=new Date(m.at),seen={};m.pd=m.pd||{};
+    let d=new Date(st.getFullYear(),st.getMonth(),st.getDate());
+    for(let g=0;d<t0&&g<800;g++,d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)){const k=pk(m.type,d);if(k!==cur)seen[k]=d.getTime()+86399000}
+    for(const k in seen){
+      if(m.pd[k])continue;m.pd[k]=1;
+      if(S.log.some(l=>l.m===m.id&&l.k===k))continue;
+      S.log.push({t:seen[k],d:-q,l:'未達：'+m.title,m:m.id,k:'p'+k});n++;
+    }
+  });
+  return n;
+}
+const OB=[
+[['洞穴の奥','川のほとり','マンモスの足跡の前','焚き火のそば','岩山のふもと','木の実の森'],['磨いた石','大きな骨','きれいな貝殻','毛皮のマント','赤い木の実','石斧'],['焼いた肉','木の実','焼き魚','キノコ','骨付き肉','はちみつ'],['マンモスが現れた','雷が落ちた','流れ星が降ってきた','焚き火が消えかけた','謎の足跡が見つかった','洞穴の壁に絵が描かれた']],
+[['畑のあぜ道','神殿の階段','市場の広場','港の桟橋','石橋のたもと','村の井戸端'],['青銅の壺','織物','塩のかたまり','金の腕輪','パピルス','オリーブ油'],['焼きたてのパン','ぶどう','チーズ','オリーブ','干し魚','はちみつ酒'],['隊商が到着した','神殿で祭りが始まった','舟が大漁で戻ってきた','星占いが当たった','橋が完成した','雨ごいが成功した']],
+[['城壁の上','教会の鐘楼','酒場','鍛冶屋の前','風車小屋','騎士の訓練場'],['銀の剣','羊皮紙','ステンドグラス','革の鎧','香辛料','古い地図'],['ミートパイ','スープ','黒パン','エール','焼きリンゴ','ソーセージ'],['吟遊詩人が訪れた','馬上槍試合が開かれた','市が立った','城門が修理された','旅の商人が来た','鐘が一日中鳴りやまなかった']],
+[['新しい駅','図書館','劇場','工場の前','石畳の大通り','港の倉庫街'],['懐中時計','新聞','万年筆','望遠鏡','蓄音機','洋傘'],['紅茶','焼き菓子','コーヒー','シチュー','ビスケット','ローストビーフ'],['汽車が到着した','新聞が創刊された','博覧会が開かれた','ガス灯がともった','劇場が満員になった','発明家が訪れた']],
+[['商店街','映画館','球場','電車のホーム','デパート','公園のベンチ'],['腕時計','ラジオ','カメラ','傘','レコード','自転車'],['カレー','コロッケ','プリン','ラーメン','たい焼き','サンドイッチ'],['電車が開通した','花火大会が開かれた','野球の試合で盛り上がった','新作映画が公開された','デパートが開店した','運動会が開かれた']],
+[['空港','摩天楼の展望台','大学のキャンパス','宇宙港','ショッピングモール','王宮の庭園'],['最新のスマホ','ドローン','ノートPC','ロボット掃除機','VRゴーグル','電動自転車'],['タピオカ','ハンバーガー','寿司','ピザ','パンケーキ','コンビニスイーツ'],['ロケットが打ち上がった','王宮で晩餐会が開かれた','街じゅうでセールが始まった','国際会議が開かれた','自動運転バスが迷子になった','花火が空を埋め尽くした']]];
+const NB=[
+[['麦畑','土器づくりの小屋','巨石の輪の前','羊の囲い','村の広場','水田のあぜ道'],['土器のつぼ','麦の穂','骨の針','編みかご','磨いた石斧','羊毛'],['麦がゆ','焼きたてのパン','ヤギのミルク','干し肉','木の実のスープ','蜂蜜'],['初めての収穫祭が開かれた','羊が一匹脱走した','巨石の下で星祭りがあった','土器の窯が大成功した','麦が大豊作だった','雨ごいの踊りが始まった']],
+[['港の桟橋','羅針盤の工房','香辛料の市場','灯台の上','酒場の隅','地図屋の店先'],['羅針盤','海図','異国の香辛料','望遠鏡','真珠の首飾り','航海日誌'],['干しぶどう','塩漬け肉','異国の果物','ラム酒','焼きたての堅パン','魚のスープ'],['大きな帆船が入港した','見知らぬ島が発見された','嵐を無事に越えた','異国の商人が訪れた','宝の地図が見つかった','出港の鐘が鳴った']],
+[['宇宙港のラウンジ','浮遊都市の展望デッキ','リニアの駅','ロボット市場','月面基地の窓辺','ホログラム公園'],['ホログラムのペット','反重力ボード','万能翻訳機','小型ロボット','月の石','宇宙服のレプリカ'],['宇宙食のカレー','培養肉ステーキ','3Dプリントのパン','無重力ゼリー','合成コーヒー','人工イチゴ'],['ロケットが定刻に打ち上がった','ロボットが突然踊り出した','リニアが開通した','月面から中継が届いた','空飛ぶ車が渋滞した','AIが歌を作った']],
+[['王宮の庭園','謁見の間','城下町の大通り','王立図書館','凱旋門の前','バルコニー'],['王家の紋章入りの指輪','金のティーカップ','長い絨毯','古い王冠','祝いの旗','騎士団のマント'],['王宮の晩餐','祝いのケーキ','特製ローストチキン','果実のタルト','王室ブレンドの紅茶','祝い酒'],['王宮で舞踏会が開かれた','パレードが街を埋め尽くした','祝砲が鳴り響いた','国じゅうで祭りが始まった','他国の使者が訪れた','王家の鐘が鳴り響いた']]];
+const WD=[OB[0],NB[0],OB[1],OB[2],NB[1],OB[3],OB[4],OB[5],NB[2],NB[3]];
+const LP=['昨日の未達に、街じゅうがざわついている。','サボりの気配を察して、住人たちの視線が少し冷たい。','昨日の失点を、住人たちは見て見ぬふりをしてくれた。'],
+LZ=['昨日は動きのない一日だった。','昨日は{t}もお休みモード。','昨日はみんなのんびりしていた。'],
+LL=['昨日の{y}ptで、街がほんの少し前進した。','昨日は{y}pt。小さな一歩も一歩だ。'],
+LM=['昨日は{y}pt。街に活気が出てきた。','昨日の{y}ptで、住人の顔つきが変わった。'],
+LH=['昨日は{y}pt！街じゅうが{t}の話題で持ちきりだ。','昨日の{y}ptは大手柄。住人が拍手を送っている。'],
+TP=['{p}で{f}を食べた住人が「もう一杯」とおかわりを要求している。','{t}は{p}で{i}を手に入れた。使い道は未定。','{e}。住人たちは大騒ぎだ。','{p}で{i}を拾った。たぶん価値があるものだと思う。','住人のひとりが{p}で{f}を食べすぎて動けなくなっていた。','{t}は{p}を散歩した。手を振ると、なぜか全員が振り返してくれた。','{e}。ついでに{f}も配られた。','住人の間で{i}が大流行している。','{p}で{i}を買った。値段は聞かないでほしい。','{p}の近くに{f}の屋台が出た。行列ができている。','{e}。人口は{n}人になった。','今日は{p}に行った。景色が良くて、しばらく動けなかった。','住人の子どもが{i}を自慢してきた。ちょっと羨ましい。','{f}を目当てに{p}へ。結果、期待以上だった。','{p}で住人どうしがケンカ。理由は{i}の取り合いだった。','{e}。{t}は今夜、早く寝ることにした。','{p}に{i}を置いてみたら、なぜか拝まれた。','住人が「{f}が世界を救う」と力説している。否定できない。','{p}で迷子になった。住人に助けられ、{f}をごちそうになった。','見上げると空が広い。{p}から見る景色は、いつも新しい。','{i}を{p}で自慢したら、{f}と交換してくれと言われた。断った。','{e}。{p}がいつもよりにぎやかだ。'],
+RM=['{p}で、まぶしいくらい堂々とした人と目が合った。{w}という名前らしい。','{w}に「あなたが噂のタロウね」と声をかけられた。なぜか背筋が伸びた。','{w}が{p}で走り込みをしていた。フォームまで美しい。','{w}に{f}をすすめられた。「体は資本よ」と言われ、全部食べた。','{e}。{w}が隣で「やるじゃない」と笑った。','{w}の名前を、タロウは今日だけで十回は呼びかけて飲み込んだ。','{p}で{w}とすれ違った。軽く手を振られて、一日機嫌がよかった。','{w}が{i}を見て「いいセンスね」と言った。タロウは舞い上がった。','住人に「{w}さんと知り合いなのか」と聞かれた。まだ知り合い、だと答えた。','{w}と{p}で朝のストレッチ。タロウの体は、あまりに固かった。','{w}に誘われて、{p}で一緒に走った。三分で息切れした。','{w}が{f}を分けてくれた。「負けず嫌いなら食べなさい」。','{e}。{w}とタロウは、同時に同じ方向を見ていた。','タロウは{w}に{i}を貸した。返ってこなくてもいい、と本気で思った。','{w}に悩みを話した。「大丈夫、あなたならやれるわ」の一言が効いた。','{p}で{w}と待ち合わせ。…約束より三十分早く着いてしまった。','{w}との会話で、タロウは初めて冗談で笑わせることに成功した。','{w}が「友人として誇らしいわ」と言った。…友人、か。','{f}を食べながら、{w}と将来の話をした。思ったより遠くを見ている人だった。','住人に「ふたり、仲いいね」と言われた。{w}は涼しい顔で「当然よ」と答えた。','タロウは勇気を出して{w}を誘った。「ええ、いいわよ」即答だった。','初デートの前夜、タロウは服を七回着替えた。','{p}で初デート。{w}の笑顔が眩しくて、景色が頭に入らなかった。','デート中、{w}が{f}を一口くれた。間接…とか考えない。考えない。','{w}と{i}を一緒に選んだ。値段より、悩む時間が楽しかった。','デートの帰り道、{w}と手がふれた。どちらも、気づかないふりをした。','{w}から「次はいつ？」とメッセージが来た。人生で一番速く返信した。','{p}で二回目のデート。今日はちゃんと会話ができた気がする。','{e}。{w}がそっと袖をつかんだ。タロウの心臓が止まりかけた。','{w}が「あなたと歩くペース、嫌いじゃないわ」と言った。最高の褒め言葉だ。','タロウは{w}のことを、毎日考えてしまうと自覚した。','住人たちが「早く告白しろ」と、あからさまに応援してくる。','{w}が{p}で、誰かを待っているようだった。…自分だと信じたい。','タロウは{w}に{i}を贈った。「大切にするわ」の一言で、天にも昇った。','{f}を食べながら、{w}が「最近、あなたのことばかり考えるの」とつぶやいた。','タロウは告白の練習を三日続けた。{p}の木が一番聞いていた。','{e}。{w}が「今日は特別な日になる気がする」と言った。','告白の前夜、タロウは一睡もできなかった。{w}の顔ばかり浮かぶ。','{p}に着くと、{w}はもう待っていた。「遅いわよ」と笑った。','深呼吸して、タロウは{w}に想いを伝えた。…返事は、「私も同じよ」だった。','恋人になった翌朝。タロウは、世界の色が少し変わった気がした。','{w}と恋人として初めての{f}。いつもの味が、なぜか特別だった。','住人たちが「おめでとう」と大騒ぎ。{w}は照れて、少しだけ赤くなった。','恋人と{p}を散歩。街の景色が、少しだけ違って見える。','{w}から{i}をもらった。宝物にして、毎日眺めている。','{w}が「呼び捨てでいいのに」と言った。タロウは三日間悩んで、呼んだ。','{e}。恋人と並んで見られたことが、一番の収穫だった。','{w}が朝のトレーニングにタロウを引っ張り出した。恋人の特権らしい。','{p}で、{w}の肩にそっと寄りかかった。何も言わず、受け止めてくれた。','付き合って最初の月。{w}が「悪くない毎日ね」と言ってくれた。','{w}が風邪を引いた。タロウは{f}を抱えて、街じゅうを走った。','ささいなことでケンカ。{p}で、別々のベンチに座った。','{w}から「言いすぎたわ」と連絡が来た。タロウも「こっちこそ」と返した。','仲直りに{f}を食べた。ケンカのあとの味は、少し甘い。','{w}が「私たち、ちゃんと話し合えるのね」と笑った。','タロウが落ち込んだ日、{w}は黙って隣にいてくれた。','{e}。{w}が「あなたの頑張りは、ちゃんと届いているわ」と言った。','{w}の誕生日。タロウは{i}を用意して、{p}でサプライズを決行した。','{w}が涙ぐんでいた。「嬉しすぎて、顔が追いつかないの」と言った。','「ごめん」と「ありがとう」を、ちゃんと言える関係になった。','ふたりで暮らす相談をした。{p}の近くに家を建てようと思う。','{w}の家族に挨拶へ。緊張でタロウは右手と右足が同時に出た。','{w}の家族に「よろしくね」と言われた。タロウは深く頭を下げた。','家が完成。{i}を飾って、ふたりだけの空間ができた。','ふたりの暮らしが始まった。朝の{f}が、今までで一番おいしい。','家事は交代制と決まった。{w}の方針に、異論は出なかった。','{e}。帰ったら、{w}がいつもの笑顔で待っていた。','{w}と{p}へ出かけた。「うちの街、いい街ね」と言ってくれた。','{w}が料理に挑戦。…味は微妙だったが、タロウは二杯おかわりした。','この部屋に、{w}がいる。それだけで、全部うまくいく気がした。','タロウは指輪のカタログを、{w}に見つからないよう隠して読んでいる。','{i}の中に、指輪を隠そうとした。…失敗した。','{p}でプロポーズ。…返事は「はい」。住人全員が泣いていた。','{w}が「こんなに早く答えが出るなんて」と笑った。ずっと待っていたらしい。','結婚式の準備が始まった。{w}は「主役は任せなさい」と張り切っている。','招待状に「{f}食べ放題」と書いたら、返信が殺到した。','{w}のドレス試着。タロウは感想より先に、言葉を失った。','{e}。式の予定地がにぎやかになった。','タロウは誓いの言葉を練習している。{w}に聞かれて、真っ赤になった。','式の前夜。{w}が「ここまで来たわね」と静かに言った。','結婚式。{f}が山ほど出て、住人たちが踊り明かした。','誓いのキス。拍手が鳴りやまなかった。{w}はずっと笑っていた。','新婚旅行は{p}へ。タロウは世界一の幸せ者だと、本気で思っている。','{w}が{i}をお土産に選んだ。「あなたに似合うわ」と言われた。','新婚生活の朝。{w}の寝癖を、タロウだけが知っている。','{w}と{f}で乾杯。「これからもよろしくね」と言われた。','{e}。ふたりで見ていたら、時間を忘れた。','{w}の家族が遊びに来た。街じゅうが、お祭り騒ぎだった。','結婚して最初の記念日。{w}が{p}を予約してくれていた。','{w}が「幸せすぎて、トレーニングが手につかないの」と笑った。','ふたりで家計簿をつけた。節約も、{w}といると楽しい。','{w}が「いつか家族が増えたら」と言いかけて、顔を赤くした。','{p}で、ふたりで未来の話をした。{w}の夢は、タロウの夢でもある。','{w}が{i}をしまいながら、「これも思い出ね」と微笑んだ。','{e}。ふたりで並んで拍手を送った。','{w}が日誌を読み返して、くすくす笑っていた。','タロウは{w}に「ありがとう」を百回言うと決めた。まだ三回目だ。','住人たちが「お似合いの二人」と歌を作った。…やけに上手い。','{w}がタロウの手を握った。「これからも、ずっと隣よ」。','ふたりの物語は、まだまだ続く。次の目標を決めよう、と{w}が笑った。'],
+RC=['{w}と{p}へ。何度行っても飽きない。','{w}が{f}を作ってくれた。幸せの味がする。','{w}に{i}を贈ったら、倍の笑顔で返ってきた。','{w}と並んで、{e}のを眺めた。','{w}と{p}でのんびり。何もしない日も悪くない。','ケンカしかけたが、{f}で仲直り。','{w}が「{p}に行こう」と言い出した。タロウに断る理由はない。','{i}を巡って、ふたりで小さな言い合い。結局ふたりで使うことになった。','今日の夕飯は{f}。{w}の「おいしい」で、タロウは満足した。','{e}。帰ったら、{w}がいつもの笑顔で待っていた。'];
+const ROMP=10000;
+const MS=[3,5,10,15,20,25,30,45,60,75,90,105,120];
+const PH=[[['{n}日連続。三日坊主は卒業だな。','{n}日目。ここからが本番だぞ。','よくここまで来た。まだ{n}日だがな。','{n}日続いた。その調子で止まるな。','{n}日連続達成。今日も気を抜くな。'],['明日もやる。それが習慣になる。','続ける力は才能より強い。','褒めるのはまだ早い。だが悪くない。','次は5日だ。行け。']],[['{n}日連続。やるじゃないか。','{n}日目、いい流れだ。','{n}日も続いたな。体が覚え始めているぞ。','{n}日連続！ 本物になってきた。','もう{n}日。サボる理由が減ってきたな。'],['この勢いを殺すな。','次の壁は10日だ。','調子に乗るのは10日を超えてからだ。','自分を褒めていい。ただし明日もやれ。']],[['{n}日連続だと？ 大したものだ。','10日の壁を越えた。お前は本物だ。','{n}日。ここまで来る者は少ない。','{n}日連続！ もう習慣の領域だ。','{n}日目。胸を張れ、見事だ。'],['だが満足するな。次は15日だ。','その積み重ねが街を育てている。','ここからが差がつく場所だ。','よくやった。そして、明日もやれ。']],[['{n}日連続。圧倒的だ。','{n}日。もう誰もお前を三日坊主とは呼べない。','{n}日続けるとは、大した覚悟だな。','{n}日連続！ 実力が数字に表れている。','{n}日目。お前の努力は本物だ。'],['20日の景色を見に行くぞ。','手を抜くな。だが、誇れ。','この積み重ねは誰にも奪えない。','最高だ。だが、まだ終わりではない。']],[['{n}日連続！ 驚異的だ。','{n}日。もはや尊敬に値する。','{n}日続けた者だけが辿り着く場所だ。','{n}日連続。お前は超一流だ。','{n}日目。ここまでやり抜いた者に敬意を。'],['その背中が全員を引っ張っている。','称賛は受け取れ。次の節目へ進め。','この先も、お前なら届く。','最高の{n}日だった。さあ、続けるぞ。']]],PL=[['{n}日連続。もう誰も止められない。','{n}日。習慣は才能を超えたぞ。','{n}日続けた者だけが見える景色がある。','{n}日連続！ 王者の風格だ。'],['次の節目も取りに行け。','胸を張れ。ただし明日もやる。','その背中が、街を引っ張っている。','称賛は受け取った。さあ、次だ。']],OP=['ふふっ、','ふっ……',''],CS=['日々の精進は裏切らないわ。','限界なんて、私が決めるまで存在しなくてよ。','筋肉痛は成長の証よ。歓迎しなさい。','努力を惜しむ人間に、頂は見えないわ。','今日の汗は、明日の自信になるのよ。','私が認めたのだから、胸を張りなさい。','妥協は、私の辞書にないわ。','やると決めたなら、最後までやり抜きなさい。','結果は、積み重ねた時間が語るわ。','上を目指す覚悟はあるわね？','私の隣に立つなら、これくらい当然よ。','止まらない限り、道は続いているわ。'],US=['今日の紅茶は、いつもより香りが立っているわね。','礼儀は、強さの一部よ。','たまには優雅に休むのも、鍛錬のうちだわ。','身だしなみは心の姿勢。整えておきなさい。','上質な時間は、自分で作るものよ。','一流は、静かに結果を出すものだわ。'],TS=['……っ！ な、何よ、その顔は！','べ、別に、嬉しいわけじゃないわよ。','な、なにを見ているの？ 目をそらしてちょうだい。','そ、そんなこと、急に言わないでちょうだい。','か、勘違いしないでよ。たまたまなんだから！','い、今のは聞き流しなさい。'],PS=[['この街、悪くないわね。{y}、あなたが主なの？','{y}、覚えておくわ。一度聞いた名前は忘れないの。','初対面にしては、いい目をしているわね。','街の活気は、主の姿勢で決まるものよ。','{y}、挨拶は先にするものよ。','少しは期待しているわ、{y}。'],['また会ったわね。偶然、ということにしておくわ。','{y}と話していると、時間があっという間ね。','差し入れよ。体は資本なのだから食べなさい。','{y}の頑張り、ちゃんと見ているわ。','一緒に走る？ 付き合ってあげてもよくてよ。','友人として、誇らしいと思っているわ。'],['次の休み、空けておきなさい、{y}。','お出かけの服、少し悩んだのだけれど……どうかしら。','歩幅は合わせてちょうだい。ふふっ、冗談よ。','今日は楽しかったわ。また誘いなさい。','{y}の隣、思ったより落ち着くのね。','帰り道が、もう少し長ければいいのに。'],['最近、{y}のことを考える時間が増えたわ。','言いたいことがあるなら、聞いてあげてもよくてよ。','待つのは得意ではないのよ。早く言いなさい。','{y}がいない日は、街が静かすぎるわ。','強がるのはやめにするわ。会えて嬉しいの。','覚悟はできているわ。{y}はどうかしら。'],['恋人としての初仕事よ。まず一緒に食事ね。','恋人と呼ばれるのは、まだ慣れないわ。','今日も努力する{y}が、一番素敵よ。','甘えるのは苦手なの。でも少しだけ。','隣にいる限り、情けない顔はさせないわ。','おはよう、{y}。今日も一緒に鍛えましょう。'],['ケンカしても最後は笑って帰るのよ。それが流儀。','言い過ぎたわ。悪かったわね。','落ち込んでも、私が背中を押してあげる。','隠しごとは無駄よ。顔に出ているもの。','仲直りの方法は、一緒に走ること。行くわよ。','弱さを見せてくれて、感謝するわ。'],['ふたりの部屋、どんな色にしましょうか。','朝食は私が作るわ。期待しすぎないでちょうだい。','一緒に暮らすのは、思ったより楽しいのね。','洗濯は交代制よ。異論は認めないわ。','毎朝、{y}の寝顔を見ているのよ。内緒ね。','これからも積み重ねていきましょう。'],['指輪のカタログばかり見ているわね。気づいているわよ。','{y}となら、一生走り続けられる気がするの。','答えは、もうずっと決まっているのよ。','式の準備は私も手伝うわ。主役は譲らないけれど。','ドレスの試着、見てくれるかしら。正直にね。','緊張しているの？ 私がついているわ。'],['今日から私は、{y}の妻よ。慣れないわね。','何度でも誓うわ。あなたを選んだことを。','新婚旅行、{y}となら世界の果てまで行けるわ。','これからは「私たち」よ。覚悟なさい。','毎朝「おはよう」を言える幸せを、噛みしめているの。','結婚しても、鍛錬の手は抜かないわよ。'],['いつか家族が増えたら、にぎやかになるわね。','{y}の隣が、私の定位置よ。','年月にも、負けるつもりはないわ。','街が大きくなるたび、{y}を誇りに思うの。','最強のペアだもの。何があっても大丈夫よ。','昔の日誌、いつか一緒に読みましょう。']],QTY=['c','c','t','c','u','c','u','c'];
+const MUST={0:'{w}「ふふっ、あなたが噂のタロウね。覚えておくわ」',22:'{w}「な、何よ。べ、別に緊張なんてしていないわ。……エスコート、期待しているわよ」',39:'{w}「……ふふっ。私も同じ気持ちよ、タロウ。これからは隣で、胸を張りなさい」',40:'{w}「恋人になったからといって、手は抜かないわよ。ふたりで上を目指すの。いいわね？」',72:'{w}「そんなこと、聞くまでもなくてよ。……はい。喜んで、お受けするわ」',80:'{w}「誓うわ。この先もずっと、あなたの隣で。ふふっ、覚悟なさい」',99:'{w}「ありがとう、タロウ。次の目標も、ふたりで超えていきましょう」'};
+Object.assign(MUST,{41:'{w}「恋人としての初めての食事ね。……べ、別に浮かれてなんていないわよ。ふふっ」',44:'{w}「それ、私が選んだのよ。気に入らなくても大切にしなさい。……気に入ってくれたなら、嬉しいわ」',45:'{w}「な、何よ急に名前で呼んで……！ …………悪くないわね。もう一度、呼んでちょうだい」',48:'{w}「……少しだけ、こうしていていいかしら。強がるのは、あなたの前では疲れてしまうの」',51:'{w}「……っ！ 言い過ぎたのは私の方よ。わかっているわ。でも、すぐには謝れないの」',53:'{w}「仲直りよ。ふふっ、ケンカのあとの食事は、いつもより美味しいものね」',57:'{w}「私の誕生日を覚えていたの？ ……な、泣いてなんていないわ！ ありがとう、タロウ」',58:'{w}「嬉しすぎて、言葉が追いつかないのよ。……こんな私を見せるのは、あなただけだわ」',61:'{w}「家族への挨拶、堂々としていたわよ。……惚れ直した、なんて言わないから！」',63:'{w}「ここが、ふたりの家なのね。……ふふっ、悪くないわ。大切に使いましょう」',68:'{w}「料理は……修行中よ！ 次こそは完璧にしてみせるから、覚悟していなさい」',71:'{w}「見えているわよ、タロウ。……見なかったことにしてあげるから、準備を続けなさい」',74:'{w}「式の準備は、トレーニングと同じよ。一歩ずつ、積み重ねていくの。一緒に頑張りましょう」',79:'{w}「前夜に眠れないのは、お互い様ね。……明日、あなたの隣で誓うわ」',81:'{w}「誓いのキス、だなんて……。な、何でもないわ。幸せよ、タロウ」',82:'{w}「世界の果てだろうと、あなたとなら。……これからも、私の隣を走りなさい」',88:'{w}「ふふっ、一年。あっという間だったわね。来年も、再来年も、ずっと隣にいなさい」',92:'{w}「あなたの夢は、私の夢でもあるの。一緒に叶えましょう。胸を張って、ね」',96:'{w}「百回も？ ふふっ、数えておいてあげるわ。……私は、もう数え切れないくらい思っているけれど」',98:'{w}「この手、離さないでちょうだい。……私も、離さないから」'});
+const ES_A=['夕暮れの路地','雨上がりの舗道','早朝のホーム','窓辺の午後','冬の夜道','夏の終わりの空','春先の風','秋の公園','深夜の台所','誰もいない教室','港の朝','商店街の夕方','雪の降る前の空気','ひとりの帰り道','古い喫茶店','日曜の午後','朝焼けの川沿い','梅雨の晴れ間','夜明け前の街','祭りのあとの広場','木漏れ日の坂道','終電の車内','湯気の立つ台所','静かな図書館','秋晴れの丘','ベランダの夜風','海辺の昼下がり','使い込んだ手帳'],ES_B=['が、ひそやかに色を変えていく。','が、遠い記憶をそっと連れてくる。','が、言葉にならない余白を残している。','が、昨日より少しだけ優しい。','が、時間の流れをゆるやかにほどいていく。','に、懐かしい匂いが溶けている。','には、小さな物語が眠っている。','は、胸の奥のざわめきを静めてくれる。','を見ていると、心の置き場所が見つかる。','は、何も語らないまま多くを教えてくれる。','が、ふいに輪郭を取り戻した。','が、季節の境目で息を整えている。','は、いつもより少し遠く見えた。','が、静けさという贈り物をくれる。','に立つと、自分の影が少し軽くなる。','が、ささやかな希望の形をしている。','の空気は、薄いガラスのように澄んでいた。','は、思い出よりも先に心へ届く。','が、ひとり言の相手になってくれる。','には、まだ名前のない感情が漂う。','が、ゆっくりと夜の色に染まっていく。','は、何度見ても初めての顔をする。','が、今日という日を静かに閉じていく。','の気配が、肩の力を抜いてくれる。','は、足音まで穏やかにしてしまう。','が、胸の奥に小さな灯をともす。','を抜ける風が、考えごとを連れ去っていく。','が、平凡な一日に句読点を打つ。','は、言い訳をしなくていい場所だった。','が、忘れていた感覚を呼び起こす。','に流れる時間は、いつも少し甘い。','が、心の輪郭をやわらかく縁取る。','は、季節のページをそっとめくった。','が、何気ない幸せの在りかを教えてくれる。','の静けさが、言葉より雄弁だった。','は、明日への助走のように感じられた。','が、疲れた心にそっと毛布をかける。','に漂う光は、琥珀のようにやわらかい。','が、歩幅を自然にゆるめてくれる。','は、ただそこにあるだけで十分だった。'];
+const qlineN=(b,k,r)=>{const ph=Math.min(9,Math.floor(r/10)),y=ph>=4&&k%2?'あなた':'タロウ',ty=QTY[k],ps=PS[ph][(b+k)%6].replace(/\{y\}/g,y);return ty==='t'?TS[(b+k*2)%6]:OP[(b+k)%3]+ps+(ty==='c'?CS[(b*5+k*3)%12]:US[(b+k)%6])};
+function msgOf(n){let ti=0;MS.forEach((x,i)=>{if(n>=x)ti=i});let h,t;
+  if(ti<5){h=R(PH[ti][0]);t=R(PH[ti][1])}else{const q=Math.floor(Math.random()*4);h=PL[0][(ti+q)%4];t=PL[1][(ti*2+q)%4]}
+  return (h+t).replace(/\{n\}/g,n)}
+function bigPop(n,g,mu){const d=document.createElement('div');d.id='pop';d.innerHTML=`<div class="pb"><div style="font-size:13px;color:var(--mut)">連続${n}日目 ／ +${g}pt（×${mu.toFixed(4)}）</div><div class="pn">${n}日</div><div class="pt2">${esc(msgOf(n))}</div><button data-a="popok">OK!</button></div>`;document.body.appendChild(d)}
+function essay(){
+  const T=new Date();S.es=S.es||{s:Math.floor(Math.random()*1e9),d:dk(T)};
+  const d0=new Date(S.es.d+'T00:00:00'),n=Math.max(0,Math.round((new Date(T.getFullYear(),T.getMonth(),T.getDate())-d0)/864e5)),c=Math.floor(n/1095);
+  const a=[...Array(1095).keys()];let r=(S.es.s+c*7919)>>>0;
+  const rnd=()=>{r=(r+0x6D2B79F5)>>>0;let t=r;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};
+  for(let i=1094;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+  const k=a[n%1095];return {n:n%1095+1,t:ES_A[k%28]+ES_B[Math.floor(k/28)]};
+}
+const essayBox=()=>{const e=essay();return `<div style="margin:12px 2px 2px;font-size:11px;color:var(--mut)">今日の表現 No.${e.n}</div><div style="font-size:13px;line-height:1.6;padding:0 2px 4px">${esc(e.t)}</div>`};
+const pinBox=()=>{const p=(S.pin||[])[0];return p?`<div class="card" style="border:3px dashed var(--ac);margin-top:10px"><div style="font-size:12px;color:var(--ac);font-weight:700">特別な日誌</div>${p.r!=null?'<canvas id="evt" width="48" height="30" style="width:75%;display:block;margin:6px auto;image-rendering:pixelated;border-radius:10px"></canvas>':''}<div style="margin:6px 0">${esc(p.t).replace(/\n/g,'<br>')}</div><div class="fb"><button class="p" data-a="pinok">OK!</button></div></div>`:''};
+const set=()=>{S.set=Object.assign({pen:10,w:'ナツキ'},S.set||{});return S.set};
+const ep=m=>m.noPen?0:(m.pen>0?m.pen:set().pen);
+const QT=[['あなたがこの街の主ね。ふうん、悪くない目をしているじゃない。','タロウ、だったかしら。覚えておくわ。一度聞いた名前は忘れないの。','この街、思っていたより活気があるわね。あなたが引っ張っているのでしょう？','朝のトレーニングは日課なの。…あら、見ていたの？','今日の成果、悪くないわね。その調子よ、タロウ。','私に追いつきたいなら、まず毎日続けることね。','遠慮は無用よ。話しかけたいなら、堂々と来なさい。','一歩ずつでいいの。止まらなければ、ちゃんと前に進んでいるわ。'],
+['また会ったわね。偶然…ということにしておいてあげる。','タロウと話していると、時間が早く過ぎるわ。','これ、差し入れ。体は資本よ、ちゃんと食べなさい。','今日は走り込み三十分。あなたも付き合う？','あなたの頑張り、ちゃんと見ているから。','疲れた顔ね。少し休むのも、立派な戦略よ。','ふふ、その笑顔。やっと見せてくれたわね。','私の友人として、胸を張りなさい。'],
+['今度の休み、空いているかしら。予定を空けておきなさい。','お出かけの服、悩んだのよ。…感想は？','隣を歩くなら、歩幅くらい合わせてほしいわ。','今日は楽しかったわ。…また誘いなさい。','あなたの隣、思ったより落ち着くのね。','手？…ええ、特別に許可してあげる。','帰り道がもう少し長ければいいのに。','次はどこに行きましょうか。あなたが決めてね。'],
+['最近、あなたのことばかり考えてしまうの。困ったわ。','タロウ、私に言いたいことがあるんじゃない？','待っているの。…そんなに焦らせないで。','あなたがいない日は、なんだか静かすぎるわ。','強がりはやめにするわ。会えて嬉しい。','その頑張りの先に、私もいたいの。','今日は特別な日になる気がするの。','覚悟はできているわ。あなたはどうかしら。'],
+['恋人としての初仕事よ。まず、一緒にご飯ね。','「恋人」って呼ばれるの、まだ慣れないわ。…悪くないけれど。','今日も頑張るあなたが、一番かっこいいわ。','甘えるのは苦手なの。でも、あなたになら…少しだけ。','私が隣にいる限り、情けない顔はさせないわ。','おはよう、タロウ。今日も一緒に鍛えましょう。','あなたの好きなもの、全部覚えたわ。','ねえ、もう少しだけこうしていていい？'],
+['ケンカしても、最後は笑って帰りましょう。それが私たちの流儀よ。','言い過ぎたわ。…ごめんなさい。','あなたが落ち込んでも、私が背中を押してあげる。','私に隠しごとは無駄よ。顔に出てるわ。','仲直りの方法は、一緒に走ること。行くわよ。','弱さを見せてくれて、ありがとう。','あなたとなら、どんな日も乗り越えられるわ。','今日も隣にいる。それだけで十分でしょう？'],
+['ふたりの部屋、どんな色にしましょうか。','朝ごはんは私が作るわ。…期待しすぎないで。','一緒に暮らすって、思っていたより楽しいのね。','洗濯物は交代制よ。異論は認めるわ。','あなたの寝顔、実は毎朝見ているの。','今日の夕飯は豪華よ。理由は…内緒。','この部屋に、あなたがいる。それが一番の幸せ。','これからも、一緒に積み重ねていきましょう。'],
+['最近、指輪のカタログばかり見ているのは気のせい？','あなたとなら、一生走れる気がするの。','その言葉、待っていたわ。…もちろん、答えは決まっているの。','「はい」以外の答えなんて、持っていないわ。','式の準備、私も手伝うわ。主役を放り出す気はないの。','ドレスの試着、見てくれる？…感想は正直にね。','緊張しているの？大丈夫、私がついているわ。','あなたと歩く道は、きっと最高のコースよ。'],
+['今日から私は、あなたの妻よ。…ふふ、慣れないわね。','誓います。何度でも言うわ、あなたを選んだことを。','新婚旅行、あなたとなら世界の果てでも行けるわ。','これからは「私たち」ね。覚悟していなさい。','毎朝「おはよう」を言える幸せ、噛みしめているの。','あなたの家族は、もう私の家族よ。','今日も二人で、胸を張って歩きましょう。','結婚しても、鍛錬の手は抜かないわよ。'],
+['ねえタロウ。いつか家族が増えたら、にぎやかになるわね。','あなたの隣が、私の定位置よ。','いつまでも負けないわ。あなたにも、年月にも。','この街が大きくなるたび、あなたを誇りに思うの。','何があっても大丈夫。私たち、最強のペアだもの。','またいつか、昔の日誌を一緒に読みましょう。','ありがとう、タロウ。これからもよろしくね。','さあ、次の目標を決めましょう。ふたりなら、きっと届くわ。']];
+const qline=(L,r)=>QT[Math.min(9,Math.floor(r/10))][(2*Math.floor((L-1)/5)+(S.qn%2))%8];
+const R=a=>a[Math.floor(Math.random()*a.length)];
+const hs=q=>{let h=5381;for(const c of q)h=((h<<5)+h+c.codePointAt(0))|0;return h};
+function daily(){
+  PN=penalize();let ch=PN>0;if(chargeFee())ch=true;
+  const T=new Date(),td=dk(T);
+  if(S.dd!==td){
+    const e=earned(),L=lvOf(e),E=eraOf(L),L0=S.lvl||1,E0=eraOf(L0),W=WD[E],y=dayEarn(1),sk=stk();
+    const y0=new Date(T.getFullYear(),T.getMonth(),T.getDate()-1).getTime(),pen=S.log.some(l=>l.d<0&&l.t>=y0&&l.t<y0+864e5&&l.l.startsWith('未達'));
+    S.used=S.used||[];S.dn=S.dn||0;
+    const fill=(q,x)=>q.replace(/\{(\w)\}/g,(_,k)=>x[k]);
+    let tx,x;
+    const mkx=()=>({p:R(W[0]),i:R(W[1]),f:R(W[2]),e:R(W[3]),t:nm(E),w:set().w,n:pop(e).toLocaleString(),y,s:sk});
+    const lead=x=>fill(sk>=3&&Math.random()<.5?'連続{s}日の快進撃で、住人たちが胸を張っている。':R(pen?LP:y===0?LZ:y<100?LL:y<300?LM:LH),x);
+    x=mkx();
+    const bl=BL.filter(b=>b[0]>L0&&b[0]<=L).pop();
+    if(S.dd==null)tx='洞穴の入口から、たったひとりの住人タロウが顔を出した。ここから街づくりが始まる。';
+    else if(E>E0)tx=`時代が「${ER[E][1]}」に変わった。${nm(E)}の新しい物語が始まる。`+(bl?`「${bl[1]}」が完成した。`:'');
+    else if(L>L0)tx=`Lv.${L}到達！`+(bl?`「${bl[1]}」が完成した。`:'街がまた少し大きくなった。');
+    else if((S.rm||0)<RM.length&&e>=((S.rm||0)+1)*ROMP){const r=S.rm||0;tx=lead(x)+fill(RM[r],x);S.rm=r+1;if(r in MUST)(S.pin=S.pin||[]).push({r,t:tx+'\n'+fill(MUST[r],x)})}
+    else if((S.rm||0)>=RM.length&&S.dn%8===7)tx=lead(x)+fill(R(RC),x);
+    else{let body,k=0;do{x=mkx();body=fill(R(TP),x);k++}while(S.used.includes(hs(body))&&k<50);S.used.push(hs(body));S.used=S.used.slice(-2000);tx=lead(x)+body}
+    if(S.dd!=null&&S.dn%3===2){const b=Math.floor((L-1)/5);if(S.qb!==b){S.qb=b;S.qu=0}if(S.qu<8){tx+='\n'+set().w+'「'+qlineN(b,S.qu,S.rm||0)+'」';S.qu++}}
+    S.diary=(S.diary||[]).concat([{d:td,t:tx,i:BL.filter(b=>b[0]<=L).pop()[2]}]).slice(-180);
+    S.dd=td;S.lvl=L;S.dn++;ch=true;
+  }
+  if(!S.es){essay();ch=true}
+  if(ch)save();
+  return ch;
+}
+function vS(){const c=set();return `<div class="sec">設定</div><div class="fm" style="border:1px solid var(--bd);border-radius:14px;box-shadow:none;max-height:none"><label>未達ペナルティの共通ポイント（0でなし・単発は対象外）</label><input id="s1" type="number" inputmode="numeric" min="0" value="${c.pen}"><label>パートナーの名前</label><input id="s2" value="${esc(c.w)}" maxlength="10"><div class="fb"><button class="p" data-a="sset">保存</button></div></div><div class="empty">ミッションごとに、個別のポイントや「ペナルティなし」も選べます。</div>`}
+function town(){
+  const e=earned(),L=lvOf(e),E=eraOf(L),nx=BL.find(b=>b[0]>L),ds=(S.diary||[]).slice().reverse(),pg=[];for(let i=0;i<ds.length;i+=7)pg.push(ds.slice(i,i+7)),pr=L>=MAXL?100:(e%1000)/10;
+  return `<div class="sec">街づくり<span>${ER[E][1]} ・ Lv.${L}/${MAXL} ・ 人口${pop(e).toLocaleString()}人</span></div><div class="card"><div style="font-size:24px;line-height:1.5;letter-spacing:1px">${BL.filter(b=>b[0]<=L).map(b=>b[2]).join('')}</div><div style="height:8px;border-radius:99px;background:var(--bd);margin:8px 0 4px;overflow:hidden"><div style="height:100%;width:${pr}%;background:var(--ac)"></div></div><div style="font-size:12px;color:var(--mut)">${L>=MAXL?'王国が完成しました！':`次のLvまであと${1000-e%1000}pt`}${nx?` ／ 次の建物「${nx[1]}」はLv.${nx[0]}`:''}</div></div>${pinBox()}<div class="sec">タロウの日誌<span>毎日1通</span></div><div class="sl">${pg.length?pg.map((q,i)=>`<div class="card sp"><div style="font-size:11px;color:var(--mut);text-align:right">${i+1}/${pg.length}${pg.length>1&&i<pg.length-1?'　← 横にスライドで過去分':''}</div>${q.map(x=>`<div class="lg"><div>${x.i} ${esc(x.t).replace(/\n/g,'<br>')}<i>${x.d}</i></div></div>`).join('')}</div>`).join(''):'<div class="card sp"><div class="empty">日誌はまだありません</div></div>'}</div>`;
+}
+const ILE=[0,0,1,2,2,2,0,5,5,6,6,3,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9],SNm=['草原を散歩','焚き火であったまる','畑仕事','街の広場でひと休み','海辺でのんびり','山登りに挑戦','トレーニング','カフェで休憩','電車でお出かけ','車でドライブ','新しい車を購入','お城を見学','川で魚釣り','洞窟の壁画づくり','羊のお世話','土器づくり','神殿にお参り','市場で買い物','風車の丘を散歩','鍛冶屋の見学','港で出航を見送る','灯台からの眺め','工場見学','劇場で観劇','野球観戦','映画館へ','空港から旅立ち','摩天楼を見上げる','ロケットの打ち上げ','月面基地を訪問','王宮のパレード','花火大会'],TMn=['朝','昼','夕方','夜','雨の日'],SKY=[['#cdebff','#8fd08a'],['#8fd3ff','#6dc36b'],['#ffc38a','#7db06a'],['#1e2a55','#2f5a45'],['#9aa9b8','#6c8f78']];
+const VE=[1,3,5,5,6,6,6,6,7,7,8,9,9],VBAD=[6,8,9,10,12,13,20,21,29],VN=['馬','馬車','自転車','気球','バイク','セダン','カブリオレ','バス','高級車','スポーツカー','空飛ぶ車','王室の馬車','リムジン'],PZ=['のんびり','手を振る','ジャンプ','ダッシュ','ひと休み','腕組み','力こぶ','背伸び','ピース','考え中','指さし','お辞儀','乾杯','読書'];
+const NP=14,POK={6:[0,2,5,6,12,14,15,19,22,24],10:[0,3,4,5,7,16,17,18,20,21,23,25,26,27,28,29,30,31],11:[3,11,16,17,23,25,30],12:[1,7,17,31],13:[7,23]},PONY=['KK.','HHK','HHK','.HK','.HK','.KK'];
+const pzOK=(p,sc)=>!POK[p]||POK[p].includes(sc);
+const modeOf=(m,s)=>m<NP?{k:-1,pz:pzOK(m,s)?m:m%5}:VBAD.includes(s)?{k:-1,pz:(m-NP)%5}:{k:m-NP,pz:0};
+const illTag=i=>{if(i.s===9)return '運転中';const o=modeOf(i.m,i.s);return o.k>=0?VN[o.k]+'に乗って':PZ[o.pz]};
+const EVT={0:[3,1,0,7,4,7,''],22:[7,1,0,8,1,0,''],39:[18,2,0,0,5,1,'h'],40:[0,0,2,1,3,3,'hs'],41:[7,1,12,12,0,3,''],44:[3,1,0,0,1,1,'g'],45:[0,2,1,1,1,1,'h'],48:[4,2,4,4,0,1,'h'],51:[0,4,5,5,5,2,''],53:[7,1,0,0,9,1,'h'],57:[3,3,0,2,0,6,'c'],58:[3,3,0,0,0,6,'cs'],61:[3,1,11,0,9,7,''],63:[0,1,2,1,3,3,'ks'],68:[7,1,0,9,0,2,''],71:[3,1,9,0,9,7,'r'],72:[18,2,0,0,5,6,'rh'],74:[3,1,0,10,0,3,''],79:[0,3,4,4,0,1,'s'],80:[30,1,2,1,3,6,'hs'],81:[30,1,0,0,1,1,'h'],82:[26,1,1,1,3,3,''],88:[31,3,0,0,0,3,'s'],92:[0,2,10,0,0,0,'s'],96:[3,1,11,1,9,7,''],98:[0,2,0,0,1,1,'h'],99:[31,3,2,2,3,3,'hs']};
+const BODY=['.KKKKKKKK.','KHHHHHHHHK','KHHSSSSHHK','KHSESSESHK','KHSSSSSSHK','.KSSMMSSK.','..KKSSKK..','.KCCCCCCK.','KSCCCCCCSK','.KCCCCCCK.','..KPPPPK..','..KPKKPK..','..KBK.KBK.','..KKK.KKK.'];
+function illInfo(){
+  const T=new Date(),E=eraOf(lvOf(earned()));S.es=S.es||{s:Math.floor(Math.random()*1e9),d:dk(T)};
+  const n=Math.max(0,Math.round((new Date(T.getFullYear(),T.getMonth(),T.getDate())-new Date(S.es.d+'T00:00:00'))/864e5));
+  let id=0;for(let i=0;i<60000;i++){const c=(S.es.s+(n+i)*7919)%73440,m=Math.floor(c/2720);if(ILE[c%32]<=E&&(m<NP||VE[m-NP]<=E)){id=c;break}}
+  return ildec(id);
+}
+const ildec=id=>({id,s:id%32,t:Math.floor(id/32)%5,v:Math.floor(id/160)%17,m:Math.floor(id/2720),hv:(id*7)%100<18&&(S.rm||0)>=1});
+const illBox=()=>{const i=illInfo();return `<div class="card" style="padding:8px;margin-top:6px"><canvas id="ill" width="48" height="30" style="width:75%;display:block;margin:0 auto;image-rendering:pixelated;border-radius:10px"></canvas><div style="font-size:12px;color:var(--mut);margin-top:6px">${TMn[i.t]}、${SNm[i.s]}（${illTag(i)}）${i.hv?`（${esc(set().w)}と一緒）`:''}<span style="float:right">No.${i.id+1}/73440</span></div></div>`};
+function drawIll(fid,ev){
+  const c=$(ev!=null?'#evt':'#ill');if(!c)return;const g=c.getContext('2d');let {id,s,t,v,hv,m}=fid==null?illInfo():ildec(fid);const EV=ev!=null?(EVT[ev]||[0,1,0,0,0,0,'']):null;if(EV){s=EV[0];t=EV[1];v=3;hv=true}const [sk,gd]=SKY[t];
+  const r=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(x,y,w,h)};
+  const tri=(cx,top,h,col)=>{for(let i=0;i<h;i++)r(cx-i,top+i,2*i+1,1,col)};
+  const spr=(rows,pal,x,y)=>rows.forEach((row,j)=>[...row].forEach((ch,i)=>{if(ch!=='.')r(x+i,y+j,1,1,pal[ch])}));
+  const shirt='hsl('+(v*21)+',65%,58%)',Y0=9;
+  const car=(x,y,col,dr,pa)=>{r(x,y+5,22,6,col);r(x+5,y+1,11,5,col);r(x+7,y+2,3,3,'#cfe8f5');r(x+11,y+2,3,3,'#cfe8f5');r(x+3,y+10,4,4,'#222');r(x+15,y+10,4,4,'#222');r(x+19,y+6,3,2,'#fff6a0');if(dr){r(x+7,y+3,2,2,'#ffd9b8');r(x+7,y+2,2,1,'#6b4a2e')}if(pa){r(x+11,y+3,2,2,'#ffd9b8');r(x+11,y+2,2,1,'#e39a3b')}};
+  r(0,0,48,30,sk);
+  if(t===3)[[5,4],[14,9],[24,3],[31,10],[43,6],[9,14]].forEach(q=>r(q[0],q[1],1,1,'#fff'));
+  if(t<4)r([5,38,40,38][t],t===2?14:5,5,5,t===3?'#f4f1d0':t===2?'#ff9a4a':'#ffe45e');
+  if(t===4)[[4,3],[22,6],[34,2]].forEach(q=>r(q[0],q[1],9,3,'#cfd6dd'));
+  r(0,23,48,7,{4:'#f2e0b0',9:'#555',13:'#4a3a2a',20:'#a37a4a',26:'#666',29:'#8a8a98'}[s]||gd);
+  const SC=[
+  ()=>{r(37,17,2,6,'#8a5a3a');r(34,11,8,7,'#3f9e55');[[6,25,'#ff7aa8'],[13,27,'#fff27a'],[22,26,'#ff7aa8'],[29,28,'#fff27a']].forEach(q=>r(q[0],q[1],1,1,q[2]))},
+  ()=>{r(30,6,16,17,'#6b5a4a');r(34,12,8,11,'#2a2018');r(22,23,6,1,'#5a3a28');r(23,20,4,3,'#e8632a');r(24,18,2,2,'#ffd23f')},
+  ()=>{[24,27].forEach(y=>r(22,y,24,2,'#8a5a3a'));for(let k=0;k<6;k++)r(24+k*4,22,2,3,'#5cb85c');r(40,13,1,9,'#8a5a3a');r(38,13,5,1,'#8a5a3a')},
+  ()=>{r(2,12,10,11,'#f2a7a0');r(1,9,12,3,'#c94c4c');r(34,10,12,13,'#a7c8f2');r(33,7,14,3,'#4c6fc9');r(21,19,6,4,'#bcd9ff');r(23,16,2,3,'#9ac4ff')},
+  ()=>{r(0,15,48,8,'#4aa3df');r(34,14,8,2,'#8a5a3a');r(37,9,3,5,'#fff');[[4,17],[16,19],[26,16]].forEach(q=>r(q[0],q[1],5,1,'#fff'))},
+  ()=>{tri(14,5,18,'#7d8f99');tri(34,9,14,'#8fa3ad');r(13,5,3,2,'#fff');r(33,9,3,2,'#fff')},
+  ()=>{r(0,0,48,23,'#e8dcc8');r(0,23,48,7,'#b08a5a');r(6,5,10,13,'#cfe8f5');r(30,21,8,1,'#444');r(29,19,2,4,'#444');r(37,19,2,4,'#444')},
+  ()=>{r(26,8,20,15,'#d9a066');r(25,8,22,3,'#e8505b');r(29,13,8,6,'#cfe8f5');r(15,20,6,1,'#8a5a3a');r(16,21,1,2,'#8a5a3a');r(19,21,1,2,'#8a5a3a');r(17,19,2,1,'#fff')},
+  ()=>{r(0,22,48,1,'#777');r(16,11,32,11,'#e0e6ee');r(16,16,32,2,'#3f8fd2');for(let k=0;k<4;k++)r(19+k*7,12,4,3,'#7ab8e8');r(18,22,3,2,'#333');r(40,22,3,2,'#333')},
+  ()=>{for(let k=0;k<5;k++)r(2+k*10,26,5,1,'#fff');car(12,10,shirt,1,hv)},
+  ()=>{r(30,6,12,4,'#ffd23f');r(35,10,2,13,'#8a5a3a');car(24,10,shirt,0,0)},
+  ()=>{r(24,6,20,17,'#c9c3d6');r(22,3,4,20,'#b4aec6');r(42,3,4,20,'#b4aec6');r(33,1,5,3,'#e8505b');r(31,15,6,8,'#5a4a6a')},
+  ()=>{r(0,17,48,6,'#4aa3df');[[4,19],[14,21],[26,18]].forEach(q=>r(q[0],q[1],5,1,'#cfe8ff'));for(let i=0;i<9;i++)r(17+i,15-i,1,1,'#5a3a28');r(26,7,1,11,'#fff');r(30,19,4,1,'#f2a24a')},
+  ()=>{r(0,0,48,23,'#6b5a4a');r(22,7,9,3,'#c94c4c');r(29,5,3,3,'#c94c4c');r(23,10,1,3,'#c94c4c');r(28,10,1,3,'#c94c4c');r(34,6,2,7,'#e8d9b0');r(33,7,4,1,'#e8d9b0');r(38,9,5,1,'#e8d9b0');r(40,12,3,3,'#e8632a')},
+  ()=>{r(22,19,24,1,'#8a5a3a');[22,30,38,45].forEach(x=>r(x,17,1,6,'#8a5a3a'));r(28,19,7,4,'#f4f4f4');r(26,20,3,2,'#555');r(29,23,1,1,'#555');r(33,23,1,1,'#555');r(38,20,5,3,'#f4f4f4');r(37,20,2,2,'#555')},
+  ()=>{r(30,12,12,11,'#b5654a');r(34,17,4,6,'#2a1a10');r(35,7,2,5,'#ddd');r(36,4,3,3,'#ccc');r(24,20,3,3,'#c2773a');r(24,19,3,1,'#a85f2c');r(44,20,3,3,'#c2773a')},
+  ()=>{r(24,7,22,3,'#d9cdb2');r(25,6,20,1,'#efe6d2');for(let k=0;k<5;k++)r(26+k*4,10,2,13,'#efe6d2');r(23,22,24,1,'#cfc3a8')},
+  ()=>{r(28,15,10,8,'#c9a36a');r(27,12,12,3,'#e8505b');r(31,12,2,3,'#fff');r(35,12,2,3,'#fff');r(41,19,3,4,'#c2773a');r(44,20,3,3,'#e8b23a');r(29,18,3,2,'#e85b3a');r(33,18,3,2,'#7ac05a')},
+  ()=>{r(34,10,6,13,'#d9c9a8');tri(37,6,4,'#8a5a3a');for(let i=1;i<6;i++)[[1,1],[-1,-1],[1,-1],[-1,1]].forEach(d=>r(37+d[0]*i,12+d[1]*i,1,1,'#8a5a3a'));r(36,11,2,2,'#5a3a28')},
+  ()=>{r(28,10,16,13,'#7a6a5a');r(27,8,18,3,'#4a3a2a');r(33,16,5,6,'#e8632a');r(34,14,3,2,'#ffd23f');r(22,20,5,2,'#444');r(23,22,3,1,'#444');r(40,18,3,5,'#444')},
+  ()=>{r(0,16,48,7,'#3a86c8');r(22,17,18,3,'#8a5a3a');r(30,5,1,12,'#5a3a28');r(36,7,1,10,'#5a3a28');r(24,6,5,9,'#f4f0e0');r(31,6,4,9,'#f4f0e0');r(37,8,4,7,'#f4f0e0');r(30,4,3,2,'#e8505b')},
+  ()=>{r(0,19,48,4,'#3a86c8');r(36,6,6,16,'#f4f4f4');r(36,10,6,3,'#e8505b');r(36,16,6,3,'#e8505b');r(35,4,8,3,'#ffd23f');r(20,5,15,2,'#fff6a0')},
+  ()=>{r(26,12,20,11,'#9a7a6a');r(30,5,3,7,'#7a5a4a');r(38,7,3,5,'#7a5a4a');r(31,2,4,3,'#ccc');r(34,0,5,2,'#ddd');for(let k=0;k<4;k++)r(28+k*4,15,2,2,'#ffe45e')},
+  ()=>{r(24,8,22,15,'#e8d9c0');r(24,10,22,3,'#c94c4c');for(let k=0;k<6;k++)r(26+k*3,11,1,1,'#ffe45e');r(33,16,4,7,'#5a3a28');r(26,15,3,8,'#cfc3a8');r(41,15,3,8,'#cfc3a8')},
+  ()=>{r(0,9,48,10,'#b9b9c9');for(let k=0;k<12;k++)r(2+k*4,11+(k%3)*2,2,2,['#e8505b','#3f8fd2','#ffe45e'][k%3]);r(0,19,48,2,'#2f7a4a');r(36,22,3,1,'#fff');r(20,14,1,1,'#fff')},
+  ()=>{r(26,6,20,17,'#3a3a55');r(28,8,16,4,'#ffd23f');r(29,14,4,6,'#e8505b');r(35,14,4,6,'#3f8fd2');r(41,14,3,6,'#5cb85c')},
+  ()=>{r(20,14,24,4,'#f4f4f4');r(44,15,3,3,'#f4f4f4');r(30,18,8,2,'#ccc');r(20,10,4,5,'#3f8fd2');for(let k=0;k<6;k++)r(25+k*3,15,1,1,'#7ab8e8');r(0,22,48,1,'#fff')},
+  ()=>{r(26,4,6,19,'#6c8fb0');r(33,9,6,14,'#8fb0c8');r(40,2,6,21,'#5a7a9a');for(let y=6;y<22;y+=3)[28,35,42].forEach(x=>r(x,y,1,1,'#ffe45e'))},
+  ()=>{r(36,6,4,14,'#f4f4f4');r(37,3,2,3,'#e8505b');r(34,16,2,5,'#e8505b');r(40,16,2,5,'#e8505b');r(37,20,2,3,'#ffb02e');r(33,22,3,2,'#ddd');r(30,23,14,1,'#777')},
+  ()=>{r(0,0,48,23,'#0e1230');[[4,3],[12,8],[20,2],[28,9],[44,12]].forEach(q=>r(q[0],q[1],1,1,'#fff'));r(36,4,8,8,'#3f8fd2');r(38,6,3,2,'#5cb85c');r(27,16,14,7,'#cfe8f5');r(28,15,12,1,'#cfe8f5')},
+  ()=>{r(26,6,20,17,'#e8d9f0');r(24,3,4,20,'#d8c9e8');r(44,3,4,20,'#d8c9e8');r(25,1,3,2,'#e8505b');r(0,8,48,1,'#ffd23f');for(let k=0;k<12;k++)r(k*4,9,2,2,k%2?'#e8505b':'#3f8fd2');r(8,23,32,3,'#c94c4c')},
+  ()=>{[[14,6,'#ff7aa8'],[30,8,'#ffd23f'],[40,5,'#7ae8ff']].forEach(b=>[[0,-3],[0,3],[-3,0],[3,0],[-2,-2],[2,-2],[-2,2],[2,2],[0,0]].forEach(d=>r(b[0]+d[0],b[1]+d[1],1,1,b[2])))}];
+  SC[s]();
+  const ph=Math.min(9,Math.floor((S.rm||0)/10)),hp=ph<2?{C:'#2ec4b6',P:'#2b3a67'}:ph<8?{C:'#fff',P:'#f2a7c3'}:{C:'#fff',P:'#fff'},B={K:'#3a2a2a',S:'#ffd9b8',E:'#3b2a5a',M:'#d4505a',B:'#fff'};
+  const TP={...B,H:'#6b4a2e',C:shirt,P:'#3b5aa8'},HP={...B,...hp,H:'#e39a3b'},TH='#6b4a2e',HH='#e39a3b';
+  const face=(x,y,e)=>{const p=(a,b,c)=>r(x+a,y+b,1,1,c),Q='#f59aa0',E='#3b2a5a',K='#3a2a2a',S='#ffd9b8';
+    if(e===1){[2,3,6,7].forEach(a=>p(a,4,Q));p(5,5,S)}
+    else if(e===2){p(1,4,S);p(8,4,S);p(2,4,Q);p(7,4,Q);p(3,2,K);p(6,2,K);p(5,5,S)}
+    else if(e===3){p(2,3,E);p(7,3,E);p(4,6,'#d4505a');p(5,6,'#d4505a')}
+    else if(e===4){p(3,4,E);p(6,4,E);p(5,5,S);p(4,6,'#d4505a')}
+    else if(e===5){p(3,2,K);p(6,2,K)}
+    else if(e===6){p(2,3,E);p(7,3,E);p(2,4,'#8fd3ff');p(7,4,'#8fd3ff')}
+    else if(e===7){p(6,2,K);p(4,5,S);p(6,5,'#d4505a')}
+    else if(e===8){p(2,3,E);p(7,3,E);p(5,5,S)}
+    else if(e===9){p(5,5,S);r(x+10,y+3,1,2,'#8fd3ff')}};
+  const bust=(x,y,pal)=>{spr(BODY.slice(0,10),pal,x,y);face(x,y,pal===HP?exH:exT)},head=(x,y,h)=>{r(x,y,2,2,'#ffd9b8');r(x,y-1,2,1,h)};
+  const wheel=(x,y,z)=>{r(x,y,z,z,'#222');r(x+1,y+1,z-2,z-2,'#999')};
+  const char=(x,y0,pal,pz,fem)=>{
+    let rows=BODY,y=y0;const ex=pal===HP?exH:exT,S_=pal.S,K='#3a2a2a',w=fem?-1:1;
+    if(pz===3)rows=[...BODY.slice(0,11),'.KPP..PPK.','KBK....KBK','KKK....KKK'];
+    if(pz===4)rows=[...BODY.slice(0,11),'.KPPPPPPK.','.KBBKKBBK.','.KKKKKKKK.'];
+    if(pz===2||pz===7){y=y0-(pz===2?2:1);if(pz===2)r(x+2,23,6,1,'rgba(0,0,0,.2)')}
+    let hx=x,hy=y;
+    if(pz===11){spr(rows.slice(7),pal,x,y0+7);hx=x+2;hy=y0+2;spr(rows.slice(0,7),pal,hx,hy)}else spr(rows,pal,x,y);
+    face(hx,hy,ex);
+    const A=(sx,t0,h)=>{r(sx>0?x+10:x-1,y+t0,1,h,S_);r(sx>0?x+11:x-2,y+t0,1,h,K);r(sx>0?x+8:x+1,y+8,1,1,pal.C)};
+    if(pz===1)A(w,4,4);
+    if(pz===2){A(1,4,4);A(-1,4,4)}
+    if(pz===3){r(x-3,y+9,2,1,'#fff');r(x-4,y+11,3,1,'#fff')}
+    if(pz===5)r(x+2,y+8,6,1,S_);
+    if(pz===6){A(1,5,3);A(-1,5,3);r(x+11,y+3,1,1,'#fff27a')}
+    if(pz===7){A(1,0,8);A(-1,0,8)}
+    if(pz===8){A(w,4,4);r(w>0?x+10:x-1,y+2,1,2,S_);r(w>0?x+12:x-3,y+2,1,2,S_)}
+    if(pz===9){r(x+6,y+6,2,1,S_);r(x+7,y+7,1,1,S_);r(x+11,y+2,1,1,'#fff');r(x+12,y,2,2,'#fff')}
+    if(pz===10){r(x+10,y+8,3,1,S_);r(x+13,y+8,1,1,K);r(x+8,y+8,1,1,pal.C)}
+    if(pz===12){A(w,4,4);const cx=w>0?x+11:x-4;r(cx,y+2,2,2,'#fff');r(cx,y+2,2,1,'#e8b23a')}
+    if(pz===13){r(x+2,y+8,6,4,'#3f8fd2');r(x+3,y+9,4,2,'#fff')}
+    if(fem)spr(PONY,{K:K,H:pal.H},hx+10,hy+1);
+    else{const a=v%4;if(a===1){r(hx+1,hy,8,2,'#e8505b');r(hx+7,hy+2,3,1,'#e8505b')}if(a===2)r(hx+1,hy+2,8,1,'#fff');if(a===3)r(hx+2,hy+6,6,1,'#e8505b')}
+  };
+  const hr=(x,c,sd)=>{r(x+2,14,14,6,c);r(x+14,10,4,6,c);r(x+17,9,5,3,c);r(x+20,8,1,1,'#3a2a2a');r(x,14,2,5,'#3a2a2a');r(x+13,9,2,6,'#3a2a2a');[3,7,12,15].forEach(d=>r(x+d,20,2,3,'#6a4026'));if(sd)r(x+7,13,4,2,'#c94c4c')};
+  const VF=[
+  ()=>{hr(10,'#8a5a3a',1);bust(15,4,TP);if(hv)char(36,Y0,HP,1,1)},
+  ()=>{hr(1,'#f4f4f4',0);r(17,16,7,1,'#5a3a28');r(24,9,16,11,'#8a3a4a');r(23,7,18,3,'#5a2a3a');r(27,11,4,4,'#cfe8f5');r(33,11,4,4,'#cfe8f5');head(28,12,TH);if(hv)head(34,12,HH);wheel(26,18,5);wheel(34,18,5)},
+  ()=>{wheel(11,17,6);wheel(28,17,6);r(14,16,15,1,shirt);r(16,15,3,1,'#222');r(29,14,3,1,'#222');r(30,15,1,2,'#222');bust(17,5,TP);if(hv)char(38,Y0,HP,1,1)},
+  ()=>{for(let y=0;y<11;y++){const w=Math.floor(7*Math.sqrt(1-((y-5)/5.5)**2));r(24-w,y,2*w+1,1,y%4<2?shirt:'#fff')}r(19,11,1,7,'#5a3a28');r(29,11,1,7,'#5a3a28');if(hv)bust(25,10,HP);bust(19,10,TP);r(18,18,12,5,'#8a5a3a');r(18,18,12,1,'#6a4026')},
+  ()=>{wheel(11,18,5);wheel(30,18,5);r(14,16,18,3,shirt);r(14,15,5,1,'#222');r(30,13,3,1,'#222');r(31,14,1,3,'#222');if(hv)bust(9,5,HP);bust(17,5,TP)},
+  ()=>car(12,10,shirt,1,hv),
+  ()=>{if(hv)bust(21,4,HP);bust(12,4,TP);r(10,13,24,7,shirt);r(10,16,24,1,'#fff');r(32,10,2,4,'#cfe8f5');r(34,15,1,2,'#fff6a0');wheel(13,19,5);wheel(27,19,5)},
+  ()=>{r(6,8,36,13,'#f2b632');for(let k=0;k<7;k++)r(8+k*5,10,4,4,'#cfe8f5');head(9,11,TH);if(hv)head(14,11,HH);r(6,16,36,1,'#fff');wheel(11,19,5);wheel(33,19,5)},
+  ()=>{r(8,15,28,6,'#23233a');r(13,10,13,6,'#23233a');r(15,11,4,4,'#9fc4dd');r(20,11,4,4,'#9fc4dd');r(8,18,28,1,'#d4af37');r(34,16,2,2,'#fff6a0');head(16,12,TH);if(hv)head(21,12,HH);wheel(11,19,5);wheel(28,19,5)},
+  ()=>{r(9,18,26,4,shirt);r(15,14,10,4,shirt);r(16,15,3,2,'#cfe8f5');r(20,15,3,2,'#cfe8f5');r(9,16,4,3,shirt);r(33,19,2,2,'#fff6a0');r(17,15,2,2,'#ffd9b8');r(17,15,2,1,TH);if(hv){r(21,15,2,2,'#ffd9b8');r(21,15,2,1,HH)}wheel(13,20,4);wheel(27,20,4)},
+  ()=>{car(12,4,shirt,1,hv);[15,27].forEach(x=>{r(x,17,4,2,'#7ae8ff');r(x+1,19,2,2,'#e8f9ff')});r(10,23,26,1,'rgba(0,0,0,.2)')},
+  ()=>{hr(0,'#f4f4f4',0);hr(5,'#e8e8e8',0);r(18,16,6,1,'#5a3a28');r(24,8,18,12,'#d4af37');r(23,5,20,3,'#c94c4c');r(31,2,4,3,'#ffd23f');r(27,10,5,5,'#cfe8f5');r(35,10,5,5,'#cfe8f5');head(28,12,TH);if(hv)head(36,12,HH);wheel(26,18,6);wheel(36,18,6)},
+  ()=>{r(2,15,42,6,'#1a1a2a');r(8,10,28,6,'#1a1a2a');for(let k=0;k<5;k++)r(10+k*5,11,4,4,'#9fc4dd');head(11,12,TH);if(hv)head(16,12,HH);r(2,18,42,1,'#d4af37');wheel(7,19,5);wheel(34,19,5)}];
+  const md=modeOf(m,s),k=EV?-1:md.k,pz=EV?EV[2]:md.pz,exT=EV?EV[4]:(id*31+s)%10,exH=EV?EV[5]:(id*17+v)%10,hz0=EV?EV[3]:(k>=0?1:(pz+2)%NP),hz=EV||pzOK(hz0,s)?hz0:hz0%5;
+  if(k>=0)VF[k]();
+  else if(s!==9){const tx=EV?10:s===8?2:s===10?3:8;char(tx,Y0,TP,pz,0);if(hv)char(tx+(EV?12:s===10?10:11),Y0,HP,hz,1)}
+  const heart=(x,y)=>{r(x,y,2,1,'#ff7aa8');r(x+3,y,2,1,'#ff7aa8');r(x,y+1,5,2,'#ff7aa8');r(x+1,y+3,3,1,'#ff7aa8');r(x+2,y+4,1,1,'#ff7aa8')},spark=(x,y)=>{r(x,y-1,1,3,'#fff27a');r(x-1,y,3,1,'#fff27a')};
+  const PR={h:()=>heart(21,3),s:()=>{spark(6,5);spark(41,4);spark(33,8)},r:()=>{r(22,7,4,3,'#ffd23f');r(23,8,2,1,sk);r(23,6,2,1,'#7ae8ff')},g:()=>{r(21,4,6,5,'#e8505b');r(23,4,2,5,'#ffd23f');r(21,6,6,1,'#ffd23f');r(22,3,4,1,'#ffd23f')},c:()=>{r(20,5,8,4,'#fff');r(20,7,8,2,'#f2a7c3');r(23,3,2,2,'#ffd23f')},k:()=>{r(36,14,8,6,'#f2a7a0');tri(40,11,4,'#c94c4c');r(39,17,2,3,'#5a3a28')}};
+  if(EV)[...EV[6]].forEach(ch=>PR[ch]&&PR[ch]());
+  if(t===3){g.fillStyle='rgba(10,20,70,.3)';g.fillRect(0,0,48,30)}
+  if(t===2){g.fillStyle='rgba(255,140,60,.14)';g.fillRect(0,0,48,30)}
+  if(t===4)[[3,2],[9,8],[15,3],[20,12],[27,6],[33,1],[38,10],[44,5],[6,15],[18,18],[30,16],[41,19]].forEach(q=>r(q[0],q[1],1,3,'#e8f4ff'));
+}
+const TCOL={"daily": ["#ffd23f", "#2a3a35"], "weekly": ["#3f8fd2", "#fff"], "monthly": ["#9b7be8", "#fff"], "once": ["#ff7aa8", "#2a3a35"]},TICO={"daily": "<svg width=\"14\" height=\"14\" viewBox=\"0 0 14 14\" shape-rendering=\"crispEdges\"><g fill=\"#fff\"><rect x=\"4\" y=\"4\" width=\"6\" height=\"6\"/><rect x=\"6\" y=\"1\" width=\"2\" height=\"2\"/><rect x=\"6\" y=\"11\" width=\"2\" height=\"2\"/><rect x=\"1\" y=\"6\" width=\"2\" height=\"2\"/><rect x=\"11\" y=\"6\" width=\"2\" height=\"2\"/></g></svg>", "weekly": "<svg width=\"14\" height=\"14\" viewBox=\"0 0 14 14\" shape-rendering=\"crispEdges\"><rect x=\"3\" y=\"1\" width=\"1\" height=\"12\" fill=\"#8a5a3a\"/><rect x=\"4\" y=\"2\" width=\"7\" height=\"5\" fill=\"#fff\"/></svg>", "monthly": "<svg width=\"14\" height=\"14\" viewBox=\"0 0 14 14\" shape-rendering=\"crispEdges\"><rect x=\"3\" y=\"2\" width=\"7\" height=\"10\" fill=\"#fff\"/><rect x=\"5\" y=\"4\" width=\"6\" height=\"6\" style=\"fill:var(--c)\"/></svg>", "once": "<svg width=\"14\" height=\"14\" viewBox=\"0 0 14 14\" shape-rendering=\"crispEdges\"><g fill=\"#fff\"><rect x=\"5\" y=\"1\" width=\"4\" height=\"12\"/><rect x=\"1\" y=\"5\" width=\"12\" height=\"4\"/><rect x=\"3\" y=\"3\" width=\"8\" height=\"8\"/></g></svg>"};
+const dl=()=>{const q=new Date();return (q.getMonth()+1)+'/'+q.getDate()+'（'+'日月火水木金土'[q.getDay()]+'）'};
+const srt=(a,k,key)=>{const o=(S.sort||{})[k]||'a',b=[...a];if(o==='h')b.sort((x,y)=>y[key]-x[key]);else if(o==='l')b.sort((x,y)=>x[key]-y[key]);else if(o==='n')b.sort((x,y)=>(x.title||x.name).localeCompare(y.title||y.name,'ja'));return b};
+const sortBar=k=>`<div class="rng" style="margin:6px 0 0">${[['a','追加順'],['h','ポイント高'],['l','ポイント低'],['n','名前順']].map(([v,l])=>`<button data-a="sort" data-k="${k}" data-i="${v}" class="${((S.sort||{})[k]||'a')===v?'on':''}">${l}</button>`).join('')}</div>`;
+function vM(){
+  let h=sortBar('m');
+  for(const ty of Object.keys(TY)){
+    const ms=srt(S.missions.filter(m=>m.type===ty),'m','pts'),n=ms.filter(doneE).length;
+    h+=`<div class="sec rb"><span class="rib" style="--c:${TCOL[ty][0]};--tc:${TCOL[ty][1]}">${TICO[ty]}${TY[ty]}</span><span class="dl" style="--c:${TCOL[ty][0]}"></span><span>${n}/${ms.length}</span></div>`;
+    h+=ms.map(m=>`<div class="row ${doneE(m)?'done':''}"><button class="chk" data-a="done" data-i="${m.id}">${doneE(m)?'✓':''}</button>${icon(m)}<div class="nm">${esc(m.title)}${m.note?`<small style="display:block;color:var(--mut);font-size:11px">${esc(m.note)}</small>`:''}</div><div class="pt">+${m.pts}${ep(m)&&m.type!=='once'?`<small style="color:var(--dg);display:block;font-size:10px;text-align:right">未達−${ep(m)}</small>`:''}</div><button class="ed" data-a="edit" data-k="m" data-i="${m.id}">✎</button></div>`).join('');
+    if(!ms.length)h+=`<div class="empty" style="padding:8px">まだありません</div>`;
+  }
+  return h+`<button class="add" data-a="add" data-k="m">＋ ミッションを追加</button>`;
+}
+function vR(){
+  const b=bal();
+  let h=sortBar('r')+`<div class="sec">ご褒美リスト<span>ポイントで交換</span></div>`;
+  h+=srt(S.rewards,'r','cost').map(r=>`<div class="row">${icon(r)}<div class="nm">${esc(r.name)}</div><div class="pt">${r.cost}pt</div><button class="buy" data-a="buy" data-i="${r.id}" ${b<r.cost?'disabled':''}>交換</button><button class="ed" data-a="edit" data-k="r" data-i="${r.id}">✎</button></div>`).join('');
+  if(!S.rewards.length)h+=`<div class="empty">ご褒美を登録しよう（例：好きなスイーツ 50pt）</div>`;
+  const hs2=S.log.filter(l=>l.d<0&&l.l.startsWith('交換')).sort((a,b)=>b.t-a.t).slice(0,20);
+  return h+`<button class="add" data-a="add" data-k="r">＋ ご褒美を追加</button><div class="sec">獲得履歴</div><div class="card" style="padding:4px 12px">${hs2.length?hs2.map(l=>{const d=new Date(l.t);return `<div class="lg"><div>${esc(l.l.replace('交換：',''))}<i>${d.getMonth()+1}/${d.getDate()}</i></div><div class="pt" style="color:var(--dg)">−${-l.d}</div></div>`}).join(''):'<div class="empty">まだ交換していません</div>'}</div>`;
+}
+function vG(){
+  const T=new Date(),t0=new Date(T.getFullYear(),T.getMonth(),T.getDate());
+  let f=t0;if(S.log.length){const m=new Date(Math.min(...S.log.map(l=>l.t)));f=new Date(m.getFullYear(),m.getMonth(),m.getDate())}
+  const st=range?new Date(t0.getFullYear(),t0.getMonth(),t0.getDate()-range+1):f;
+  const n=Math.max(1,Math.round((t0-st)/864e5)+1);
+  const at=i=>new Date(st.getFullYear(),st.getMonth(),st.getDate()+i).getTime();
+  const ev=[],sp=[];let earn=0,spend=0,pen=0;
+  for(let i=0;i<n;i++){let e1=0,s1=0;
+    for(const l of S.log)if(l.t>=at(i)&&l.t<at(i+1)){if(l.d>0)e1+=l.d;else if(l.l.startsWith('交換'))s1-=l.d;else pen-=l.d}
+    ev.push(e1);sp.push(s1);earn+=e1;spend+=s1}
+  const W=340,H=170,pl=40,pr=8,pt=12,pb=22,mx=Math.max(1,...ev,...sp),X=i=>pl+(n>1?i/(n-1):.5)*(W-pl-pr),Y=y=>pt+(1-y/mx)*(H-pt-pb);
+  const ln=a=>a.map((y,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(y).toFixed(1)).join('');
+  const ds=i=>{const d=new Date(at(i));return (d.getMonth()+1)+'/'+d.getDate()};
+  const dots=(a,c)=>n<=40?a.map((y,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(y).toFixed(1)}" r="2.3" fill="${c}"/>`).join(''):'';
+  const svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block"><path d="${ln(sp)}" fill="none" stroke="var(--dg)" stroke-width="2.2" stroke-linejoin="round"/><path d="${ln(ev)}" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linejoin="round"/>${dots(sp,'var(--dg)')}${dots(ev,'var(--ac)')}<g fill="var(--mut)" font-size="10"><text x="${pl-4}" y="${pt+4}" text-anchor="end">${mx}</text><text x="${pl-4}" y="${H-pb+3}" text-anchor="end">0</text><text x="${pl}" y="${H-6}">${ds(0)}</text><text x="${W-pr}" y="${H-6}" text-anchor="end">${ds(n-1)}</text></g></svg><div style="font-size:11px;color:var(--mut)"><span style="color:var(--ac)">━</span> 1日の獲得　<span style="color:var(--dg)">━</span> 1日の使用（交換）</div>`;
+  const rb=(r,l)=>`<button data-a="range" data-i="${r}" class="${range===r?'on':''}">${l}</button>`;
+  const recent=S.log.map((l,i)=>[l,i]).sort((a,b)=>b[0].t-a[0].t).slice(0,12);
+  return `${essayBox()}${illBox()}<a href="baseball.html" class="add" style="display:block;text-align:center;text-decoration:none;color:var(--ac);font-weight:700;margin:6px 0 10px">⚾ 野球部を開く</a><div class="rng">${rb(7,'7日')}${rb(30,'30日')}${rb(90,'90日')}${rb(0,'全期間')}</div>
+  <div class="card">${svg}</div>
+  <div class="stats"><div>獲得<b>+${earn}</b></div><div>使用<b>−${spend}</b></div><div>減点<b>−${pen}</b></div><div>現在<b>${bal()}</b></div></div>
+  ${town()}<div class="sec">履歴</div><div class="card" style="padding:4px 12px">${recent.length?recent.map(([l,i])=>{const d=new Date(l.t);return `<div class="lg"><div>${esc(l.l)}<i>${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}</i></div><div class="pt" style="color:${l.d<0?'var(--dg)':'var(--ac)'}">${l.d>0?'+':'−'}${Math.abs(l.d)}</div><button data-a="undo" data-i="${i}">取消</button></div>`}).join(''):'<div class="empty">まだ記録がありません</div>'}</div>
+  <div class="sec">バックアップ<span>データはこの端末内に保存されます</span></div><div class="card"><textarea id="bk" rows="3" style="width:100%;padding:8px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:12px monospace"></textarea><div class="fb"><button data-a="exp">書き出し</button><button data-a="share">ファイル保存</button><button data-a="imp">読み込み</button></div></div>`;
+}
+function vF(){
+  const m=form.k==='m',it=form.id?(m?S.missions:S.rewards).find(x=>x.id===form.id):null;
+  return `<div class="fm"><h3>${m?'ミッション':'ご褒美'}を${it?'編集':'追加'}</h3>
+  <label>${m?'ミッション名':'ご褒美の名前'}</label><input id="f1" value="${form.n!=null?esc(form.n):it?esc(m?it.title:it.name):''}" maxlength="60">
+  ${m?`<label>種類</label><select id="f2">${Object.keys(TY).map(k=>`<option value="${k}" ${it&&it.type===k?'selected':''}>${TY[k]}</option>`).join('')}</select>`:''}
+  <label>${m?'もらえるポイント':'必要ポイント'}</label><input id="f3" type="number" inputmode="numeric" min="1" value="${form.c!=null?form.c:it?(m?it.pts:it.cost):''}">
+  ${m?`<label>ひと言コメント（任意）</label><input id="f6" value="${it?esc(it.note||''):''}" maxlength="40"><label>やらなかった時のペナルティ</label><select id="f5"><option value="d">共通設定に従う（${set().pen}pt）</option><option value="n" ${it&&it.noPen?'selected':''}>ペナルティなし</option></select><label>個別のポイント（空欄なら共通設定）</label><input id="f4" type="number" inputmode="numeric" min="0" value="${it&&it.pen>0?it.pen:''}">`:''}${vIc()}<div class="fb"><button data-a="cancel">キャンセル</button>${it?`<button class="d" data-a="del">${arm?'もう一度で削除':'削除'}</button>`:''}<button class="p" data-a="save">保存</button></div></div>`;
+}
+function render(){
+  document.body.dataset.tab=tab;const wq=$('.w');if(wq)wq.className='w '+({m:'tm',g:'tg'}[tab]||'');
+  $('#bal').textContent=bal().toLocaleString();
+  const d=S.missions.filter(m=>m.type==='daily'),n=d.filter(doneE).length;
+  $('#today').innerHTML=(d.length?`${dl()}のデイリー <b style="font-size:13px">${n}/${d.length}</b><br>`:'')+`🔥連続${stk()}日 ×${mult().toFixed(4)}<br>今日 ${dayEarn(0)}/200pt`;
+  $('#tabs').innerHTML=[['m','ミッション'],['r','ご褒美'],['g','グラフ']].map(([k,l])=>`<button data-a="tab" data-i="${k}" class="${tab===k?'on':''}">${l}</button>`).join('');
+  $('#main').innerHTML=tab==='m'?vM():tab==='r'?vR():tab==='s'?vS():vG();
+  $('#sheet').innerHTML=form?vF():'';
+  if(form&&form.vals)for(const k in form.vals){const e=$('#'+k);if(e)e.value=form.vals[k]}
+  if($('#ill'))drawIll();
+  if($('#evt'))drawIll(null,((S.pin||[])[0]||{}).r);
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-a]');if(!t)return;
+  const a=t.dataset.a,i=t.dataset.i,k=t.dataset.k;
+  if(a==='tab'){tab=i}
+  else if(a==='range'){range=+i}
+  else if(a==='done'){
+    const m=S.missions.find(x=>x.id===i),e2=doneE(m);
+    if(e2){S.log.splice(S.log.indexOf(e2),1);toast('取り消しました')}
+    else{const fst=!dayClear(0),mu=mult(),g=Math.round(m.pts*mu),n=stk()+1;S.log.push({t:Date.now(),d:g,l:m.title,m:m.id,k:pk(m.type)});if(fst&&n>=3)bigPop(n,g,mu);else toast('クリア！ +'+g+'pt'+(mu>1?`（連続ボーナス×${mu.toFixed(4)}）`:''))}
+    save();
+  }
+  else if(a==='buy'){
+    const r=S.rewards.find(x=>x.id===i);
+    if(bal()<r.cost){toast('ポイントが足りません')}
+    else{S.log.push({t:Date.now(),d:-r.cost,l:'交換：'+r.name});toast(r.name+' をゲット！');save()}
+  }
+  else if(a==='exp'){const j=JSON.stringify(S);$('#bk').value=j;try{navigator.clipboard.writeText(j).then(()=>toast('コピーしました'),()=>toast('枠内の文字をコピーしてね'))}catch(x){toast('枠内の文字をコピーしてね')}return}
+  else if(a==='imp'){try{const o=JSON.parse($('#bk').value);if(!Array.isArray(o.missions)||!Array.isArray(o.rewards)||!Array.isArray(o.log))throw 0;S=o;save();toast('読み込みました')}catch(x){toast('読み込めませんでした');return}}
+  else if(a==='popok'){const q=$('#pop');if(q)q.remove();return}
+  else if(a==='pinok'){(S.pin||[]).shift();save()}
+  else if(a==='share'){const f=new File([JSON.stringify(S)],'mission-backup-'+dk(new Date())+'.json',{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f]}).catch(()=>{});else{const u=URL.createObjectURL(f),q=document.createElement('a');q.href=u;q.download=f.name;q.click();URL.revokeObjectURL(u)}return}
+  else if(a==='sort'){S.sort=S.sort||{};S.sort[k]=i;save()}
+  else if(a==='sset'){const c=set();c.pen=Math.max(0,parseInt($('#s1').value,10)||0);c.w=$('#s2').value.trim()||'ナツキ';save();toast('保存しました')}
+  else if(a==='undo'){S.log.splice(+i,1);save()}
+  else if(a==='add'){form={k,id:null,px:null,img:null,ser:0};arm=false}
+  else if(a==='edit'){const it=(k==='m'?S.missions:S.rewards).find(x=>x.id===i);form={k,id:i,px:it.px||null,img:it.img||null,ser:0};arm=false}
+  else if(a==='ser'){stash();form.ser=+i}
+  else if(a==='pick'){stash();form.px=i;form.img=null}
+  else if(a==='noic'){stash();form.px=null;form.img=null}
+  else if(a==='photo'){$('#ff').click();return}
+  else if(a==='cancel'){form=null;arm=false}
+  else if(a==='del'){
+    if(!arm){arm=true}
+    else{const key=form.k==='m'?'missions':'rewards';S[key]=S[key].filter(x=>x.id!==form.id);form=null;arm=false;save()}
+  }
+  else if(a==='save'){
+    const name=$('#f1').value.trim(),p=parseInt($('#f3').value,10);
+    if(!name||!(p>0)){toast('名前とポイントを入力してね');return}
+    const m=form.k==='m',key=m?'missions':'rewards';
+    let it=form.id?S[key].find(x=>x.id===form.id):null;
+    if(!it){it={id:uid()};S[key].push(it)}
+    if(m){it.title=name;it.type=$('#f2').value;it.pts=p;it.px=form.px||null;it.img=form.img||null;it.pen=Math.max(0,parseInt($('#f4').value,10)||0);it.noPen=$('#f5').value==='n';it.note=$('#f6').value.trim();if(!it.at)it.at=Date.now()}else{it.name=name;it.cost=p;it.px=form.px||null;it.img=form.img||null}
+    form=null;save();
+  }
+  render();
+});
+document.addEventListener('change',e=>{
+  const f=e.target.id==='ff'&&e.target.files[0];if(!f)return;
+  const im=new Image(),u=URL.createObjectURL(f);
+  im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=96;const q=Math.min(im.width,im.height);c.getContext('2d').drawImage(im,(im.width-q)/2,(im.height-q)/2,q,q,0,0,96,96);form.img=c.toDataURL('image/jpeg',.82);form.px=null;URL.revokeObjectURL(u);stash();render()};
+  im.onerror=()=>toast('画像を読み込めませんでした');
+  im.src=u;
+});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!form){daily();render();if(PN)toast('未達ペナルティが'+PN+'件ありました')}});
+init();
+</script>
+</body>
+</html>
