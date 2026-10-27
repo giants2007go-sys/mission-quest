@@ -56,6 +56,8 @@ a{color:var(--ac)}
 .tb{display:flex;gap:8px}.tb button{flex:1;min-height:29px;border:2px solid var(--ac);background:var(--card);color:var(--ac);border-radius:12px;font:inherit;font-weight:800;font-size:14px;line-height:1;padding:2px 0;touch-action:manipulation}
 .tb button small{display:block;font-size:10px;margin-top:1px;font-weight:600;color:var(--mut)}
 .tb button.bl{min-height:24px;flex-direction:row;display:flex;align-items:center;justify-content:center;gap:8px;padding:2px 0}.tb button.bl small{display:inline;margin:0;font-size:11px}
+.grab{width:44px;height:5px;border-radius:99px;background:var(--bd);margin:-6px auto 8px}
+.fm{transition:transform .2s}.fm.drag{transition:none}
 .fmh{position:sticky;top:-14px;margin:-14px -16px 0;padding:14px 16px 8px;background:var(--card);z-index:2;border-bottom:1px solid var(--bd)}.fmh h3{margin-bottom:4px}
 .tb button:active{background:var(--ac);color:#fff}
 .tb button[disabled]{border-color:var(--bd);color:var(--mut);opacity:.55}
@@ -112,9 +114,9 @@ function val(p){
   return PIT.reduce((a,k)=>a+PW[k]*p.st[k]*p.st[k]/2*(k==='v'?starV(p.st.v):1),0)*(p.role==='SP'?1.08:1);
 }
 function costOne(p,k,x){
-  let c=30*(1+(x/40)**2);
+  if(k==='v'){const q=120+x/255*49;let c=1330*Math.pow(1.116,q-125)*49/255;if(q>=165)c*=3;else if(q>=160)c*=2;else if(q>=150)c*=1.5;return c}
+  let c=30*Math.pow(1.022,x);
   if(k==='p'){if(x>=240)c*=4;else if(x>=220)c*=2}
-  if(k==='v'){const q=kmh(x);if(q>=165)c*=5;else if(q>=160)c*=3;else if(q>=150)c*=1.5}
   return c;
 }
 function costN(p,k,n){let c=0;for(let i=0;i<n&&p.st[k]+i<255;i++)c+=costOne(p,k,p.st[k]+i);return Math.round(c)}
@@ -282,7 +284,7 @@ function vP(){
 function vF(){
   const p=S.roster.find(x=>x.id===form.id);if(!p)return '';
   const keys=p.pos==='B'?BAT:PIT,names=p.pos==='B'?BATN:PITN;
-  let h=`<div class="fm"><div class="fmh"><h3>${esc(p.name)}　<span class="pill">${p.pos==='B'?'野手':'投手'}</span>${p.tw?` <span class="pill" style="background:#d8c9f0">${TWN(p.tw)}</span>`:''}</h3><div style="font-size:14px;margin-bottom:2px">Combat Rating（CR） <b style="font-size:17px;color:var(--ac)">${fmt(val(p))}</b></div>${p.tw?`<div class="mut">${p.pos==='B'?'投手':'野手'}としての育成は、選手画面の${p.pos==='B'?'投手':'野手'}欄から${p.twinOf?'。売却は'+(p.pos==='B'?'投手':'野手')+'側から':''}</div>`:''}${(p.pos==='B'?batLine(p):pitLine(p))?`<div class="mut">通算 ${p.pos==='B'?batLine(p):pitLine(p)}</div>`:''}<div class="mut">年俸 ${money(p.sal)}/年（週 ${money(p.sal/52)}）　練習Pt ${fmt(S.pt)}</div></div>`;
+  let h=`<div class="fm"><div class="fmh"><div class="grab"></div><h3>${esc(p.name)}　<span class="pill">${p.pos==='B'?'野手':'投手'}</span>${p.tw?` <span class="pill" style="background:#d8c9f0">${TWN(p.tw)}</span>`:''}</h3><div style="font-size:14px;margin-bottom:2px">Combat Rating（CR） <b style="font-size:17px;color:var(--ac)">${fmt(val(p))}</b></div>${p.tw?`<div class="mut">${p.pos==='B'?'投手':'野手'}としての育成は、選手画面の${p.pos==='B'?'投手':'野手'}欄から${p.twinOf?'。売却は'+(p.pos==='B'?'投手':'野手')+'側から':''}</div>`:''}${(p.pos==='B'?batLine(p):pitLine(p))?`<div class="mut">通算 ${p.pos==='B'?batLine(p):pitLine(p)}</div>`:''}<div class="mut">年俸 ${money(p.sal)}/年（週 ${money(p.sal/52)}）　練習Pt ${fmt(S.pt)}</div></div>`;
   if(p.pos==='B'){const cb=costBal(p);h+=`<div class="st2"><div class="hd"><span>弾道</span><b>${p.bal}/4</b></div><div class="tb" style="margin-top:5px"><button class="bl" data-a="bal" data-i="${p.id}" ${p.bal>=4||S.pt<cb?'disabled':''}>${p.bal>=4?'最大':'弾道'+(p.bal+1)+'へ'}<small>${p.bal>=4?'':fmt(cb)+' Pt'}</small></button></div></div>`}
   keys.forEach(k=>{const x=p.st[k],star=(k==='p'&&x>=220)||(k==='v'&&kmh(x)>=150);
     h+=`<div class="st2"><div class="hd"><span>${names[k]}</span><b>${disp(p.st,k)}</b><span class="mut">${x>=255?'最大':'次の+1：'+fmt(costOne(p,k,x))+' Pt'}</span></div><div class="b"><i class="${star?'star':''}" style="width:${x/255*100}%"></i></div><div class="tb">${[1,5,10].map(n=>{const c=costN(p,k,n);return `<button data-a="tr" data-i="${p.id}" data-k="${k}" data-n="${n}" ${x>=255||S.pt<c?'disabled':''}>+${n}<small>${fmt(c)}</small></button>`}).join('')}</div></div>`});
@@ -339,15 +341,15 @@ function reorder(id,dir){const p=S.roster.find(x=>x.id===id);const list=(p.pos==
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a,i=t.dataset.i;
   if(a==='tab')tab=i;
-  else if(a==='open')form={id:i};
-  else if(a==='close')form=null;
+  else if(a==='open'){openSheet(i);return}
+  else if(a==='close'){closeSheet();return}
   else if(a==='sc')S.sc=+i;
   else if(a==='up'||a==='dn'){reorder(i,a==='up'?-1:1);save()}
   else if(a==='tr'){const p=S.roster.find(x=>x.id===i),k=t.dataset.k,n=+t.dataset.n,c=costN(p,k,n);if(S.pt<c)return;S.pt-=c;p.st[k]=Math.min(255,p.st[k]+n);save();toast(`${p.name} ${k==='v'?PITN.v:(BATN[k]||PITN[k])} → ${disp(p.st,k)}`)}
   else if(a==='bal'){const p=S.roster.find(x=>x.id===i),c=costBal(p);if(S.pt<c||p.bal>=4)return;S.pt-=c;p.bal++;save()}
   else if(a==='role'){const p=S.roster.find(x=>x.id===i);p.role=p.role==='SP'?'RP':'SP';save()}
   else if(a==='swap'){const p=S.roster.find(x=>x.id===i);if(p.pos==='B'){p.pos='P';p.role=starters().length<5?'SP':'RP';p.st2=p.st;p.st=p.stP||{v:vOf(128),k:35,s:40,b:Math.round(3/24*255)}}else{p.pos='B';p.stP=p.st;p.st=p.st2||{m:35,p:30,r:35,a:30,f:30,c:30};p.bal=p.bal||2}p.ord=S.roster.length;save()}
-  else if(a==='sell'){const p=S.roster.find(x=>x.id===i);if(!confirm(p.name+'を'+money(p.fund/2)+'で売却しますか？'))return;S.cash+=p.fund/2;S.roster=S.roster.filter(x=>x.id!==i&&x.id!==p.twin);S.bought=S.bought.filter(x=>x!==p.db);form=null;save();toast('売却しました')}
+  else if(a==='sell'){const p=S.roster.find(x=>x.id===i);if(!confirm(p.name+'を'+money(p.fund/2)+'で売却しますか？'))return;S.cash+=p.fund/2;S.roster=S.roster.filter(x=>x.id!==i&&x.id!==p.twin);S.bought=S.bought.filter(x=>x!==p.db);closeSheet();save();toast('売却しました')}
   else if(a==='buy'){const r=DATA.db[+i],f=r[15]*3.75;if(S.cash<f)return;S.cash-=f;S.bought.push(+i);S.roster.push(...mkAll(r,+i));save();toast(r[0]+'が入団！');if(S.lv<=4){const need=RECRUIT[S.lv];if(heads()>=need)advance();save()}}
   else if(a==='stad'){const n=STAD[S.stad+1];if(!n||S.cash<n[1])return;S.cash-=n[1];S.stad++;save();toast(n[0]+'が完成！')}
   else if(a==='reset'){if(!confirm('野球部のデータを全部消します。よろしいですか？（本体のデータには影響しません）'))return;localStorage.removeItem('bb');init();return}
@@ -367,6 +369,15 @@ function init(){
   daily();render();
 }
 init();
+function openSheet(id){form={id};if(!(history.state&&history.state.sheet))history.pushState({sheet:1},'');render()}
+function closeSheet(){if(history.state&&history.state.sheet)history.back();else{form=null;render()}}
+window.addEventListener('popstate',()=>{if(form){form=null;render()}});
+(()=>{let y0=null,dy=0,el=null;
+  const sh=$('#sheet');
+  sh.addEventListener('touchstart',e=>{el=e.target.closest('.fm');if(!el)return;const inHead=!!e.target.closest('.fmh');if(el.scrollTop>0&&!inHead){y0=null;return}y0=e.touches[0].clientY;dy=0},{passive:true});
+  sh.addEventListener('touchmove',e=>{if(y0==null||!el)return;dy=e.touches[0].clientY-y0;if(dy>0){el.classList.add('drag');el.style.transform=`translateY(${dy}px)`;if(e.cancelable)e.preventDefault()}},{passive:false});
+  sh.addEventListener('touchend',()=>{if(y0==null||!el)return;el.classList.remove('drag');if(dy>90){el.style.transform='translateY(100%)';setTimeout(closeSheet,150)}else el.style.transform='';y0=null;dy=0},{passive:true});
+})();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){onOpen();daily();render()}});
 </script>
 </body>
