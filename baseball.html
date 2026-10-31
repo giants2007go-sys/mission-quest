@@ -130,7 +130,10 @@ function costOne(p,k,x){return costUnit(k,unitOf(k,x))}
 function costN(p,k,n){const u=unitOf(k,p.st[k]);let c=0;for(let v=u;v<Math.min(u+n,maxU(k));v++)c+=costUnit(k,v);return Math.round(c)}
 const atMax=(p,k)=>unitOf(k,p.st[k])>=maxU(k);
 const hitters=()=>S.roster.filter(p=>p.pos==='B').sort((a,b)=>a.ord-b.ord);
-const heads=()=>S.roster.filter(p=>!p.twinOf).length;
+const heads=()=>S.roster.filter(p=>!p.twinOf&&!p.rent).length;
+const allH=()=>S.roster.filter(p=>!p.twinOf).length;
+const addD=n=>{const d=new Date();d.setDate(d.getDate()+n);return dk(d)};
+let NOSTAT=false;
 const asBat=p=>({...p,pos:'B',bal:p.bal||1,st:p.st2||{m:28,p:25,r:30,a:40,f:28,c:28}});
 function lineup(){const h=hitters();if(h.length>=9)return h.slice(0,9);return h.concat(pitchers().filter(p=>!p.twin&&!p.twinOf).slice(0,9-h.length).map(asBat))}
 const pitchers=()=>S.roster.filter(p=>p.pos==='P').sort((a,b)=>a.ord-b.ord);
@@ -166,11 +169,16 @@ function daily(){
   if(T.getDay()===1&&S.paid!==td){const w=S.roster.reduce((a,p)=>a+p.sal/52,0);S.cash-=w;S.paid=td;S.log.unshift({d:td,t:'週給を支払い '+money(-w)})}
   // 募集ステージの判定
   if(S.lv<=4){const need=RECRUIT[S.lv];if(heads()>=need&&S.lv<4)advance();else if(S.lv===4&&heads()>=9)advance()}
+  // レンタル終了
+  const ex=S.roster.filter(p=>p.rent&&p.rent<td&&!p.twinOf);
+  ex.forEach(p=>{S.roster=S.roster.filter(q=>q.id!==p.id&&q.id!==p.twin);S.bought=S.bought.filter(x=>x!==p.db);S.log.unshift({d:td,t:'レンタル終了：'+p.name+'が元のチームに戻った'})});
   // 試合
-  if(S.lv>=5&&heads()>=9&&pitchers().length>=1)playMatch(td);
+  tryMatch(td);
   S.log=S.log.slice(0,40);
   save();
 }
+function tryMatch(td){if(S.mday===td||pitchers().length<1)return false;const rent=S.roster.some(p=>p.rent);
+  if(rent&&allH()>=9)playMatch(td,true);else if(!rent&&S.lv>=5&&heads()>=9)playMatch(td,false);else return false;S.mday=td;return true}
 function advance(){const st=stage();S.lv++;S.wins=0;S.lose=0;S.log.unshift({d:S.day,t:'🎉 Lv.'+st[0]+'「'+st[6]+'」達成。次は'+(stage()[4])});toast('Lv.'+S.lv+'へ進出！')}
 const CS0=()=>({g:0,ab:0,h:0,hr:0,rbi:0,sb:0,pg:0,w:0,l:0,sv:0,o:0,er:0,so:0});
 const cs=p=>p.cs||(p.cs=CS0());
@@ -211,9 +219,9 @@ function highlights(a,b,win,rot){
   if(rot){ip=rl.length?Math.max(4,Math.min(9,Math.round(5+((rot.st.s||40)/255)*4-(rot.fat||0)/40))):9;
     const er=Math.min(b,Math.max(0,b-(ip<9?R(2):0))),kr=.4+(rot.st.v||0)/255*.7+(rot.st.b||0)/255*.4,so=Math.round(ip*kr*(.7+Math.random()*.6));
     tail.push(`先発 ${rot.name}：${ip}回${er}失点 ${so}奪三振${ip===9?(win?'の完投勝利':'の完投'):''}`);
-    const c=cs(real(rot));c.pg++;c.o+=ip*3;c.er+=er;c.so+=so;
+    const c=NOSTAT?CS0():cs(real(rot));c.pg++;c.o+=ip*3;c.er+=er;c.so+=so;
     if(ip<9&&rl.length){clo=rl[0];const rem=9-ip,mid=rl.slice(1),sv=win&&ip>=5&&a-b<=3;
-      const use=(q,inn,er_)=>{const k=cs(real(q));k.pg++;k.o+=inn*3;k.er+=er_;k.so+=Math.round(inn*(.5+(q.st.v||0)/255)*(.7+Math.random()*.6));return k};
+      const use=(q,inn,er_)=>{const k=NOSTAT?CS0():cs(real(q));k.pg++;k.o+=inn*3;k.er+=er_;k.so+=Math.round(inn*(.5+(q.st.v||0)/255)*(.7+Math.random()*.6));return k};
       let left=rem,rer=b-er;const cl1=sv||!mid.length?1:0;
       if(mid.length&&left-cl1>0){const per=Math.ceil((left-cl1)/Math.min(mid.length,2));mid.slice(0,2).forEach((q,j)=>{const inn=Math.min(per,left-cl1);if(inn<=0)return;use(q,inn,j===0?rer:0);left-=inn;if(j===0)rer=0})}
       const cc=use(clo,left,rer);
@@ -222,15 +230,15 @@ function highlights(a,b,win,rot){
       tail.push(win?`9回　抑え ${clo.name}が${['三者凡退','無失点','ピンチをしのいで'][R(3)]}で締めた`:`${ip+1}回から ${clo.name}${rl[1]?'ら':''}が継投`)}
     else{if(win)c.w++;else c.l++}}
   // --- 打撃成績の反映
-  box.forEach(x=>{const c=cs(real(x.p));c.g++;c.ab+=x.ab;c.h+=Math.min(x.h,x.ab);c.hr+=x.hr;c.rbi+=x.rbi;c.sb+=x.sb});
+  box.forEach(x=>{const c=NOSTAT?CS0():cs(real(x.p));c.g++;c.ab+=x.ab;c.h+=Math.min(x.h,x.ab);c.hr+=x.hr;c.rbi+=x.rbi;c.sb+=x.sb});
   return [...shown.map(e=>e.t),...tail].slice(0,7);
 }
 const avgS=c=>c.ab?('.'+String(Math.round(c.h/c.ab*1000)).padStart(3,'0')).replace('.1000','1.000'):'---';
 const eraS=c=>c.o?(c.er*27/c.o).toFixed(2):'-.--';
 const batLine=p=>{const c=p.cs;return c&&c.g?`打率${avgS(c)} ${c.hr}本 ${c.rbi}打点 ${c.sb}盗`:''};
 const pitLine=p=>{const c=p.cs;return c&&c.pg?`${c.w}勝${c.l}敗${c.sv?c.sv+'S':''} 防${eraS(c)} ${c.so}K`:''};
-function playMatch(td){
-  const st=stage(),sp=starters();
+function playMatch(td,pr){
+  const st=pr&&S.lv<5?STG.find(x=>x[0]===5):stage(),sp=starters();NOSTAT=!!pr;
   const rot=sp.length?sp[(S.rot||0)%sp.length]:null;S.rot=((S.rot||0)+1);
   const my=teamPower(rot),op=st[2]*(1-(rot?(kmh(rot.st.v)>=165?.2:kmh(rot.st.v)>=160?.12:kmh(rot.st.v)>=150?.05:0):0));
   const R=my/Math.max(1,op),P=1/(1+Math.exp(-4*(R-1)));
@@ -242,9 +250,10 @@ function playMatch(td){
   if(rot)rot.fat=Math.min(100,(rot.fat||0)+40);
   const hero=lineup()[3]||lineup()[0];
   const line=win?(a-b>=4?hero.name+'が試合を決める一発':Math.random()<.5?'終盤に'+hero.name+'が勝ち越し打':(rot?rot.name+'が粘りの投球':'守り勝ち')):(b-a>=4?'序盤に崩れて大敗':'あと一本が出ず惜敗');
-  const inc=(S.lastEarn||600)*DOL*stad()[2]*(win?.45:.10);S.cash+=inc;
-  S.last={td,win,a,b,sp:rot?rot.name:'—',line,P,my,op,inc,vs:st[4],hl:highlights(a,b,win,rot)};
-  S.log.unshift({d:td,t:(win?'○ ':'● ')+a+'-'+b+' '+st[4]+'　'+line});
+  const inc=(S.lastEarn||600)*DOL*stad()[2]*(win?.45:.10)*(pr?.8:1);S.cash+=inc;
+  S.last={td,win,a,b,sp:rot?rot.name:'—',line,P,my,op,inc,vs:st[4],hl:highlights(a,b,win,rot),pr:!!pr};NOSTAT=false;
+  S.log.unshift({d:td,t:(pr?'【練習試合】':'')+(win?'○ ':'● ')+a+'-'+b+' '+st[4]+'　'+line});
+  if(pr)return;
   if(win)S.wins=(S.wins||0)+1;else S.lose=(S.lose||0)+1;
   // 突破判定
   const need=isLeague(S.lv)?5:1;
@@ -272,7 +281,7 @@ function vT(){
   else if(heads()<9)h+=`<div class="card"><b>選手が${heads()}人しかいません</b><div class="mut">9人揃うまで試合はできません。スカウトで補充してください。</div></div>`;
   else if(hitters().length<9)h+=`<div class="card mut">野手が${hitters().length}人なので、投手が打席にも立ちます（打撃は弱め）。</div>`;
   else if(!pitchers().length)h+=`<div class="card"><b>投手がいません</b><div class="mut">選手画面で誰かを投手に回すか、スカウトしてください。</div></div>`;
-  if(l)h+=`<div class="card"><div class="mut">${l.td}　vs ${esc(l.vs)}　勝率${Math.round(l.P*100)}%</div><div class="sc">${l.a} - ${l.b}<small>${l.win?'勝利':'敗北'}　先発：${esc(l.sp)}</small></div><div style="text-align:center;font-size:13px;margin-top:4px">${esc(l.line)}</div>${l.hl&&l.hl.length?`<div style="border-top:1px dashed var(--bd);margin-top:8px;padding-top:6px;font-size:12.5px;line-height:1.75">${l.hl.map(x=>'・'+esc(x)).join('<br>')}</div>`:''}<div class="mut" style="text-align:center">試合収入 ${money(l.inc)}</div></div>`;
+  if(l)h+=`<div class="card"><div class="mut">${l.pr?'<span class="pill y">練習試合</span> ':''}${l.td}　vs ${esc(l.vs)}　勝率${Math.round(l.P*100)}%</div><div class="sc">${l.a} - ${l.b}<small>${l.win?'勝利':'敗北'}　先発：${esc(l.sp)}</small></div><div style="text-align:center;font-size:13px;margin-top:4px">${esc(l.line)}</div>${l.hl&&l.hl.length?`<div style="border-top:1px dashed var(--bd);margin-top:8px;padding-top:6px;font-size:12.5px;line-height:1.75">${l.hl.map(x=>'・'+esc(x)).join('<br>')}</div>`:''}<div class="mut" style="text-align:center">試合収入 ${money(l.inc)}${l.pr?'（練習試合・レンタル×0.8／成績は記録されません）':''}</div></div>`;
   h+=`<div class="sec">進行<span>1日1試合・自動</span></div><div class="card"><div class="mut">累計Pt</div><div class="pg"><i style="width:${Math.min(100,S.cum/Math.max(1,st[3])*100)}%"></i></div><div class="mut">${fmt(S.cum)} / ${fmt(st[3])}</div><div class="mut" style="margin-top:6px">戦力：自軍 ${fmt(teamPower())}（先発込み平均）　相手 ${fmt(st[2])}</div></div>`;
   h+=witBox();
   h+=`<div class="sec">記録</div><div class="card" style="padding:4px 12px">${S.log.length?S.log.map(x=>`<div class="lg"><div>${esc(x.t)}<i>${x.d}</i></div></div>`).join(''):'<div class="empty">まだ記録がありません</div>'}</div>`;
@@ -281,7 +290,7 @@ function vT(){
 function prow(p,i,list){
   const v=val(p),st=p.pos==='B'?`弾道${p.bal}・${BAT.map(k=>rank(p.st[k])).join('')}`:`${kmh(p.st.v)}km/h ${rank(p.st.k)}${rank(p.st.s)} 変化${brk(p.st.b)}`;
   const tag=p.pos==='B'?`${i+1}番`:(p.role==='SP'?['エース','先発2','先発3','先発4','先発5'][starters().indexOf(p)]||'先発':['抑え','セット','中継ぎ','中継ぎ','中継ぎ'][relievers().indexOf(p)]||'中継ぎ');
-  return `<div class="row"><div class="ord"><button data-a="up" data-i="${p.id}">▲</button><button data-a="dn" data-i="${p.id}">▼</button></div><span class="pill ${i===3&&p.pos==='B'||tag==='エース'?'y':''}">${tag}</span><div class="nm">${esc(p.name)}${p.tw?` <span class="pill" style="background:#d8c9f0">${TWN(p.tw)}</span>`:''}${p.pos==='P'&&p.fat>0?` <span class="pill r">疲労${p.fat}</span>`:''}<small>${st}${(p.pos==='B'?batLine(p):pitLine(p))?'<br>通算 '+(p.pos==='B'?batLine(p):pitLine(p)):''}</small></div><b>${fmt(v)}</b><button class="btn s" data-a="open" data-i="${p.id}">育成</button></div>`;
+  return `<div class="row"><div class="ord"><button data-a="up" data-i="${p.id}">▲</button><button data-a="dn" data-i="${p.id}">▼</button></div><span class="pill ${i===3&&p.pos==='B'||tag==='エース'?'y':''}">${tag}</span><div class="nm">${esc(p.name)}${p.rent?` <span class="pill y">レンタル〜${p.rent.slice(5).replace('-','/')}</span>`:''}${p.tw?` <span class="pill" style="background:#d8c9f0">${TWN(p.tw)}</span>`:''}${p.pos==='P'&&p.fat>0?` <span class="pill r">疲労${p.fat}</span>`:''}<small>${st}${(p.pos==='B'?batLine(p):pitLine(p))?'<br>通算 '+(p.pos==='B'?batLine(p):pitLine(p)):''}</small></div><b>${fmt(v)}</b><button class="btn s" data-a="open" data-i="${p.id}">育成</button></div>`;
 }
 function vP(){
   const hs=hitters(),ps=pitchers();
@@ -294,16 +303,19 @@ function vF(){
   const p=S.roster.find(x=>x.id===form.id);if(!p)return '';
   const keys=p.pos==='B'?BAT:PIT,names=p.pos==='B'?BATN:PITN;
   let h=`<div class="fm"><div class="fmh"><div class="grab"></div><h3>${esc(p.name)}　<span class="pill">${p.pos==='B'?'野手':'投手'}</span>${p.tw?` <span class="pill" style="background:#d8c9f0">${TWN(p.tw)}</span>`:''}</h3><div style="font-size:14px;margin-bottom:2px">Combat Rating（CR） <b style="font-size:17px;color:var(--ac)">${fmt(val(p))}</b></div>${p.tw?`<div class="mut">${p.pos==='B'?'投手':'野手'}としての育成は、選手画面の${p.pos==='B'?'投手':'野手'}欄から${p.twinOf?'。売却は'+(p.pos==='B'?'投手':'野手')+'側から':''}</div>`:''}${(p.pos==='B'?batLine(p):pitLine(p))?`<div class="mut">通算 ${p.pos==='B'?batLine(p):pitLine(p)}</div>`:''}<div class="mut">年俸 ${money(p.sal)}/年（週 ${money(p.sal/52)}）　練習Pt ${fmt(S.pt)}</div></div>`;
+  if(p.rent){h+=`<div class="empty">レンタル選手は育成できません（${p.rent.slice(5).replace('-','/')}まで在籍）</div>`}
+  else{
   if(p.pos==='B'){const cb=costBal(p);h+=`<div class="st2"><div class="hd"><span>弾道</span><b>${p.bal}/4</b></div><div class="tb" style="margin-top:5px"><button class="bl" data-a="bal" data-i="${p.id}" ${p.bal>=4||S.pt<cb?'disabled':''}>${p.bal>=4?'最大':'弾道'+(p.bal+1)+'へ'}<small>${p.bal>=4?'':fmt(cb)+' Pt'}</small></button></div></div>`}
   keys.forEach(k=>{const x=p.st[k],star=(k==='p'&&x>=220)||(k==='v'&&kmh(x)>=150);
     h+=`<div class="st2"><div class="hd"><span>${names[k]}</span><b>${disp(p.st,k)}</b><span class="mut">${atMax(p,k)?'最大':'次の+1'+(k==='v'?'km/h':'')+'：'+fmt(costOne(p,k,x))+' Pt'}</span></div><div class="b"><i class="${star?'star':''}" style="width:${x/255*100}%"></i></div><div class="tb">${[1,5,10].map(n=>{const c=costN(p,k,n);return `<button data-a="tr" data-i="${p.id}" data-k="${k}" data-n="${n}" ${atMax(p,k)||S.pt<c?'disabled':''}>+${n}<small>${fmt(c)}</small></button>`}).join('')}</div></div>`});
-  h+=`<div class="fb">${p.pos==='P'?`<button data-a="role" data-i="${p.id}">${p.role==='SP'?'救援に回す':'先発に回す'}</button>`:''}${p.hero||p.twinOf?'':`<button class="d" style="color:var(--dg)" data-a="sell" data-i="${p.id}">売却 ${money(p.fund/2)}</button>`}<button class="p" data-a="close">閉じる</button></div></div>`;
+  }
+  h+=`<div class="fb">${p.pos==='P'?`<button data-a="role" data-i="${p.id}">${p.role==='SP'?'救援に回す':'先発に回す'}</button>`:''}${p.hero||p.twinOf||p.rent?'':`<button class="d" style="color:var(--dg)" data-a="sell" data-i="${p.id}">売却 ${money(p.fund/2)}</button>`}<button class="p" data-a="close">閉じる</button></div></div>`;
   return h;
 }
 const costBal=p=>[0,30000,300000,1500000][p.bal]||0;
 function dbP(i){const r=DATA.db[i];const p={pos:r[1],sal:r[14]};if(r[1]==='B'){p.bal=r[3];p.st={m:r[4],p:r[5],r:r[6],a:r[7],f:r[8],c:r[9]}}else{p.role='SP';p.st={v:vOf(r[10]),k:r[11],s:r[12],b:Math.round(r[13]/24*255)}}return p}
 const DBV={};const dbVal=i=>DBV[i]??(DBV[i]=val(dbP(i)));
-function refVal(){const vs=S.roster.map(val).sort((a,b)=>b-a).slice(0,19);return Math.max(300,vs.reduce((a,v)=>a+v,0)/Math.max(1,vs.length))}
+function refVal(){const vs=S.roster.filter(p=>!p.rent).map(val).sort((a,b)=>b-a).slice(0,19);return Math.max(300,vs.reduce((a,v)=>a+v,0)/Math.max(1,vs.length))}
 function dayList(){
   const td=dk(new Date());if(S.dl&&S.dl.d===td)return S.dl.ids;
   const ref=refVal(),own=new Set(S.bought);let r=(hs(td)^(S.ts||1))>>>0;
@@ -321,7 +333,7 @@ function vS(){
   if(S.cash<0)h+=`<div class="card" style="border-color:var(--dg)"><b>資金がマイナスです</b><div class="mut">黒字に戻るまでスカウト・設備は買えません。年俸は週ごとに引かれ続けます。</div></div>`;
   h+=ids.map(i=>{const r=DATA.db[i],fund=r[15]*3.75,sal=r[14],v=dbVal(i),q=v/ref;const db_=`弾道${r[3]}・ミ${r[4]} パ${r[5]} 走${r[6]} 肩${r[7]} 守${r[8]} 捕${r[9]}`,dp_=`${r[10]}km/h コン${r[11]} スタ${r[12]} 変化${r[13]}`;const d=r[16]?(r[1]==='B'?db_+'<br>投：'+dp_:dp_+'<br>打：'+db_):(r[1]==='B'?db_:dp_);
     const tag=q<.9?['控え級','']:q<=1.25?['即戦力','y']:['大物','r'];
-    return `<div class="row"><span class="pill">${r[1]==='B'?'野手':'投手'}</span><div class="nm">${esc(r[0])} <span class="pill ${tag[1]}">${tag[0]}</span>${r[16]?` <span class="pill" style="background:#d8c9f0">${r[16]===2?'二刀流':(r[1]==='B'?'投手は一応':'打撃は一応')}</span>`:''}<small>${d}<br>CR ${fmt(v)}　年俸 ${money(sal)}　${esc(r[2])}</small></div><button class="btn ${S.cash>=fund?'g':''}" data-a="buy" data-i="${i}" ${S.cash<fund?'disabled':''}>${money(fund)}</button></div>`}).join('')||'<div class="empty">今日の候補は全員獲得しました。明日また来てください</div>';
+    return `<div class="row"><span class="pill">${r[1]==='B'?'野手':'投手'}</span><div class="nm">${esc(r[0])} <span class="pill ${tag[1]}">${tag[0]}</span>${r[16]?` <span class="pill" style="background:#d8c9f0">${r[16]===2?'二刀流':(r[1]==='B'?'投手は一応':'打撃は一応')}</span>`:''}<small>${d}<br>CR ${fmt(v)}　年俸 ${money(sal)}　${esc(r[2])}</small></div><div style="display:flex;flex-direction:column;gap:4px"><button class="btn ${S.cash>=fund?'g':''}" data-a="buy" data-i="${i}" ${S.cash<fund?'disabled':''}>契約 ${money(fund)}</button><button class="btn s" data-a="rent" data-i="${i}" ${S.cash<fund/5?'disabled':''}>3日レンタル ${money(fund/5)}</button></div></div>`}).join('')||'<div class="empty">今日の候補は全員獲得しました。明日また来てください</div>';
   return h;
 }
 function vB(){
@@ -359,7 +371,8 @@ document.addEventListener('click',e=>{
   else if(a==='role'){const p=S.roster.find(x=>x.id===i);p.role=p.role==='SP'?'RP':'SP';save()}
   else if(a==='swap'){const p=S.roster.find(x=>x.id===i);if(p.pos==='B'){p.pos='P';p.role=starters().length<5?'SP':'RP';p.st2=p.st;p.st=p.stP||{v:vOf(128),k:35,s:40,b:Math.round(3/24*255)}}else{p.pos='B';p.stP=p.st;p.st=p.st2||{m:35,p:30,r:35,a:30,f:30,c:30};p.bal=p.bal||2}p.ord=S.roster.length;save()}
   else if(a==='sell'){const p=S.roster.find(x=>x.id===i);if(!confirm(p.name+'を'+money(p.fund/2)+'で売却しますか？'))return;S.cash+=p.fund/2;S.roster=S.roster.filter(x=>x.id!==i&&x.id!==p.twin);S.bought=S.bought.filter(x=>x!==p.db);closeSheet();save();toast('売却しました')}
-  else if(a==='buy'){const r=DATA.db[+i],f=r[15]*3.75;if(S.cash<f)return;S.cash-=f;S.bought.push(+i);S.roster.push(...mkAll(r,+i));save();toast(r[0]+'が入団！');if(S.lv<=4){const need=RECRUIT[S.lv];if(heads()>=need)advance();save()}}
+  else if(a==='rent'){const r=DATA.db[+i],f=r[15]*3.75/5;if(S.cash<f)return;S.cash-=f;S.bought.push(+i);const ps=mkAll(r,+i);ps.forEach(q=>{q.rent=addD(2);q.sal=0;q.fund=0});S.roster.push(...ps);S.log.unshift({d:dk(new Date()),t:'レンタル加入：'+r[0]+'（'+addD(2).slice(5).replace('-','/')+'まで）'});toast(r[0]+'をレンタル！（3日間）');if(tryMatch(dk(new Date()))){tab='t';toast('練習試合をしました！')}save()}
+  else if(a==='buy'){const r=DATA.db[+i],f=r[15]*3.75;if(S.cash<f)return;S.cash-=f;S.bought.push(+i);S.roster.push(...mkAll(r,+i));save();toast(r[0]+'が入団！');if(tryMatch(dk(new Date()))){tab='t'}if(S.lv<=4){const need=RECRUIT[S.lv];if(heads()>=need)advance();save()}}
   else if(a==='stad'){const n=STAD[S.stad+1];if(!n||S.cash<n[1])return;S.cash-=n[1];S.stad++;save();toast(n[0]+'が完成！')}
   else if(a==='reset'){if(!confirm('野球部のデータを全部消します。よろしいですか？（本体のデータには影響しません）'))return;localStorage.removeItem('bb');init();return}
   render();
@@ -387,7 +400,7 @@ window.addEventListener('popstate',()=>{if(form){form=null;render()}});
   sh.addEventListener('touchmove',e=>{if(y0==null||!el)return;dy=e.touches[0].clientY-y0;if(dy>0){el.classList.add('drag');el.style.transform=`translateY(${dy}px)`;if(e.cancelable)e.preventDefault()}},{passive:false});
   sh.addEventListener('touchend',()=>{if(y0==null||!el)return;el.classList.remove('drag');if(dy>90){el.style.transform='translateY(100%)';setTimeout(closeSheet,150)}else el.style.transform='';y0=null;dy=0},{passive:true});
 })();
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){onOpen();daily();render()}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){load();onOpen();daily();render()}});
 </script>
 </body>
 </html>
