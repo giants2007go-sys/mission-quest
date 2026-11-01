@@ -56,6 +56,28 @@ body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 -apple-system,"
 .fb button{flex:1;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-weight:700}
 .fb .p{background:var(--ac);border-color:var(--ac);color:#fff}.fb .d{color:var(--dg)}
 .fm{max-height:88vh;overflow-y:auto}
+.fm textarea{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit;resize:vertical}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.sy{border:3px solid var(--ac)}
+.sy .it{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--bd);font-size:14px}.sy .it:last-child{border:0}
+.sy .it .chk{flex:none}.sy .it .lb{flex:1;min-width:0}.sy .it.dn .lb{color:var(--mut);text-decoration:line-through}
+.sy .tg{display:inline-block;font-size:10px;font-weight:700;border-radius:99px;padding:0 6px;margin-right:4px;background:var(--bd);color:var(--tx)}
+.sy .tg.r{background:#ffb3b3}.sy .tg.c{background:#ffe08a}
+.wb{background:var(--card);border:2px dashed var(--bd);border-radius:14px;padding:7px 9px;margin:0 0 8px}
+.wb .hd{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}.wb .hd span{color:var(--mut);font-size:11px}
+.a7{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.a7 button{border:0;border-radius:8px;background:var(--bg);color:var(--tx);text-align:center;padding:4px 0 3px;font:inherit;font-size:10px;position:relative;min-width:0}
+.a7 button b{display:block;font-size:12px}.a7 button.t{background:var(--ac);color:#fff}.a7 button.sel{outline:2px solid var(--ac)}
+.a7 button.ms{outline:2.5px solid var(--dg);animation:wbp 1.6s ease-in-out infinite}
+@keyframes wbp{50%{outline-color:#ffb3b3}}
+.a7 i{display:block;height:4px;border-radius:9px;margin:3px 5px 2px;background:var(--bd)}
+.a7 i.f{background:var(--ok)}.a7 i.h{background:var(--y)}.a7 i.z{background:var(--dg)}
+.a7 .tg2{font-size:9px;border-radius:5px;padding:0 3px;display:inline-block;color:#2a3a35}.a7 .r2{background:#ffb3b3}.a7 .c2{background:#ffe08a}.a7 .x2{color:var(--dg);font-weight:800}
+.a7 .bd{position:absolute;top:-6px;right:-3px;background:var(--dg);color:#fff;border-radius:99px;font-size:9px;font-weight:800;padding:0 4px;line-height:14px}
+.msb{border:2px solid var(--dg);border-radius:12px;padding:4px 8px;margin:4px 0 8px;background:rgba(217,83,79,.07)}
+.msb .h{font-size:12px;font-weight:800;color:var(--dg)}
+.wdots{display:flex;gap:4px;margin:6px 0 2px}.wdots span{flex:1;text-align:center;font-size:10px;color:var(--mut)}.wdots i{display:block;height:7px;border-radius:99px;background:var(--bd);margin-bottom:2px}
+.wdots i.f{background:var(--ok)}.wdots i.h{background:var(--y)}.wdots i.z{background:#ffb3b3}.wdots .td{color:var(--tx);font-weight:700}
 #pop{position:fixed;inset:0;background:rgba(20,50,45,.6);display:flex;align-items:center;justify-content:center;z-index:40;padding:20px}
 .pb{background:var(--card);border:3px dashed var(--ac);border-radius:26px;padding:22px 18px;text-align:center;max-width:420px;width:100%}
 .pn{font-size:60px;font-weight:800;color:var(--ac);line-height:1.1}.pt2{font-size:17px;font-weight:700;margin:10px 0 16px;line-height:1.7}
@@ -102,7 +124,7 @@ body[data-tab="m"]{--bg:#eef0f6}body[data-tab="g"]{--bg:#e6f3fb}
 </head>
 <body>
 <div class="w"><i class="sd l"></i><i class="sd r"></i><svg class="bunt" viewBox="0 0 340 16" aria-hidden="true" style="width:100%;display:block;margin:-6px 0 4px"><path d="M0 3 Q170 12 340 3" fill="none" stroke="#8a5a3a" stroke-width="1.5"/><polygon points="8,3 21,3 14.5,15" fill="#e8505b"/><polygon points="35,5 48,5 41.5,17" fill="#ffd23f"/><polygon points="62,6 75,6 68.5,18" fill="#3f8fd2"/><polygon points="89,7 102,7 95.5,19" fill="#5cb85c"/><polygon points="116,8 129,8 122.5,20" fill="#e8505b"/><polygon points="143,9 156,9 149.5,21" fill="#ffd23f"/><polygon points="170,9 183,9 176.5,21" fill="#3f8fd2"/><polygon points="197,9 210,9 203.5,21" fill="#5cb85c"/><polygon points="224,8 237,8 230.5,20" fill="#e8505b"/><polygon points="251,7 264,7 257.5,19" fill="#ffd23f"/><polygon points="278,6 291,6 284.5,18" fill="#3f8fd2"/><polygon points="305,5 318,5 311.5,17" fill="#5cb85c"/></svg>
-  <div class="bar"><span class="ttl"><svg viewBox="0 0 100 100" width="24" height="24"><rect width="100" height="100" rx="22" fill="#4a9fd8"/><polygon points="12,84 12,72 30,72 30,60 48,60 48,48 66,48 66,36 88,36 88,84" fill="#fff"/><circle cx="57" cy="28" r="5.5" fill="#ffd9b8"/><rect x="52" y="33" width="10" height="13" rx="3" fill="#e8505b"/><polygon points="68,34 70,20 75,27 78,16 81,27 86,20 88,34" fill="#ffd23f"/></svg>ミッションクエスト</span><button class="gear" data-a="tab" data-i="s" aria-label="設定">⚙</button></div><div class="hero"><div><small>所持ポイント</small><b id="bal">0</b><a id="bbl" class="bbl" href="baseball.html"></a></div><div class="t" id="today"></div><svg class="hg" viewBox="0 0 320 24" preserveAspectRatio="xMidYMax meet" shape-rendering="crispEdges" aria-hidden="true"><g fill="#8cc5ee"><rect x="150" y="5" width="26" height="6"/><rect x="155" y="1" width="12" height="5"/><rect x="165" y="3" width="8" height="4"/></g><rect x="116" y="15" width="3" height="8" fill="#8a5a3a"/><rect x="112" y="5" width="11" height="11" fill="#3f9e55"/><rect x="114" y="7" width="4" height="4" fill="#5cb85c"/><rect x="138" y="19" width="3" height="8" fill="#8a5a3a"/><rect x="134" y="9" width="11" height="11" fill="#3f9e55"/><rect x="136" y="11" width="4" height="4" fill="#5cb85c"/><rect x="20" y="18" width="2" height="2" fill="#ff7aa8"/><rect x="20" y="20" width="1" height="4" fill="#3f9e55"/><rect x="44" y="19" width="2" height="2" fill="#fff27a"/><rect x="44" y="21" width="1" height="4" fill="#3f9e55"/><rect x="70" y="18" width="2" height="2" fill="#ff7aa8"/><rect x="70" y="20" width="1" height="4" fill="#3f9e55"/><rect x="176" y="19" width="2" height="2" fill="#fff27a"/><rect x="176" y="21" width="1" height="4" fill="#3f9e55"/><rect x="300" y="18" width="2" height="2" fill="#ff7aa8"/><rect x="300" y="20" width="1" height="4" fill="#3f9e55"/></svg></div>
+  <div class="bar"><span class="ttl"><svg viewBox="0 0 100 100" width="24" height="24"><rect width="100" height="100" rx="22" fill="#4a9fd8"/><polygon points="12,84 12,72 30,72 30,60 48,60 48,48 66,48 66,36 88,36 88,84" fill="#fff"/><circle cx="57" cy="28" r="5.5" fill="#ffd9b8"/><rect x="52" y="33" width="10" height="13" rx="3" fill="#e8505b"/><polygon points="68,34 70,20 75,27 78,16 81,27 86,20 88,34" fill="#ffd23f"/></svg>ミッションクエスト</span><button class="gear" data-a="tab" data-i="s" aria-label="設定">⚙</button></div><div id="wkb"></div><div class="hero"><div><small>所持ポイント</small><b id="bal">0</b><a id="bbl" class="bbl" href="baseball.html"></a></div><div class="t" id="today"></div><svg class="hg" viewBox="0 0 320 24" preserveAspectRatio="xMidYMax meet" shape-rendering="crispEdges" aria-hidden="true"><g fill="#8cc5ee"><rect x="150" y="5" width="26" height="6"/><rect x="155" y="1" width="12" height="5"/><rect x="165" y="3" width="8" height="4"/></g><rect x="116" y="15" width="3" height="8" fill="#8a5a3a"/><rect x="112" y="5" width="11" height="11" fill="#3f9e55"/><rect x="114" y="7" width="4" height="4" fill="#5cb85c"/><rect x="138" y="19" width="3" height="8" fill="#8a5a3a"/><rect x="134" y="9" width="11" height="11" fill="#3f9e55"/><rect x="136" y="11" width="4" height="4" fill="#5cb85c"/><rect x="20" y="18" width="2" height="2" fill="#ff7aa8"/><rect x="20" y="20" width="1" height="4" fill="#3f9e55"/><rect x="44" y="19" width="2" height="2" fill="#fff27a"/><rect x="44" y="21" width="1" height="4" fill="#3f9e55"/><rect x="70" y="18" width="2" height="2" fill="#ff7aa8"/><rect x="70" y="20" width="1" height="4" fill="#3f9e55"/><rect x="176" y="19" width="2" height="2" fill="#fff27a"/><rect x="176" y="21" width="1" height="4" fill="#3f9e55"/><rect x="300" y="18" width="2" height="2" fill="#ff7aa8"/><rect x="300" y="20" width="1" height="4" fill="#3f9e55"/></svg></div>
   <div class="tabs" id="tabs"></div>
   <div id="main"></div><div class="ft"><svg viewBox="0 0 340 70" style="width:100%;display:block" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 40 Q60 14 130 36 T260 30 T340 38 V70 H0Z" fill="#bfe6c0"/><path d="M0 52 Q80 32 170 50 T340 46 V70 H0Z" fill="#9bd49b"/><rect y="54" width="340" height="16" fill="#6dc36b"/><rect y="54" width="340" height="2" fill="#8fd08a"/><rect x="24" y="42" width="3" height="8" fill="#8a5a3a"/><rect x="20" y="32" width="11" height="11" fill="#3f9e55"/><rect x="22" y="34" width="4" height="4" fill="#5cb85c"/><rect x="50" y="46" width="3" height="8" fill="#8a5a3a"/><rect x="46" y="36" width="11" height="11" fill="#3f9e55"/><rect x="48" y="38" width="4" height="4" fill="#5cb85c"/><rect x="154" y="44" width="3" height="8" fill="#8a5a3a"/><rect x="150" y="34" width="11" height="11" fill="#3f9e55"/><rect x="152" y="36" width="4" height="4" fill="#5cb85c"/><rect x="80" y="56" width="2" height="2" fill="#ff7aa8"/><rect x="80" y="58" width="1" height="4" fill="#3f9e55"/><rect x="104" y="58" width="2" height="2" fill="#fff27a"/><rect x="104" y="60" width="1" height="4" fill="#3f9e55"/><rect x="200" y="56" width="2" height="2" fill="#ff7aa8"/><rect x="200" y="58" width="1" height="4" fill="#3f9e55"/><rect x="228" y="58" width="2" height="2" fill="#fff27a"/><rect x="228" y="60" width="1" height="4" fill="#3f9e55"/><rect x="120" y="50" width="2" height="10" fill="#8a5a3a"/><rect x="132" y="50" width="2" height="10" fill="#8a5a3a"/><rect x="144" y="50" width="2" height="10" fill="#8a5a3a"/><rect x="156" y="50" width="2" height="10" fill="#8a5a3a"/><rect x="168" y="50" width="2" height="10" fill="#8a5a3a"/><rect x="120" y="53" width="50" height="2" fill="#8a5a3a"/><g fill="#fff"><rect x="40" y="10" width="26" height="6"/><rect x="45" y="6" width="12" height="5"/><rect x="55" y="8" width="8" height="4"/></g><g fill="#fff"><rect x="200" y="16" width="26" height="6"/><rect x="205" y="12" width="12" height="5"/><rect x="215" y="14" width="8" height="4"/></g><g transform="translate(0,16)"><rect x="270" y="38" width="12" height="14" fill="#fff"/><rect x="282" y="32" width="12" height="20" fill="#fff"/><rect x="294" y="26" width="12" height="26" fill="#fff"/><rect x="306" y="20" width="14" height="32" fill="#fff"/><rect x="286" y="22" width="4" height="4" fill="#ffd9b8"/><rect x="286" y="26" width="4" height="6" fill="#e8505b"/><polygon points="308,20 309,12 312,16 314,9 316,16 319,12 320,20" fill="#ffd23f"/></g></svg></div>
 </div>
@@ -566,8 +588,78 @@ function recTag(m){if(m.type!=='once')return '';
   if(m.rep){const r=todayRec(m);return `<small style="display:block;color:var(--mut);font-size:11px">🔁 今日 ${r.n}回${r.last?'・最終 '+hmS(r.last.t):''}</small>`}
   const e=S.log.find(l=>l.m===m.id&&l.d>0);if(!e)return '';const d=new Date(e.t);return `<small style="display:block;color:var(--mut);font-size:11px">${d.getMonth()+1}/${d.getDate()} ${hmS(e.t)} 取得</small>`}
 function bkJSON(){let bb=null;try{bb=JSON.parse(localStorage.getItem('bb'))}catch(e){}return JSON.stringify(bb?{...S,_bb:bb}:S)}
+/* ===== 勉強：週次計画→毎日のやること ===== */
+const SWD='日月火水木金土';
+const wkS=(d=new Date())=>new Date(d.getFullYear(),d.getMonth(),d.getDate()-d.getDay());
+const wkK=d=>dk(wkS(d));
+function sty(){S.study=S.study||{};const s=S.study;s.cfg=Object.assign({satC:'消費税法',sunC:'財務諸表論',ptI:50,ptR:80,ptP:100,ptV:150},s.cfg||{});s.w=s.w||{};return s}
+const PDEF={fa:3,weFa:6,bo:1,weBo:3,th:80,weTh:120,theme:'',hours:30,test:false,testDay:1,memo:''};
+function lastPlan(){const w=sty().w,ks=Object.keys(w).sort();return ks.length?w[ks[ks.length-1]].plan:PDEF}
+function buildDays(ws,pl,cfg){const days={},it=(l,kind)=>({id:uid(),l,kind});
+  for(let i=0;i<7;i++){const d=new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+i),a=[],we=i===0||i===6;
+    if(i===0){a.push(it('土曜授業の復習（'+cfg.satC+'）','rev'));a.push(it('先週の間違い直し','rev'))}
+    if(i===1)a.push(it('日曜授業の復習（'+cfg.sunC+'）','rev'));
+    if(pl.test&&i===+pl.testDay)a.push(it('テストの間違い直し','rev'));
+    if(i===0)a.push(it('授業（'+cfg.sunC+'）','cls'));
+    if(i===6)a.push(it('授業（'+cfg.satC+'）','cls'));
+    const fa=we?pl.weFa:pl.fa,bo=we?pl.weBo:pl.bo,th=we?pl.weTh:pl.th;
+    if(th>0)a.push(it('消費税法 理論 '+th+'分'+(pl.theme?'（'+pl.theme+'）':''),'new'));
+    if(fa>0)a.push(it('財務諸表論 '+fa+'問','new'));
+    if(bo>0)a.push(it('簿記論 '+bo+'問','new'));
+    days[dk(d)]=a}
+  return days}
+const sDone=id=>S.log.some(l=>l.k==='wk'+id);
+const KO={rev:0,cls:1,new:2};
+function sItems(){const w=sty().w,td=dk(new Date()),t7=dk(new Date(Date.now()-7*864e5)),out=[];
+  const cw=wkK(new Date());for(const wk in w)for(const d in w[wk].days){if(d>td||d<t7)continue;w[wk].days[d].forEach(x=>{if(d===td||(!sDone(x.id)&&(x.kind==='rev'||(x.kind==='new'&&wk===cw))))out.push({...x,d,wk,old:d<td})})}
+  return out.sort((a,b)=>(b.old-a.old)||(KO[a.kind]-KO[b.kind]))}
+function wStat(wk){const W=sty().w[wk];if(!W)return null;let n=0,c=0,r=0,rc=0;const per={};
+  for(const d in W.days){let dn=0,dt=0;W.days[d].forEach(x=>{n++;dt++;if(sDone(x.id)){c++;dn++}if(x.kind==='rev'){r++;if(sDone(x.id))rc++}});per[d]=[dn,dt]}
+  return {n,c,r,rc,per}}
+function studyCard(){const s=sty(),T=new Date(),wk=wkK(T),W=s.w[wk],td=dk(T);
+  const nx=dk(new Date(T.getFullYear(),T.getMonth(),T.getDate()+7-T.getDay())),pv=dk(new Date(T.getFullYear(),T.getMonth(),T.getDate()-T.getDay()-7));
+  let h=`<div class="sec">📘 今週の勉強<span>${wk.slice(5).replace('-','/')}〜</span></div><div class="card sy">`;
+  const P=s.w[pv];if(P&&!P.rev)h+=`<button class="add" style="margin:0 0 8px" data-a="wro" data-i="${pv}">📝 先週の振り返りを書く（+${s.cfg.ptV}pt）</button>`;
+  if(!W){h+=`<div class="mut">今週の計画がまだです。日曜に組めば、毎日の「今日やること」が自動で出ます。</div><button class="add" style="margin:8px 0 0" data-a="wpo" data-i="${wk}">今週の計画を立てる（+${s.cfg.ptP}pt）</button>`}
+  else{const st=wStat(wk),its=sItems();
+    h+=`<div style="display:flex;justify-content:space-between;font-size:13px"><b>今日やること</b><span class="mut">今週 ${st.c}/${st.n}　復習 ${st.rc}/${st.r}</span></div>`;
+    const row=x=>{const dn=sDone(x.id);return `<div class="it ${dn?'dn':''}"><button class="chk" data-a="sdo" data-i="${x.id}" data-k="${x.wk}|${x.d}">${dn?'✓':''}</button><div class="lb">${x.old?`<span class="tg r">${x.d===dk(new Date(Date.now()-864e5))?'昨日':SWD[new Date(x.d+'T00:00:00').getDay()]+'曜'}の分</span>`:''}${x.kind==='rev'?'<span class="tg r">復習</span>':x.kind==='cls'?'<span class="tg c">授業</span>':''}${esc(x.l)}</div><div class="pt">+${x.kind==='rev'?s.cfg.ptR:s.cfg.ptI}</div></div>`};
+    const ms=its.filter(x=>x.old),tdy=its.filter(x=>!x.old),yd=dk(new Date(T.getFullYear(),T.getMonth(),T.getDate()-1)),ny=ms.filter(x=>x.d===yd).length;
+    if(selDay&&selDay!==td&&W.days[selDay]){const sd=new Date(selDay+'T00:00:00');h=h.replace('<b>今日やること</b>','<b>'+(sd.getMonth()+1)+'/'+sd.getDate()+'（'+SWD[sd.getDay()]+'）のやること</b>');h+=W.days[selDay].map(x=>row({...x,d:selDay,wk,old:false})).join('')+`<button class="add" style="margin:8px 0 0" data-a="wday" data-i="${td}">今日に戻る</button>`}
+    else h+=(ms.length?`<div class="msb"><div class="h">⚠ 取りこぼし ${ms.length}件${ny?'（昨日の分 '+ny+'件）':''}　今日のうちに片付けよう</div>${ms.map(row).join('')}</div>`:'')+tdy.map(row).join('')+(its.length?'':'<div class="empty" style="padding:8px">今日の予定はありません</div>');
+    const pl=W.plan;h+=`<div class="mut" style="margin-top:4px">目標 ${pl.hours}時間${pl.theme?'　理論：'+esc(pl.theme):''}${pl.memo?'<br>メモ：'+esc(pl.memo):''}</div>`;
+    const lr=Object.keys(s.w).sort().reverse().map(k=>s.w[k].rev).find(Boolean);if(lr&&(lr.bad||lr.next))h+=`<div class="mut" style="margin-top:4px;border-left:3px solid var(--y);padding-left:6px">先週の反省：${esc(lr.bad||'')}${lr.next?'<br>今週こそ：'+esc(lr.next):''}</div>`;
+    h+=`<div class="fb" style="margin-top:8px"><button data-a="wpo" data-i="${wk}">計画を直す</button>${T.getDay()>=5&&!s.w[nx]?`<button class="p" data-a="wpo" data-i="${nx}">来週の計画</button>`:''}</div>`}
+  return h+'</div>'}
+let selDay=null;
+function weekBar(){const s=sty(),T=new Date(),wk=wkK(T),W=s.w[wk],td=dk(T);
+  if(!W)return `<div class="wb" style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px"><b>📘 今週</b>　<span class="mut">計画がまだです</span></span><button class="btn" style="border:0;background:var(--ac);color:#fff;border-radius:10px;padding:5px 10px;font:inherit;font-size:12px;font-weight:700" data-a="wpo" data-i="${wk}">計画を立てる</button></div>`;
+  const st=wStat(wk),mis=sItems().filter(x=>x.old).length;
+  return `<div class="wb"><div class="hd"><b>📘 今週 ${wk.slice(5).replace('-','/')}〜</b><span>${st.c}/${st.n}${W.plan.theme?'・理論 '+esc(W.plan.theme):''}</span></div><div class="a7">${Object.keys(W.days).sort().map(d=>{
+    const its=W.days[d],left=its.filter(x=>!sDone(x.id)),[a,b]=st.per[d],q=b?a/b:1,past=d<td,isT=d===td;
+    const hasC=its.some(x=>x.kind==='cls'),hasR=its.some(x=>x.kind==='rev');
+    const lab=past&&left.filter(x=>x.kind!=='cls').length?`<span class="x2">残${left.filter(x=>x.kind!=='cls').length}</span>`:past?'✓':hasR&&left.some(x=>x.kind==='rev')?'<span class="tg2 r2">復習</span>':hasC?'<span class="tg2 c2">授業</span>':left.length||'✓';
+    return `<button data-a="wday" data-i="${d}" class="${isT?'t':''} ${isT&&mis?'ms':''} ${selDay===d&&!isT?'sel':''}">${isT&&mis?`<span class="bd">⚠${mis}</span>`:''}<b>${SWD[new Date(d+'T00:00:00').getDay()]}</b><i class="${q>=1?'f':past?'z':q>0?'h':''}"></i>${lab}</button>`}).join('')}</div></div>`}
+function planForm(){const s=sty(),W=s.w[form.wk],pl=Object.assign({},PDEF,W?W.plan:lastPlan()),c=s.cfg,n=(id,l,v)=>`<div><label>${l}</label><input id="${id}" type="number" inputmode="numeric" min="0" value="${v}"></div>`;
+  return `<div class="fm"><h3>${form.wk.slice(5).replace('-','/')}（日）からの週の計画</h3>
+  <label>今週の理論の題（塾の指定があれば最優先で）</label><input id="w_theme" value="${esc(pl.theme)}" placeholder="例：3-1（塾指定）、5-2">
+  <div class="g2">${n('w_fa','財務諸表論 平日/日（問）',pl.fa)}${n('w_weFa','財務諸表論 土日/日（問）',pl.weFa)}${n('w_bo','簿記論 平日/日（問）',pl.bo)}${n('w_weBo','簿記論 土日/日（問）',pl.weBo)}${n('w_th','理論 平日/日（分）',pl.th)}${n('w_weTh','理論 土日/日（分）',pl.weTh)}${n('w_hours','今週の目標時間（h）',pl.hours)}<div><label>テストの間違い直し</label><select id="w_testDay"><option value="-1">今週はなし</option>${[...SWD].map((x,i)=>`<option value="${i}" ${pl.test&&+pl.testDay===i?'selected':''}>${x}曜に入れる</option>`).join('')}</select></div></div>
+  <label>今週の予定メモ（残業・行事など）</label><input id="w_memo" value="${esc(pl.memo)}" maxlength="60">
+  <div class="mut" style="margin-top:8px">日曜に「土曜授業の復習」「先週の間違い直し」、月曜に「日曜授業の復習」が自動で入ります。${W?'<br>⚠ 計画を直すと、今日以降のやることが作り直されます（チェック済みは残ります）':''}</div>
+  <details style="margin-top:6px"><summary class="mut">授業の科目・ポイント設定</summary><div class="g2"><div><label>土曜の授業</label><input id="w_satC" value="${esc(c.satC)}"></div><div><label>日曜の授業</label><input id="w_sunC" value="${esc(c.sunC)}"></div>${n('w_ptI','1項目のpt',c.ptI)}${n('w_ptR','復習のpt',c.ptR)}${n('w_ptP','計画を立てたpt',c.ptP)}${n('w_ptV','振り返りのpt',c.ptV)}</div></details>
+  <div class="fb"><button data-a="cancel">キャンセル</button><button class="p" data-a="wps">保存</button></div></div>`}
+function revForm(){const s=sty(),W=s.w[form.wk],st=wStat(form.wk),pl=W.plan,r=W.rev||{};
+  const sub={};for(const d in W.days)W.days[d].forEach(x=>{const k=x.kind==='rev'?'復習':x.kind==='cls'?'授業':x.l.split(' ')[0]+(x.l.includes('理論')?' 理論':'');sub[k]=sub[k]||[0,0];sub[k][1]++;if(sDone(x.id))sub[k][0]++});
+  return `<div class="fm"><h3>${form.wk.slice(5).replace('-','/')}の週の振り返り</h3>
+  <div class="card" style="font-size:13px">達成 <b>${st.c}/${st.n}</b>（${Math.round(st.c/Math.max(1,st.n)*100)}%）<br>${Object.entries(sub).map(([k,v])=>`${esc(k)} ${v[0]}/${v[1]}`).join('　')}<div class="wdots">${Object.keys(W.days).sort().map(d=>{const [a,b]=st.per[d],q=b?a/b:1;return `<span><i class="${q>=1?'f':q>0?'h':'z'}"></i>${SWD[new Date(d).getDay()]}</span>`}).join('')}</div></div>
+  <label>実際の勉強時間（h）　目標 ${pl.hours}h</label><input id="r_h" type="number" inputmode="decimal" step="0.5" min="0" value="${r.h??''}">
+  <label>よかったこと</label><textarea id="r_good" rows="2">${esc(r.good||'')}</textarea>
+  <label>反省（間違いの傾向・できなかった理由）</label><textarea id="r_bad" rows="2">${esc(r.bad||'')}</textarea>
+  <label>来週こそやること（1つ）</label><input id="r_next" value="${esc(r.next||'')}" maxlength="50">
+  <div class="fb"><button data-a="cancel">キャンセル</button><button class="p" data-a="wrs">保存${W.rev?'':'（+'+s.cfg.ptV+'pt）'}</button></div></div>`}
+const sPts=p=>Math.round(p*mult()*(tkRed()?.7:1));
 function vM(){
-  let h=sortBar('m');
+  let h=studyCard()+sortBar('m');
   for(const ty of Object.keys(TY)){
     const ms=srt(S.missions.filter(m=>m.type===ty),'m','pts'),n=ms.filter(doneE).length;
     h+=`<div class="sec rb"><span class="rib" style="--c:${TCOL[ty][0]};--tc:${TCOL[ty][1]}">${TICO[ty]}${TY[ty]}</span><span class="dl" style="--c:${TCOL[ty][0]}"></span><span>${n}/${ms.length}</span></div>`;
@@ -594,11 +686,11 @@ function vG(){
   for(let i=0;i<n;i++){let e1=0,s1=0;
     for(const l of S.log)if(l.t>=at(i)&&l.t<at(i+1)){if(l.d>0)e1+=l.d;else if(l.l.startsWith('交換'))s1-=l.d;else pen-=l.d}
     ev.push(e1);sp.push(s1);earn+=e1;spend+=s1}
-  const W=340,H=170,pl=40,pr=8,pt=12,pb=22,mx=Math.max(1,...ev,...sp),X=i=>pl+(n>1?i/(n-1):.5)*(W-pl-pr),Y=y=>pt+(1-y/mx)*(H-pt-pb);
+  const W=340,H=176,pl=40,pr=8,pt=20,pb=22,raw=Math.max(1,...ev,...sp),stp=(()=>{const r=raw/4,e=Math.pow(10,Math.floor(Math.log10(r))),q=r/e;return (q<=1?1:q<=2?2:q<=2.5?2.5:q<=5?5:10)*e})(),mx=Math.ceil(raw/stp)*stp,X=i=>pl+(n>1?i/(n-1):.5)*(W-pl-pr),Y=y=>pt+(1-y/mx)*(H-pt-pb);
   const ln=a=>a.map((y,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(y).toFixed(1)).join('');
   const ds=i=>{const d=new Date(at(i));return (d.getMonth()+1)+'/'+d.getDate()};
   const dots=(a,c)=>n<=40?a.map((y,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(y).toFixed(1)}" r="2.3" fill="${c}"/>`).join(''):'';
-  const svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block"><path d="${ln(sp)}" fill="none" stroke="var(--dg)" stroke-width="2.2" stroke-linejoin="round"/><path d="${ln(ev)}" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linejoin="round"/>${dots(sp,'var(--dg)')}${dots(ev,'var(--ac)')}<g fill="var(--mut)" font-size="10"><text x="${pl-4}" y="${pt+4}" text-anchor="end">${mx}</text><text x="${pl-4}" y="${H-pb+3}" text-anchor="end">0</text><text x="${pl}" y="${H-6}">${ds(0)}</text><text x="${W-pr}" y="${H-6}" text-anchor="end">${ds(n-1)}</text></g></svg><div style="font-size:11px;color:var(--mut)"><span style="color:var(--ac)">━</span> 1日の獲得　<span style="color:var(--dg)">━</span> 1日の使用（交換）</div>`;
+  const svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block"><g fill="var(--mut)" font-size="10">${[...Array(Math.round(mx/stp)+1).keys()].map(k=>{const v=k*stp,y=Y(v).toFixed(1);return `<line x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}" stroke="var(--bd)" stroke-width="${k?.6:1}" ${k?'stroke-dasharray="3 3"':''}/><text x="${pl-4}" y="${(+y+3).toFixed(1)}" text-anchor="end">${v>=10000?(v/1000)+'k':v.toLocaleString()}</text>`}).join('')}<text x="${pl-4}" y="9" font-size="9" text-anchor="end">(pt)</text><text x="${pl}" y="${H-6}">${ds(0)}</text><text x="${W-pr}" y="${H-6}" text-anchor="end">${ds(n-1)}</text></g><path d="${ln(sp)}" fill="none" stroke="var(--dg)" stroke-width="2.2" stroke-linejoin="round"/><path d="${ln(ev)}" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linejoin="round"/>${dots(sp,'var(--dg)')}${dots(ev,'var(--ac)')}</svg><div style="font-size:11px;color:var(--mut)"><span style="color:var(--ac)">━</span> 1日の獲得　<span style="color:var(--dg)">━</span> 1日の使用（交換）</div>`;
   const rb=(r,l)=>`<button data-a="range" data-i="${r}" class="${range===r?'on':''}">${l}</button>`;
   const recent=S.log.map((l,i)=>[l,i]).sort((a,b)=>b[0].t-a[0].t).slice(0,12);
   return `${essayBox()}${illBox()}<div class="rng">${rb(7,'7日')}${rb(30,'30日')}${rb(90,'90日')}${rb(0,'全期間')}</div>
@@ -608,6 +700,7 @@ function vG(){
   <div class="sec">バックアップ<span>データはこの端末内に保存されます</span></div><div class="card"><textarea id="bk" rows="3" style="width:100%;padding:8px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:12px monospace"></textarea><div class="fb"><button data-a="exp">書き出し</button><button data-a="share">ファイル保存</button><button data-a="imp">読み込み</button></div></div>`;
 }
 function vF(){
+  if(form.k==='wp')return planForm();if(form.k==='wr')return revForm();
   const m=form.k==='m',it=form.id?(m?S.missions:S.rewards).find(x=>x.id===form.id):null;
   return `<div class="fm"><h3>${m?'ミッション':'ご褒美'}を${it?'編集':'追加'}</h3>
   <label>${m?'ミッション名':'ご褒美の名前'}</label><input id="f1" value="${form.n!=null?esc(form.n):it?esc(m?it.title:it.name):''}" maxlength="60">
@@ -622,7 +715,7 @@ function render(){
   const d=S.missions.filter(m=>m.type==='daily'),n=d.filter(doneE).length;
   $('#today').innerHTML=tkChip()+(d.length?`${dl()}のデイリー <b style="font-size:13px">${n}/${d.length}</b><br>`:'')+`🔥連続${stk()}日 ×${mult().toFixed(4)}<br>今日 ${dayEarn(0)}/200pt`;
   $('#tabs').innerHTML=[['m','ミッション'],['r','ご褒美'],['g','グラフ']].map(([k,l])=>`<button data-a="tab" data-i="${k}" class="${tab===k?'on':''}">${l}</button>`).join('')+'<button data-a="bb">⚾ 野球部</button>';
-  $('#bbl').innerHTML=bbLine();
+  $('#bbl').innerHTML=bbLine();$('#wkb').innerHTML=tab==='m'?weekBar():'';
   $('#main').innerHTML=tab==='m'?vM():tab==='r'?vR():tab==='s'?vS():vG();
   $('#sheet').innerHTML=form?vF():'';
   if(form&&form.vals)for(const k in form.vals){const e=$('#'+k);if(e){if(e.type==='checkbox')e.checked=!!form.vals[k];else e.value=form.vals[k]}}
@@ -644,6 +737,21 @@ document.addEventListener('click',e=>{
     else{const fst=!dayClear(0),mu=mult(),red=tkRed(),g=Math.round(m.pts*mu*(red?.7:1)),n=stk()+1,neg=bal()<0;S.log.push({t:Date.now(),d:g,l:m.title,m:m.id,k:pk(m.type)});const tm=neg?tkCount(m):'';if(fst&&n>=3)bigPop(n,g,mu);else toast('クリア！ +'+g+'pt'+(mu>1?`（連続×${mu.toFixed(4)}）`:'')+(red?'（反動×0.7）':'')+tm)}
     save();
   }
+  else if(a==='wday'){selDay=i===dk(new Date())?null:i;tab='m'}
+  else if(a==='wpo'){form={k:'wp',wk:i}}
+  else if(a==='wro'){form={k:'wr',wk:i}}
+  else if(a==='wps'){const s=sty(),c=s.cfg,v=id=>Math.max(0,parseInt($('#'+id).value,10)||0),td=$('#w_testDay').value;
+    const pl={fa:v('w_fa'),weFa:v('w_weFa'),bo:v('w_bo'),weBo:v('w_weBo'),th:v('w_th'),weTh:v('w_weTh'),hours:v('w_hours'),theme:$('#w_theme').value.trim(),memo:$('#w_memo').value.trim(),test:td!=='-1',testDay:+td<0?1:+td};
+    c.satC=$('#w_satC').value.trim()||c.satC;c.sunC=$('#w_sunC').value.trim()||c.sunC;['ptI','ptR','ptP','ptV'].forEach(k=>{const x=v('w_'+k);if(x>0)c[k]=x});
+    const wk=form.wk,ws=new Date(wk+'T00:00:00'),nd=buildDays(ws,pl,c),old=s.w[wk],td0=dk(new Date());
+    if(old){for(const d in old.days){if(d<td0)nd[d]=old.days[d];else{const kept=old.days[d].filter(x=>sDone(x.id));nd[d]=kept.concat(nd[d].filter(x=>!kept.some(k=>k.l===x.l)))}}s.w[wk].plan=pl;s.w[wk].days=nd;toast('計画を更新しました')}
+    else{s.w[wk]={plan:pl,days:nd,at:Date.now()};const g=sPts(c.ptP);S.log.push({t:Date.now(),d:g,l:'📘 週の計画を立てた',m:'wk',k:'wkplan'+wk});toast('計画完了！ +'+g+'pt')}
+    form=null;save()}
+  else if(a==='wrs'){const s=sty(),W=s.w[form.wk],first=!W.rev,h=parseFloat($('#r_h').value);
+    W.rev={h:isNaN(h)?null:h,good:$('#r_good').value.trim(),bad:$('#r_bad').value.trim(),next:$('#r_next').value.trim(),at:Date.now()};
+    if(first){const g=sPts(s.cfg.ptV);S.log.push({t:Date.now(),d:g,l:'📝 週の振り返り',m:'wk',k:'wkrev'+form.wk});toast('振り返り完了！ +'+g+'pt')}else toast('保存しました');form=null;save()}
+  else if(a==='sdo'){const [wk,d]=k.split('|'),s=sty(),x=((s.w[wk]||{}).days||{})[d]?.find(q=>q.id===i);if(!x)return;const j=S.log.findIndex(l=>l.k==='wk'+i);
+    if(j>=0){S.log.splice(j,1);toast('取り消しました')}else{const g=sPts(x.kind==='rev'?s.cfg.ptR:s.cfg.ptI);S.log.push({t:Date.now(),d:g,l:'📘 '+x.l,m:'wk',k:'wk'+i});toast((x.kind==='rev'?'復習クリア！ +':'クリア！ +')+g+'pt')}save()}
   else if(a==='undo1'){const T=new Date(),a0=new Date(T.getFullYear(),T.getMonth(),T.getDate()).getTime();let k=-1;S.log.forEach((l,j)=>{if(l.m===i&&l.d>0&&l.t>=a0)k=j});if(k>=0){S.log.splice(k,1);save();toast('最後の記録を取り消しました')}}
   else if(a==='buy'){
     const r=S.rewards.find(x=>x.id===i);
