@@ -74,6 +74,9 @@ body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 -apple-system,"
 .a7 i.f{background:var(--ok)}.a7 i.h{background:var(--y)}.a7 i.z{background:var(--dg)}
 .a7 .tg2{font-size:9px;border-radius:5px;padding:0 3px;display:inline-block;color:#2a3a35}.a7 .r2{background:#ffb3b3}.a7 .c2{background:#ffe08a}.a7 .x2{color:var(--dg);font-weight:800}
 .a7 .bd{position:absolute;top:-6px;right:-3px;background:var(--dg);color:#fff;border-radius:99px;font-size:9px;font-weight:800;padding:0 4px;line-height:14px}
+.sy .tg.y{background:#ffd23f}.ylb{border:2px solid #e0a800;border-radius:12px;padding:4px 8px;margin:4px 0 8px;background:#fff6d6}.ylb .h{font-size:12px;font-weight:800;color:#a06a00}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ylb{background:rgba(255,210,63,.12)}}
+.a7 .y2{background:#ffd23f}.a7 button.dz{background:#fff2c2}.a7 button.dz.t{background:var(--ac)}
 .msb{border:2px solid var(--dg);border-radius:12px;padding:4px 8px;margin:4px 0 8px;background:rgba(217,83,79,.07)}
 .msb .h{font-size:12px;font-weight:800;color:var(--dg)}
 .wdots{display:flex;gap:4px;margin:6px 0 2px}.wdots span{flex:1;text-align:center;font-size:10px;color:var(--mut)}.wdots i{display:block;height:7px;border-radius:99px;background:var(--bd);margin-bottom:2px}
@@ -592,26 +595,30 @@ function bkJSON(){let bb=null;try{bb=JSON.parse(localStorage.getItem('bb'))}catc
 const SWD='日月火水木金土';
 const wkS=(d=new Date())=>new Date(d.getFullYear(),d.getMonth(),d.getDate()-d.getDay());
 const wkK=d=>dk(wkS(d));
-function sty(){S.study=S.study||{};const s=S.study;s.cfg=Object.assign({satC:'消費税法',sunC:'財務諸表論',ptI:50,ptR:80,ptP:100,ptV:150},s.cfg||{});s.w=s.w||{};return s}
-const PDEF={fa:3,weFa:6,bo:1,weBo:3,th:80,weTh:120,theme:'',hours:30,test:false,testDay:1,memo:''};
+function sty(){S.study=S.study||{};const s=S.study;s.cfg=Object.assign({satC:'消費税法',sunC:'財務諸表論',ptI:50,ptR:80,ptP:100,ptV:150,dueSat:3,dueSun:2,dueMis:-1,dueTest:-1,carry:{th:false,fa:true,bo:true}},s.cfg||{});s.w=s.w||{};return s}
+const PDEF={fa:3,weFa:6,bo:1,weBo:3,th:80,weTh:120,theme:'',hours:30,test:false,testDay:1,memo:'',tasks:[]};
 function lastPlan(){const w=sty().w,ks=Object.keys(w).sort();return ks.length?w[ks[ks.length-1]].plan:PDEF}
-function buildDays(ws,pl,cfg){const days={},it=(l,kind)=>({id:uid(),l,kind});
-  for(let i=0;i<7;i++){const d=new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+i),a=[],we=i===0||i===6;
-    if(i===0){a.push(it('土曜授業の復習（'+cfg.satC+'）','rev'));a.push(it('先週の間違い直し','rev'))}
-    if(i===1)a.push(it('日曜授業の復習（'+cfg.sunC+'）','rev'));
-    if(pl.test&&i===+pl.testDay)a.push(it('テストの間違い直し','rev'));
+function buildDays(ws,pl,cfg){const days={},it=(l,kind)=>({id:uid(),l,kind}),DK=i=>dk(new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+i));
+  const dueIt=(l,kind,st,due)=>{due=+due;const e=it(l,kind);if(due>st)e.from=DK(st);else due=st;(days[DK(due)]=days[DK(due)]||[]).push(e)};
+  dueIt('土曜授業の復習（'+cfg.satC+'）','rev',0,cfg.dueSat);dueIt('先週の間違い直し','rev',0,cfg.dueMis);dueIt('日曜授業の復習（'+cfg.sunC+'）','rev',1,cfg.dueSun);
+  if(pl.test)dueIt('テストの間違い直し','rev',+pl.testDay,cfg.dueTest);
+  (pl.tasks||[]).forEach(t=>{if(t.l)dueIt(t.l,'tsk',0,t.due)});
+  for(let i=0;i<7;i++){const d=new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+i),a=days[DK(i)]||[],we=i===0||i===6;
     if(i===0)a.push(it('授業（'+cfg.sunC+'）','cls'));
     if(i===6)a.push(it('授業（'+cfg.satC+'）','cls'));
     const fa=we?pl.weFa:pl.fa,bo=we?pl.weBo:pl.bo,th=we?pl.weTh:pl.th;
-    if(th>0)a.push(it('消費税法 理論 '+th+'分'+(pl.theme?'（'+pl.theme+'）':''),'new'));
-    if(fa>0)a.push(it('財務諸表論 '+fa+'問','new'));
-    if(bo>0)a.push(it('簿記論 '+bo+'問','new'));
+    if(th>0)a.push({...it('消費税法 理論 '+th+'分'+(pl.theme?'（'+pl.theme+'）':''),'new'),sub:'th'});
+    if(fa>0)a.push({...it('財務諸表論 '+fa+'問','new'),sub:'fa'});
+    if(bo>0)a.push({...it('簿記論 '+bo+'問','new'),sub:'bo'});
     days[dk(d)]=a}
   return days}
+const sSub=x=>x.sub||(x.l.includes('理論')?'th':x.l.startsWith('財務諸表論')?'fa':x.l.startsWith('簿記論')?'bo':'');
+const sCarry=x=>{const c=sty().cfg.carry||{};const k=sSub(x);return k?c[k]!==false:true};
 const sDone=id=>S.log.some(l=>l.k==='wk'+id);
-const KO={rev:0,cls:1,new:2};
+const KO={rev:0,tsk:1,cls:2,new:3};
 function sItems(){const w=sty().w,td=dk(new Date()),t7=dk(new Date(Date.now()-7*864e5)),out=[];
-  const cw=wkK(new Date());for(const wk in w)for(const d in w[wk].days){if(d>td||d<t7)continue;w[wk].days[d].forEach(x=>{if(d===td||(!sDone(x.id)&&(x.kind==='rev'||(x.kind==='new'&&wk===cw))))out.push({...x,d,wk,old:d<td})})}
+  const cw=wkK(new Date());for(const wk in w)for(const d in w[wk].days){if(d>td||d<t7)continue;w[wk].days[d].forEach(x=>{if(d===td||(!sDone(x.id)&&(x.kind==='rev'||x.kind==='tsk'||(x.kind==='new'&&wk===cw&&sCarry(x)))))out.push({...x,d,wk,old:d<td})})}
+  for(const wk in w)for(const d in w[wk].days){if(d<=td)continue;w[wk].days[d].forEach(x=>{if(x.from&&x.from<=td&&!sDone(x.id))out.push({...x,d,wk,old:false})})}
   return out.sort((a,b)=>(b.old-a.old)||(KO[a.kind]-KO[b.kind]))}
 function wStat(wk){const W=sty().w[wk];if(!W)return null;let n=0,c=0,r=0,rc=0;const per={};
   for(const d in W.days){let dn=0,dt=0;W.days[d].forEach(x=>{n++;dt++;if(sDone(x.id)){c++;dn++}if(x.kind==='rev'){r++;if(sDone(x.id))rc++}});per[d]=[dn,dt]}
@@ -623,10 +630,10 @@ function studyCard(){const s=sty(),T=new Date(),wk=wkK(T),W=s.w[wk],td=dk(T);
   if(!W){h+=`<div class="mut">今週の計画がまだです。日曜に組めば、毎日の「今日やること」が自動で出ます。</div><button class="add" style="margin:8px 0 0" data-a="wpo" data-i="${wk}">今週の計画を立てる（+${s.cfg.ptP}pt）</button>`}
   else{const st=wStat(wk),its=sItems();
     h+=`<div style="display:flex;justify-content:space-between;font-size:13px"><b>今日やること</b><span class="mut">今週 ${st.c}/${st.n}　復習 ${st.rc}/${st.r}</span></div>`;
-    const row=x=>{const dn=sDone(x.id);return `<div class="it ${dn?'dn':''}"><button class="chk" data-a="sdo" data-i="${x.id}" data-k="${x.wk}|${x.d}">${dn?'✓':''}</button><div class="lb">${x.old?`<span class="tg r">${x.d===dk(new Date(Date.now()-864e5))?'昨日':SWD[new Date(x.d+'T00:00:00').getDay()]+'曜'}の分</span>`:''}${x.kind==='rev'?'<span class="tg r">復習</span>':x.kind==='cls'?'<span class="tg c">授業</span>':''}${esc(x.l)}</div><div class="pt">+${x.kind==='rev'?s.cfg.ptR:s.cfg.ptI}</div></div>`};
-    const ms=its.filter(x=>x.old),tdy=its.filter(x=>!x.old),yd=dk(new Date(T.getFullYear(),T.getMonth(),T.getDate()-1)),ny=ms.filter(x=>x.d===yd).length;
+    const row=x=>{const dn=sDone(x.id);return `<div class="it ${dn?'dn':''}"><button class="chk" data-a="sdo" data-i="${x.id}" data-k="${x.wk}|${x.d}">${dn?'✓':''}</button><div class="lb">${x.old?`<span class="tg r">${x.d===dk(new Date(Date.now()-864e5))?'昨日':SWD[new Date(x.d+'T00:00:00').getDay()]+'曜'}の分</span>`:''}${x.from&&!x.old?`<span class="tg y">${x.d===td?'今日まで':SWD[new Date(x.d+'T00:00:00').getDay()]+'曜まで'}</span>`:''}${x.kind==='rev'?'<span class="tg r">復習</span>':x.kind==='cls'?'<span class="tg c">授業</span>':x.kind==='tsk'?'<span class="tg">タスク</span>':''}${esc(x.l)}</div><div class="pt">+${x.kind==='rev'?s.cfg.ptR:s.cfg.ptI}</div></div>`};
+    const ms=its.filter(x=>x.old),yl=its.filter(x=>!x.old&&x.from).sort((a,b)=>a.d<b.d?-1:1),tdy=its.filter(x=>!x.old&&!x.from),yd=dk(new Date(T.getFullYear(),T.getMonth(),T.getDate()-1)),ny=ms.filter(x=>x.d===yd).length;
     if(selDay&&selDay!==td&&W.days[selDay]){const sd=new Date(selDay+'T00:00:00');h=h.replace('<b>今日やること</b>','<b>'+(sd.getMonth()+1)+'/'+sd.getDate()+'（'+SWD[sd.getDay()]+'）のやること</b>');h+=W.days[selDay].map(x=>row({...x,d:selDay,wk,old:false})).join('')+`<button class="add" style="margin:8px 0 0" data-a="wday" data-i="${td}">今日に戻る</button>`}
-    else h+=(ms.length?`<div class="msb"><div class="h">⚠ 取りこぼし ${ms.length}件${ny?'（昨日の分 '+ny+'件）':''}　今日のうちに片付けよう</div>${ms.map(row).join('')}</div>`:'')+tdy.map(row).join('')+(its.length?'':'<div class="empty" style="padding:8px">今日の予定はありません</div>');
+    else h+=(ms.length?`<div class="msb"><div class="h">⚠ 取りこぼし ${ms.length}件${ny?'（昨日の分 '+ny+'件）':''}　今日のうちに片付けよう</div>${ms.map(row).join('')}</div>`:'')+(yl.length?`<div class="ylb"><div class="h">🟨 締め切りあり ${yl.length}件</div>${yl.map(row).join('')}</div>`:'')+tdy.map(row).join('')+(its.length?'':'<div class="empty" style="padding:8px">今日の予定はありません</div>');
     const pl=W.plan;h+=`<div class="mut" style="margin-top:4px">目標 ${pl.hours}時間${pl.theme?'　理論：'+esc(pl.theme):''}${pl.memo?'<br>メモ：'+esc(pl.memo):''}</div>`;
     const lr=Object.keys(s.w).sort().reverse().map(k=>s.w[k].rev).find(Boolean);if(lr&&(lr.bad||lr.next))h+=`<div class="mut" style="margin-top:4px;border-left:3px solid var(--y);padding-left:6px">先週の反省：${esc(lr.bad||'')}${lr.next?'<br>今週こそ：'+esc(lr.next):''}</div>`;
     h+=`<div class="fb" style="margin-top:8px"><button data-a="wpo" data-i="${wk}">計画を直す</button>${T.getDay()>=5&&!s.w[nx]?`<button class="p" data-a="wpo" data-i="${nx}">来週の計画</button>`:''}</div>`}
@@ -637,13 +644,17 @@ function weekBar(){const s=sty(),T=new Date(),wk=wkK(T),W=s.w[wk],td=dk(T);
   const st=wStat(wk),mis=sItems().filter(x=>x.old).length;
   return `<div class="wb"><div class="hd"><b>📘 今週 ${wk.slice(5).replace('-','/')}〜</b><span>${st.c}/${st.n}${W.plan.theme?'・理論 '+esc(W.plan.theme):''}</span></div><div class="a7">${Object.keys(W.days).sort().map(d=>{
     const its=W.days[d],left=its.filter(x=>!sDone(x.id)),[a,b]=st.per[d],q=b?a/b:1,past=d<td,isT=d===td;
-    const hasC=its.some(x=>x.kind==='cls'),hasR=its.some(x=>x.kind==='rev');
-    const lab=past&&left.filter(x=>x.kind!=='cls').length?`<span class="x2">残${left.filter(x=>x.kind!=='cls').length}</span>`:past?'✓':hasR&&left.some(x=>x.kind==='rev')?'<span class="tg2 r2">復習</span>':hasC?'<span class="tg2 c2">授業</span>':left.length||'✓';
-    return `<button data-a="wday" data-i="${d}" class="${isT?'t':''} ${isT&&mis?'ms':''} ${selDay===d&&!isT?'sel':''}">${isT&&mis?`<span class="bd">⚠${mis}</span>`:''}<b>${SWD[new Date(d+'T00:00:00').getDay()]}</b><i class="${q>=1?'f':past?'z':q>0?'h':''}"></i>${lab}</button>`}).join('')}</div></div>`}
-function planForm(){const s=sty(),W=s.w[form.wk],pl=Object.assign({},PDEF,W?W.plan:lastPlan()),c=s.cfg,n=(id,l,v)=>`<div><label>${l}</label><input id="${id}" type="number" inputmode="numeric" min="0" value="${v}"></div>`;
+    const hasC=its.some(x=>x.kind==='cls'),hasR=its.some(x=>x.kind==='rev'),hasD=left.some(x=>x.from),span=Object.entries(W.days).some(([dd,a2])=>dd>=d&&a2.some(x=>x.from&&x.from<=d&&!sDone(x.id)));
+    const lab=past&&left.filter(x=>x.kind!=='cls').length?`<span class="x2">残${left.filter(x=>x.kind!=='cls').length}</span>`:past?'✓':hasD?'<span class="tg2 y2">締切</span>':hasR&&left.some(x=>x.kind==='rev')?'<span class="tg2 r2">復習</span>':hasC?'<span class="tg2 c2">授業</span>':left.length||'✓';
+    return `<button data-a="wday" data-i="${d}" class="${isT?'t':''} ${span&&!past?'dz':''} ${isT&&mis?'ms':''} ${selDay===d&&!isT?'sel':''}">${isT&&mis?`<span class="bd">⚠${mis}</span>`:''}<b>${SWD[new Date(d+'T00:00:00').getDay()]}</b><i class="${q>=1?'f':past?'z':q>0?'h':''}"></i>${lab}</button>`}).join('')}</div></div>`}
+function dsel(id,l,v,mn){return `<div><label>${l}</label><select id="${id}"><option value="-1" ${v<0?'selected':''}>締めなし（当日）</option>${[...SWD].map((x,i)=>i<=mn?'':`<option value="${i}" ${+v===i?'selected':''}>${x}曜まで</option>`).join('')}</select></div>`}
+function planForm(){const s=sty(),W=s.w[form.wk],pl=Object.assign({},PDEF,W?W.plan:{...lastPlan(),tasks:[]}),c=s.cfg,n=(id,l,v)=>`<div><label>${l}</label><input id="${id}" type="number" inputmode="numeric" min="0" value="${v}"></div>`;
   return `<div class="fm"><h3>${form.wk.slice(5).replace('-','/')}（日）からの週の計画</h3>
   <label>今週の理論の題（塾の指定があれば最優先で）</label><input id="w_theme" value="${esc(pl.theme)}" placeholder="例：3-1（塾指定）、5-2">
   <div class="g2">${n('w_fa','財務諸表論 平日/日（問）',pl.fa)}${n('w_weFa','財務諸表論 土日/日（問）',pl.weFa)}${n('w_bo','簿記論 平日/日（問）',pl.bo)}${n('w_weBo','簿記論 土日/日（問）',pl.weBo)}${n('w_th','理論 平日/日（分）',pl.th)}${n('w_weTh','理論 土日/日（分）',pl.weTh)}${n('w_hours','今週の目標時間（h）',pl.hours)}<div><label>テストの間違い直し</label><select id="w_testDay"><option value="-1">今週はなし</option>${[...SWD].map((x,i)=>`<option value="${i}" ${pl.test&&+pl.testDay===i?'selected':''}>${x}曜に入れる</option>`).join('')}</select></div></div>
+  <label>できなかった時、翌日に「取りこぼし」として表示する</label><div style="display:flex;gap:14px;flex-wrap:wrap;font-size:14px;margin:2px 0 4px">${[['th','消費税法 理論'],['fa','財務諸表論'],['bo','簿記論']].map(([k,l])=>`<label style="display:flex;align-items:center;gap:5px;margin:0;font-weight:400"><input type="checkbox" id="w_cy_${k}" style="width:auto" ${(c.carry||{})[k]!==false?'checked':''}>${l}</label>`).join('')}</div><div style="margin-bottom:6px;font-size:12px;color:var(--mut)">チェックなし＝その日限り（翌日に回さない）。復習・締め日つきタスクは常に表示されます。</div>
+  <label>復習の締め日（黄色で表示・過ぎたら赤）</label><div class="g2">${dsel('w_dueSat','土曜授業の復習（日曜から）',c.dueSat,0)}${dsel('w_dueSun','日曜授業の復習（月曜から）',c.dueSun,1)}${dsel('w_dueMis','先週の間違い直し（日曜から）',c.dueMis,0)}${dsel('w_dueTest','テストの間違い直し（指定日から）',c.dueTest,0)}</div>
+  <label>今週のタスク（締め日つき・任意）</label>${[0,1,2].map(j=>{const t=(pl.tasks||[])[j]||{l:'',due:3};return `<div style="display:flex;gap:6px;margin-bottom:4px"><input id="w_t${j}" value="${esc(t.l)}" placeholder="例：答練の見直し" style="flex:2"><select id="w_td${j}" style="flex:1">${[...SWD].map((x,i)=>`<option value="${i}" ${+t.due===i?'selected':''}>${x}曜まで</option>`).join('')}</select></div>`}).join('')}
   <label>今週の予定メモ（残業・行事など）</label><input id="w_memo" value="${esc(pl.memo)}" maxlength="60">
   <div class="mut" style="margin-top:8px">日曜に「土曜授業の復習」「先週の間違い直し」、月曜に「日曜授業の復習」が自動で入ります。${W?'<br>⚠ 計画を直すと、今日以降のやることが作り直されます（チェック済みは残ります）':''}</div>
   <details style="margin-top:6px"><summary class="mut">授業の科目・ポイント設定</summary><div class="g2"><div><label>土曜の授業</label><input id="w_satC" value="${esc(c.satC)}"></div><div><label>日曜の授業</label><input id="w_sunC" value="${esc(c.sunC)}"></div>${n('w_ptI','1項目のpt',c.ptI)}${n('w_ptR','復習のpt',c.ptR)}${n('w_ptP','計画を立てたpt',c.ptP)}${n('w_ptV','振り返りのpt',c.ptV)}</div></details>
@@ -741,11 +752,12 @@ document.addEventListener('click',e=>{
   else if(a==='wpo'){form={k:'wp',wk:i}}
   else if(a==='wro'){form={k:'wr',wk:i}}
   else if(a==='wps'){const s=sty(),c=s.cfg,v=id=>Math.max(0,parseInt($('#'+id).value,10)||0),td=$('#w_testDay').value;
-    const pl={fa:v('w_fa'),weFa:v('w_weFa'),bo:v('w_bo'),weBo:v('w_weBo'),th:v('w_th'),weTh:v('w_weTh'),hours:v('w_hours'),theme:$('#w_theme').value.trim(),memo:$('#w_memo').value.trim(),test:td!=='-1',testDay:+td<0?1:+td};
+    const pl={fa:v('w_fa'),weFa:v('w_weFa'),bo:v('w_bo'),weBo:v('w_weBo'),th:v('w_th'),weTh:v('w_weTh'),hours:v('w_hours'),theme:$('#w_theme').value.trim(),memo:$('#w_memo').value.trim(),test:td!=='-1',testDay:+td<0?1:+td,tasks:[0,1,2].map(j=>({l:$('#w_t'+j).value.trim(),due:+$('#w_td'+j).value})).filter(t=>t.l)};
+    ['dueSat','dueSun','dueMis','dueTest'].forEach(k=>c[k]=+$('#w_'+k).value);c.carry={th:$('#w_cy_th').checked,fa:$('#w_cy_fa').checked,bo:$('#w_cy_bo').checked};
     c.satC=$('#w_satC').value.trim()||c.satC;c.sunC=$('#w_sunC').value.trim()||c.sunC;['ptI','ptR','ptP','ptV'].forEach(k=>{const x=v('w_'+k);if(x>0)c[k]=x});
     const wk=form.wk,ws=new Date(wk+'T00:00:00'),nd=buildDays(ws,pl,c),old=s.w[wk],td0=dk(new Date());
     if(old){for(const d in old.days){if(d<td0)nd[d]=old.days[d];else{const kept=old.days[d].filter(x=>sDone(x.id));nd[d]=kept.concat(nd[d].filter(x=>!kept.some(k=>k.l===x.l)))}}s.w[wk].plan=pl;s.w[wk].days=nd;toast('計画を更新しました')}
-    else{s.w[wk]={plan:pl,days:nd,at:Date.now()};const g=sPts(c.ptP);S.log.push({t:Date.now(),d:g,l:'📘 週の計画を立てた',m:'wk',k:'wkplan'+wk});toast('計画完了！ +'+g+'pt')}
+    else{for(const d in nd)if(d<td0)nd[d]=nd[d].filter(x=>x.kind==='rev');s.w[wk]={plan:pl,days:nd,at:Date.now()};const g=sPts(c.ptP);S.log.push({t:Date.now(),d:g,l:'📘 週の計画を立てた',m:'wk',k:'wkplan'+wk});toast('計画完了！ +'+g+'pt')}
     form=null;save()}
   else if(a==='wrs'){const s=sty(),W=s.w[form.wk],first=!W.rev,h=parseFloat($('#r_h').value);
     W.rev={h:isNaN(h)?null:h,good:$('#r_good').value.trim(),bad:$('#r_bad').value.trim(),next:$('#r_next').value.trim(),at:Date.now()};
