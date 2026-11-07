@@ -75,6 +75,9 @@ a{color:var(--ac)}
 .ttn{font-size:11px;font-weight:700;color:var(--ac);margin-left:3px;letter-spacing:.02em}.ttn.big{font-size:14px;margin-left:0}
 .ctb{display:inline-block;margin:0 0 2px 4px;font-size:10px;font-weight:800;letter-spacing:.08em;color:#ffd76a;background:linear-gradient(135deg,#17172a,#3d3214);border:1px solid #c9a227;border-radius:6px;padding:0 6px;box-shadow:0 0 6px rgba(201,162,39,.35);vertical-align:1px}
 .ttbox{margin:2px 0 4px}.ttbox small{display:inline-block;margin-left:6px;font-size:11px;color:var(--mut)}
+.hdl{flex:none;touch-action:none;cursor:grab;font-size:20px;line-height:1;color:var(--mut);padding:6px 4px;user-select:none;-webkit-user-select:none}
+.row.drg{position:relative;z-index:5;border-style:solid;border-color:var(--ac);box-shadow:0 8px 20px rgba(0,0,0,.18);transform:scale(1.02);transition:transform .08s}
+.dg .row{transition:background .1s}.prw{border-style:solid;border-color:#ffb3b3;background:rgba(255,179,179,.12)}
 </style>
 </head>
 <body>
@@ -532,7 +535,7 @@ function gameLineup(rot){const DH=S.dh!==false,OHT=S.oht!==false,L0=lineup();
   const tw=rot?S.roster.find(x=>x.pos==='B'&&x.id!==rot.id&&(x.id===rot.twin||x.id===rot.twinOf||x.twin===rot.id||x.twinOf===rot.id)):null;
   const off=!DH||(tw&&L0.includes(tw)&&!OHT);if(!off)return {L:L0,ps:-1,tw,off};
   const twAt=tw?L0.indexOf(tw):-1,L=L0.filter(x=>x!==tw).slice(0,8),pb=tw||(rot?asBat(rot):null);if(!pb)return {L:L0,ps:-1,tw,off:false};
-  const ps=twAt>=0&&twAt<9?Math.min(twAt,8):8;L.splice(ps,0,pb);return {L,ps,tw,off,bench:hitters().filter(x=>!L.includes(x)&&x!==tw)}}
+  const ps=S.pslot!=null?Math.min(8,S.pslot):twAt>=0&&twAt<9?Math.min(twAt,8):8;L.splice(ps,0,pb);return {L,ps,tw,off,bench:hitters().filter(x=>!L.includes(x)&&x!==tw)}}
 function simGame(st,rot,lg,R=Math.random,oi=0){const op0=oppOf(st),GL=gameLineup(rot),L=GL.L,rl=relievers(),n=Math.max(.05,op0.n),T=v=>cl(.5*Math.pow(Math.max(v,.001)/n,SG),0,1.8),pq0=Math.max(.05,op0.P.q),pk0=Math.max(.05,op0.P.k);
   const OR=oppRoster(st),op={n,B:OR.B,def:OR.def},opOff=S.dh===false;
   const rel=b=>({...b,m:T(b.m),p:T(b.p),r:T(b.r),f:T(b.f),c:T(b.c),a:T(b.a)}),relP=x=>x&&({...x,q:cl(.5*Math.pow(Math.max(x.q,.001)/pq0,SG),0,1.8),k:cl(.5*Math.pow(Math.max(x.k,.001)/pk0,SG),0,1.8)});
@@ -655,16 +658,21 @@ function vT(){
   h+=`<div class="sec">記録</div><div class="card" style="padding:4px 12px">${S.log.length?S.log.map(x=>`<div class="lg"><div>${esc(x.t)}<i>${x.d}</i></div></div>`).join(''):'<div class="empty">まだ記録がありません</div>'}</div>`;
   return h;
 }
-function prow(p,i,list){
+function prow(p,i,list,tg){
   const v=val(p),st=p.pos==='B'?`弾道${p.bal}・${BAT.map(k=>rk(k,p.st[k])).join('')}`:`${kmh(p.st.v)}km/h ${rank(p.st.k)}${rank(p.st.s)}　${arsS(p)}`;
-  const tag=p.pos==='B'?`${i+1}番`:(p.role==='SP'?['エース','先発2','先発3','先発4','先発5'][starters().indexOf(p)]||'先発':['抑え','セット','中継ぎ','中継ぎ','中継ぎ'][relievers().indexOf(p)]||'中継ぎ');
-  return `<div class="row"><div class="ord"><button data-a="up" data-i="${p.id}">▲</button><button data-a="dn" data-i="${p.id}">▼</button></div><span class="pill ${i===3&&p.pos==='B'||tag==='エース'?'y':''}">${tag}</span><div class="nm">${esc(p.name)}${ttlH(p)}${p.rent?` <span class="pill y">レンタル〜${p.rent.slice(5).replace('-','/')}</span>`:''}${p.tw?` <span class="pill" style="background:#d8c9f0">${TWN(p.tw)}</span>`:''}${p.pos==='P'&&p.fat>0?` <span class="pill r">疲労${p.fat}</span>`:''}<small>${st}${(p.pos==='B'?batLine(p):pitLine(p))?'<br>通算 '+(p.pos==='B'?batLine(p):pitLine(p)):''}</small></div><b>${fmt(v)}</b><button class="btn s" data-a="open" data-i="${p.id}">育成</button></div>`;
+  const tag=tg||(p.pos==='B'?(i<9?`${i+1}番`:'控え'):(p.role==='SP'?['エース','先発2','先発3','先発4','先発5'][starters().indexOf(p)]||'先発':['抑え','セット','中継ぎ','中継ぎ','中継ぎ'][relievers().indexOf(p)]||'中継ぎ'));
+  return `<div class="row" data-id="${p.id}"><span class="hdl" aria-label="つかんで移動">≡</span><span class="pill ${tag==='4番'||tag==='エース'?'y':''}">${tag}</span><div class="nm">${esc(p.name)}${ttlH(p)}${p.rent?` <span class="pill y">レンタル〜${p.rent.slice(5).replace('-','/')}</span>`:''}${p.tw?` <span class="pill" style="background:#d8c9f0">${TWN(p.tw)}</span>`:''}${p.pos==='P'&&p.fat>0?` <span class="pill r">疲労${p.fat}</span>`:''}<small>${st}${(p.pos==='B'?batLine(p):pitLine(p))?'<br>通算 '+(p.pos==='B'?batLine(p):pitLine(p)):''}</small></div><b>${fmt(v)}</b><button class="btn s" data-a="open" data-i="${p.id}">育成</button></div>`;
 }
 function vP(){
-  const hs=hitters(),ps=pitchers();
-  let h=`<div class="sec">野手（打順）<span>${hs.length}人・4番が最重要</span></div>`+hs.map((p,i)=>prow(p,i)).join('')+(hs.length?'':'<div class="empty">野手がいません</div>');
-  h+=`<div class="sec">投手<span>${ps.length}人・先発5＋救援5</span></div>`+ps.map((p,i)=>prow(p,i)).join('')+(ps.length?'':'<div class="empty">投手がいません。野手を「投手に回す」こともできます</div>');
-  h+=`<div class="mut" style="margin-top:8px">▲▼で並べ替え。上から順に打順・先発ローテーション・救援の役割が決まります。</div>`;
+  const hs=hitters(),ps=pitchers(),sp=starters(),nx=sp.length?sp[(S.rot||0)%sp.length]:null,GL=nx?gameLineup(nx):{off:S.dh===false,tw:null};
+  let rows,note='';
+  if(GL.off&&nx){const tw=GL.tw,fl=hs.filter(x=>x!==tw),at=GL.ps>=0?GL.ps:Math.min(8,S.pslot??8),list=fl.slice();list.splice(Math.min(at,list.length),0,'__P');
+    rows=list.map((x,k)=>{const tg=k<9?(k+1)+'番':'控え';if(x==='__P')return `<div class="row prw" data-id="__P"><span class="hdl">≡</span><span class="pill r">${tg}</span><div class="nm">投 ${esc((tw||nx).name)}<small>${S.mday===bbD()?'次':'今日'}の先発。${tw?'二刀流なので自分の打撃で打席へ':'投手が打席に立ちます'}（降板後は代打）</small></div></div>`;return prow(x,k,null,tg)}).join('')+(tw?prow(tw,99,null,'投手で出場'):'');
+    note=`<div class="mut" style="margin:-2px 0 6px">${S.dh===false?'DHなし':'大谷ルールなし（二刀流が先発の日はDH解除）'}：投手の打順も ≡ で動かせます</div>`}
+  else rows=hs.map((p,i)=>prow(p,i)).join('');
+  let h=`<div class="sec">野手（打順）<span>${hs.length}人・${S.dh===false?'DHなし':'DHあり'}</span></div>${note}<div class="dg" data-g="B">${rows}</div>`+(hs.length?'':'<div class="empty">野手がいません</div>');
+  h+=`<div class="sec">投手<span>${ps.length}人・先発5＋救援5</span></div><div class="dg" data-g="P">`+ps.map((p,i)=>prow(p,i)).join('')+'</div>'+(ps.length?'':'<div class="empty">投手がいません。野手を「投手に回す」こともできます</div>');
+  h+=`<div class="mut" style="margin-top:8px">左の ≡ をつかんで上下に動かすと並べ替えられます。上から順に打順・先発ローテーション・救援の役割が決まります。</div>`;
   return h;
 }
 function vF(){
@@ -754,6 +762,19 @@ function mkAll(r,i){const p=mk(r,i);if(!r[16])return [p];
   const o={id:uid(),name:r[0],pos:r[1]==='B'?'P':'B',cls:r[2],sal:0,fund:0,db:i,fat:0,ord:S.roster.length+1,twinOf:p.id,tw:r[16]};
   if(o.pos==='B'){o.bal=r[3];o.st=snapB({m:r[4],p:r[5],r:r[6],a:r[7],f:r[8],c:r[9]})}else{o.role=starters().length<5?'SP':'RP';o.ps=genArs(r[13],hs(r[0]),r[19]);o.st={v:vOf(r[10]),k:r[11],s:r[12],b:bOf(o.ps)}}
   p.twin=o.id;p.tw=r[16];return [p,o]}
+function applyOrder(g,ids){
+  if(g==='P'){const ps=pitchers(),ords=ps.map(p=>p.ord).sort((a,b)=>a-b);ids.forEach((id,k)=>{const p=S.roster.find(x=>x.id===id);if(p&&ords[k]!=null)p.ord=ords[k]});pitchers().forEach((q,k)=>q.role=k<5?'SP':'RP')}
+  else{const pi=ids.indexOf('__P');if(pi>=0)S.pslot=Math.min(8,pi);const hid=ids.filter(x=>x!=='__P'&&S.roster.some(p=>p.id===x&&p.pos==='B')),hs=hid.map(id=>S.roster.find(p=>p.id===id)),ords=hs.map(p=>p.ord).sort((a,b)=>a-b);hs.forEach((p,k)=>p.ord=ords[k])}
+  PVC=null;save();render()}
+let DRG=null;
+document.addEventListener('pointerdown',e=>{const hd=e.target.closest('.hdl');if(!hd)return;const row=hd.closest('.row'),g=row&&row.parentElement;if(!g||!g.classList.contains('dg'))return;e.preventDefault();DRG={row,g};row.classList.add('drg');try{hd.setPointerCapture(e.pointerId)}catch(_){}});
+document.addEventListener('pointermove',e=>{if(!DRG)return;e.preventDefault();const {row,g}=DRG,rs=[...g.children].filter(r=>r!==row&&r.classList.contains('row'));let put=false;
+  for(const r of rs){const b=r.getBoundingClientRect();if(e.clientY<b.top+b.height/2){if(row.nextElementSibling!==r)g.insertBefore(row,r);put=true;break}}
+  if(!put&&g.lastElementChild!==row)g.appendChild(row);
+  [...g.children].forEach((r,k)=>{const pl=r.querySelector('.pill');if(pl&&g.dataset.g==='B'&&!/投手で出場/.test(pl.textContent))pl.textContent=k<9?(k+1)+'番':'控え'});
+  if(e.clientY<70)window.scrollBy(0,-10);else if(e.clientY>innerHeight-70)window.scrollBy(0,10)},{passive:false});
+const dEnd=()=>{if(!DRG)return;const {row,g}=DRG;row.classList.remove('drg');DRG=null;applyOrder(g.dataset.g,[...g.children].map(r=>r.dataset.id).filter(Boolean))};
+document.addEventListener('pointerup',dEnd);document.addEventListener('pointercancel',dEnd);
 function reorder(id,dir){const p=S.roster.find(x=>x.id===id);const list=(p.pos==='B'?hitters():pitchers());const i=list.indexOf(p),j=i+dir;if(j<0||j>=list.length)return;[list[i].ord,list[j].ord]=[list[j].ord,list[i].ord];
   if(p.pos==='P'){const ps=pitchers();ps.forEach((q,k)=>q.role=k<5?'SP':'RP')}}
 document.addEventListener('click',e=>{
