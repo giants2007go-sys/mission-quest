@@ -673,13 +673,24 @@ const PSK={捕:{f:.3,c:.4,a:.3},一:{c:.6,f:.4},二:{f:.6,r:.2,c:.2},三:{f:.4,a
 const POSN={捕:'捕手',一:'一塁',二:'二塁',三:'三塁',遊:'遊撃',左:'左翼',中:'中堅',右:'右翼',DH:'指名打者',控:'控え',投:'投手'};
 const pskR=(x,pos)=>{const w=PSK[pos];let v=0;for(const k in w)v+=w[k]*(x[k]??.12);return v};
 const pskS=(st,pos)=>pskR({f:(st.f??30)/255,c:(st.c??30)/255,a:(st.a??30)/255,r:(st.r??30)/255},pos);
+/* 適正ポジション：外野同士は問題なし、ユーティリティはどこでも可。それ以外の適正外は守備力ダウン（捕手は特に） */
+const OF3=new Set(['左','中','右']);
+function natPos(p){if(!p)return '遊';if(p.npos)return p.npos;const h=hs((p.name||'x')+'#pos')>>>0,st=(p.db!=null&&DATA.db[p.db]&&DATA.db[p.db][1]==='B')?dbP(p.db).st:(p.st||{}),c=POS.slice().sort((a,b)=>pskS(st,b)-pskS(st,a)),r=h%100;p.npos=r<60?c[0]:r<85?c[1]:c[2];p.util=((h>>>8)%100)<8;return p.npos}
+const posPen=(p,pos)=>{if(!PSK[pos]||!p)return 1;const n=natPos(p);if(p.util||n===pos||(OF3.has(n)&&OF3.has(pos)))return 1;return pos==='捕'?.55:.7};
+const natLabel=p=>p&&p.pos==='B'?(natPos(p),p.util?'ユーティリティ（'+POSN[p.npos]+'）':POSN[p.npos]+(OF3.has(p.npos)?'（外野）':'')):'';
 function assignPos(L,dhOn,force){const pm=S.pmap||{},out={},used=new Set();
   if(force&&L.some(p=>p.id===force)){out[force]='DH';used.add('DH')}
   L.forEach(p=>{if(out[p.id])return;const q=pm[p.id];if(q&&(POS.includes(q)||(q==='DH'&&dhOn))&&!used.has(q)){out[p.id]=q;used.add(q)}});
-  const free=()=>L.filter(p=>!out[p.id]);
-  for(const pos of ['捕','遊','中','二','三','右','左','一']){if(used.has(pos))continue;const c=free();if(!c.length)break;c.sort((a,b)=>pskS(b.st||{},pos)-pskS(a.st||{},pos));out[c[0].id]=pos;used.add(pos)}
-  free().forEach(p=>{out[p.id]=dhOn&&!used.has('DH')?(used.add('DH'),'DH'):'控'});return out}
-const posMapFor=GL=>{const fl=GL.L.filter((p,i)=>!(GL.off&&i===GL.ps));return assignPos(fl,!GL.off,GL.tw&&!GL.off?GL.tw.id:null)};
+  // 残りを「守備力の合計が最大」になるように割り当て（ビットDP）
+  const fr=L.filter(p=>!out[p.id]),ps=POS.filter(q=>!used.has(q)),n=ps.length,full=(1<<n)-1;
+  const val_=(p,j)=>PW8[ps[j]]*pskS(p.st||{},ps[j])*posPen(p,ps[j]);
+  let dp=new Map([[0,{v:0,a:[]}]]);
+  fr.forEach((p,i)=>{const nx=new Map(),put=(m,v,a)=>{const c=nx.get(m);if(!c||c.v<v)nx.set(m,{v,a})};
+    dp.forEach((st,m)=>{put(m,st.v,st.a.concat(-1));for(let j=0;j<n;j++)if(!(m>>j&1))put(m|1<<j,st.v+val_(p,j),st.a.concat(j))});dp=nx});
+  let best=null;dp.forEach((st,m)=>{const cnt=st.a.filter(x=>x>=0).length;const sc=st.v+cnt*10;if(!best||sc>best.sc)best={sc,a:st.a}});
+  fr.forEach((p,i)=>{const j=best?best.a[i]:-1;if(j>=0){out[p.id]=ps[j];used.add(ps[j])}});
+  L.filter(p=>!out[p.id]).forEach(p=>{out[p.id]=dhOn&&!used.has('DH')?(used.add('DH'),'DH'):'控'});return out}
+let PMC={k:'',v:null};const posMapFor=GL=>{const fl=GL.L.filter((p,i)=>!(GL.off&&i===GL.ps)),k=JSON.stringify([fl.map(p=>[p.id,p.st,p.npos]),GL.off,GL.tw&&GL.tw.id,S.pmap]);if(PMC.k===k)return PMC.v;const v=assignPos(fl,!GL.off,GL.tw&&!GL.off?GL.tw.id:null);PMC={k,v};return v};
 /* DHと大谷ルール：DHなし＝投手が打席へ（降板後は代打）。DHあり＋大谷ルールなし＝二刀流が先発する日はDH解除 */
 function gameLineup(rot){const DH=S.dh!==false,OHT=S.oht!==false,L0=lineup();
   const tw=rot?S.roster.find(x=>x.pos==='B'&&x.id!==rot.id&&(x.id===rot.twin||x.id===rot.twinOf||x.twin===rot.id||x.twinOf===rot.id)):null;
@@ -689,7 +700,7 @@ function gameLineup(rot){const DH=S.dh!==false,OHT=S.oht!==false,L0=lineup();
 function simGame(st,rot,lg,R=Math.random,oi=0){const op0=oppOf(st),GL=gameLineup(rot),L=GL.L,rl=relievers(),n=Math.max(.05,op0.n),T=v=>cl(.5*Math.pow(Math.max(v,.001)/n,SG),0,1.8),pq0=Math.max(.05,op0.P.q),pk0=Math.max(.05,op0.P.k);
   const OR=oppRoster(st),op={n,B:OR.B,def:OR.def},opOff=S.dh===false;
   const rel=b=>({...b,m:T(b.m),p:T(b.p),r:T(b.r),f:T(b.f),c:T(b.c),a:T(b.a)}),relP=x=>x&&({...x,q:cl(.5*Math.pow(Math.max(x.q,.001)/pq0,SG),0,1.8),k:cl(.5*Math.pow(Math.max(x.k,.001)/pk0,SG),0,1.8)});
-  const my=L.map(p=>({...rel(bR(p)),box:lg?{ab:0,h:0,hr:0,rbi:0,sb:0,r:0,bb:0,so:0,tb:0}:null,ref:p})),myDef=(()=>{const pm=posMapFor(GL);let f=0,a=0,aw=0,ca=.12;const fl=[],seen=new Set();my.forEach(x=>{const pos=pm[x.id];if(!PSK[pos])return;seen.add(pos);const k=pskR(x,pos);f+=PW8[pos]*k;fl.push({p:x.ref,w:PW8[pos]*Math.max(.05,1.3-k)});
+  const my=L.map(p=>({...rel(bR(p)),box:lg?{ab:0,h:0,hr:0,rbi:0,sb:0,r:0,bb:0,so:0,tb:0}:null,ref:p})),myDef=(()=>{const pm=posMapFor(GL);let f=0,a=0,aw=0,ca=.12;const fl=[],seen=new Set();my.forEach(x=>{const pos=pm[x.id];if(!PSK[pos])return;seen.add(pos);const k=pskR(x,pos)*posPen(x.ref,pos);f+=PW8[pos]*k;fl.push({p:x.ref,w:PW8[pos]*Math.max(.05,1.3-k)});
       if('三遊左中右'.includes(pos)){a+=x.a;aw++}if(pos==='捕')ca=x.a});POS.forEach(p=>{if(!seen.has(p))f+=PW8[p]*.12});return {f,c:f,a:aw?a/aw:.3,ca,fl,pm}})();
   const BX=()=>lg?{ab:0,h:0,hr:0,rbi:0,sb:0,r:0,bb:0,so:0,tb:0}:null;const opB=op.B.map((b,i)=>({...b,box:BX(),pz:OPOS[i]}));if(opOff)opB[8]={name:OR.rot[oi%5].name,t:'投手',m:.12,p:.08,r:.3,f:.5,c:.5,a:.5,bal:1,box:BX(),pz:'投'};const allOp=opB.slice(),oplog=new Map();const allMy=my.slice(),sp=relP(pR(rot)),ip=rot?(rl.length?cl(Math.round(5+(rot.st.s||0)/255*4-(rot.fat||0)/40)+((tE(rot).st||0)>=.03?1:0),4,9):9):9;
   const us={i:0},them={i:0},ls=[[],[]],evs=[];let A=0,B=0,H=[0,0],E=[0,0];
@@ -816,6 +827,11 @@ function raceTop(L,us){const all=Object.values(L.p).concat(Object.values(us||{})
   return RACE.map(([tt,nm,P,f,fmtv,q])=>{let c=all.filter(e=>!!e.P===!!P);if(q)c=c.filter(e=>P?e.o>=2.7*G:(e.ab2||e.ab)+(e.bb||0)>=2.7*G);c=c.filter(e=>f(e)>0||q);c.sort((a,b)=>f(b)-f(a));return {tt,nm,top:c.slice(0,3).map(e=>({n:e.n,t:e.t,v:fmtv(e),me:e.t==='うちの球団'}))}})}
 function seasonAwards(){const L=S.lst;if(!L||!L.p)return;const us=usSnap(L),top=raceTop(L,us),aw=top.filter(r=>r.top[0]).map(r=>({tt:r.tt,...r.top[0]}));
   S.lstPrev={...L,endD:bbD(),us,aw};aw.forEach(a=>S.log.unshift({d:S.day,t:`🏅 ${L.lb} ${a.tt}：${a.n}（${a.t}・${a.v}）`}));const mine=aw.filter(a=>a.me);if(mine.length)toast(`🏅 ${mine.map(a=>a.n+'が'+a.tt).join('、')}！`)}
+let TST='b';
+function teamStats(){const sk=scopeKey();if(!sk)return '';const g=p=>p.sea&&p.sea[sk.k];const hs_=hitters().filter(p=>g(p)),ps_=pitchers().filter(p=>g(p));if(!hs_.length&&!ps_.length)return '';
+  const bt=`<table class="bxs"><tr><th>選手</th><td>試</td><td>打率</td><td>本</td><td>点</td><td>盗</td><td>OPS</td></tr>${hs_.map(p=>{const c=g(p),a2=c.ab2||0,ob=a2+(c.bb||0)?((c.h2||0)+(c.bb||0))/(a2+(c.bb||0)):NaN,sl=a2?(c.tb||0)/a2:NaN;return `<tr><th>${esc(p.name)}</th><td>${c.g}</td><td>${avgS(c)}</td><td>${c.hr}</td><td>${c.rbi}</td><td>${c.sb}</td><td>${f3(ob+sl)}</td></tr>`}).join('')}</table>`;
+  const pt=`<table class="bxs"><tr><th>投手</th><td>登</td><td>勝</td><td>敗</td><td>S</td><td>防御率</td><td>回</td><td>振</td></tr>${ps_.map(p=>{const c=g(p);return `<tr><th>${esc(p.name)}</th><td>${c.pg}</td><td>${c.w}</td><td>${c.l}</td><td>${c.sv}</td><td>${eraS(c)}</td><td>${ipS(c.o)}</td><td>${c.so}</td></tr>`}).join('')}</table>`;
+  return `<div class="sec">今季の成績<span>${esc(sk.lb)}</span></div><div class="card" style="padding:8px 10px"><div class="bxt" style="margin-top:0"><button data-a="tst" data-k="b" class="${TST==='b'?'on':''}">打者</button><button data-a="tst" data-k="p" class="${TST==='p'?'on':''}">投手</button></div>${TST==='b'?bt:pt}</div>`}
 function raceCard(){const L=S.lst&&scopeKey()&&S.lst.k===scopeKey().k?S.lst:null,P=S.lstPrev;let h='';
   const grid=(top)=>`<div class="rcg">${top.map(r=>`<div class="rc"><b>${r.nm}</b>${r.top.length?r.top.map((x,i)=>`<div class="${x.me?'me':''}"><span>${i+1}</span> ${esc(x.n)}<small>${esc(x.t)}</small><i>${x.v}</i></div>`).join(''):'<div class="mut">該当なし</div>'}</div>`).join('')}</div>`;
   if(L&&Object.keys(L.p).length)h+=`<details class="card" style="padding:8px 10px"><summary style="font-weight:700;font-size:13px">🏆 個人タイトル争い（${esc(L.lb)}）</summary><div class="mut" style="font-size:10px;margin:4px 0">打率・防御率は規定（チーム試合数×2.7打席／アウト）以上が対象</div>${grid(raceTop(L,usSnap(L)))}</details>`;
@@ -837,10 +853,10 @@ function vT(){
   else if(hitters().length<9)h+=`<div class="card mut">野手が${hitters().length}人なので、投手が打席にも立ちます（打撃は弱め）。</div>`;
   else if(!pitchers().length)h+=`<div class="card"><b>投手がいません</b><div class="mut">選手画面で誰かを投手に回すか、スカウトしてください。</div></div>`;
   if(l)h+=`<div class="card"><div class="mut">${l.pr?'<span class="pill y">練習試合</span> ':''}${l.td}　vs ${esc(l.vs)}　勝率${Math.round(l.P*100)}%</div><div class="sc">${l.a} - ${l.b}<small>${l.win?'勝利':'敗北'}　先発：${esc(l.sp)}</small></div><div style="text-align:center;font-size:13px;margin-top:4px">${esc(l.line)}</div>${l.ls?lsTable(l):''}${l.cm&&l.td===S.mday?`<div style="text-align:center;font-size:12px;margin-top:6px;font-weight:700">${esc(l.cm)}</div>`:''}${l.hl&&l.hl.length?`<div style="border-top:1px dashed var(--bd);margin-top:8px;padding-top:6px;font-size:12.5px;line-height:1.75">${l.hl.map(x=>'・'+esc(x)).join('<br>')}</div>`:''}${l.box?boxScore(l):''}${l.wall&&l.td===S.mday?`<div class="card" style="margin:8px 0 0;background:var(--bg)"><b>勝利！…だが、まだ先へは進めない</b><div class="mut">🧱 ${esc(l.wall)}</div></div>`:''}<div class="mut" style="text-align:center">試合収入 ${money(l.inc)}${l.pr?'（練習試合・レンタル×0.8／成績は記録されません）':''}</div></div>`;
-  h+=previewCard(S.lv>=5?gameRow():st);if(S.lv>=5){h+=compCard();h+=raceCard()}h+=storyCard(st);
+  h+=previewCard(S.lv>=5?gameRow():st);if(S.lv>=5){h+=teamStats();h+=raceCard();h+=compCard()}h+=storyCard(st);
   h+=`<div class="sec">進行<span>1日1試合・自動</span></div><div class="card"><div class="mut" style="margin-top:6px">戦力：自軍 ${fmt(teamPower())}（先発込み平均）　相手 ${fmt(st[2])}</div></div>`;
   h+=witBox();
-  h+=`<div class="sec">記録</div><div class="card" style="padding:4px 12px">${S.log.length?S.log.map(x=>`<div class="lg"><div>${esc(x.t)}<i>${x.d}</i></div></div>`).join(''):'<div class="empty">まだ記録がありません</div>'}</div>`;
+  
   return h;
 }
 function prow(p,i,list,tg,note){
@@ -849,8 +865,8 @@ function prow(p,i,list,tg,note){
   return `<div class="row" data-id="${p.id}"><span class="hdl" aria-label="つかんで移動">≡</span><span class="pill ${tag==='4番'||tag==='エース'?'y':''}">${tag}</span><div class="nm">${esc(p.name)}${ttlH(p)}${p.rent?` <span class="pill y">レンタル〜${p.rent.slice(5).replace('-','/')}</span>`:''}${p.tw?` <span class="pill" style="background:#d8c9f0">${TWN(p.tw)}</span>`:''}${p.pos==='P'&&p.fat>0?` <span class="pill r">疲労${Math.round(p.fat)}</span>`:''}${note?'<br>'+note:''}<small>${st}${(()=>{const sk=scopeKey(),c=sk&&p.sea&&p.sea[sk.k];if(c&&(c.g||c.pg)){const q={...p,cs:c};const t=p.pos==='B'?batLine(q):pitLine(q);return t?'<br>'+(sk.t==='シーズン'?'今季':'シリーズ')+' '+t:''}const t=p.pos==='B'?batLine(p):pitLine(p);return t?'<br>通算 '+t:''})()}</small></div><b>${fmt(v)}</b><button class="btn s" data-a="open" data-i="${p.id}">育成</button></div>`;
 }
 function posSel(p,PM){const cur=PM[p.id]||'控',man=(S.pmap||{})[p.id],opts=[...POS,...(S.dh!==false?['DH']:[])];
-  const sk=PSK[cur]?Math.round(pskS(p.st,cur)*100):null;
-  return `<span style="font-size:11px">守備 <select class="psel" data-id="${p.id}"><option value="">自動（${POSN[cur]||cur}）</option>${opts.map(o=>`<option value="${o}" ${man===o?'selected':''}>${POSN[o]}</option>`).join('')}</select>${sk!=null?` <span class="mut">適性${sk}</span>`:''}</span>`}
+  const sk=PSK[cur]?Math.round(pskS(p.st,cur)*posPen(p,cur)*100):null,off=PSK[cur]&&posPen(p,cur)<1;
+  return `<span style="font-size:11px">守備 <select class="psel" data-id="${p.id}"><option value="">自動（${POSN[cur]||cur}）</option>${opts.map(o=>`<option value="${o}" ${man===o?'selected':''}>${POSN[o]}</option>`).join('')}</select>${sk!=null?` <span class="mut">守備${sk}</span>`:''}${off?' <span class="pill r" style="font-size:9px">適正外</span>':''}<br><span class="mut" style="font-size:10px">適正：${natLabel(p)}</span></span>`}
 document.addEventListener('change',e=>{const t=e.target;if(!t.classList||!t.classList.contains('psel'))return;S.pmap=S.pmap||{};const id=t.dataset.id,v=t.value;
   if(!v)delete S.pmap[id];else{for(const k in S.pmap)if(S.pmap[k]===v&&k!==id)delete S.pmap[k];S.pmap[id]=v}PVC=null;save();render();toast(v?POSN[v]+'に固定しました':'守備位置を自動にしました')});
 function vP(){
@@ -871,7 +887,7 @@ function vP(){
 function vF(){
   const p=S.roster.find(x=>x.id===form.id);if(!p)return '';
   const keys=p.pos==='B'?BAT:PIT,names=p.pos==='B'?BATN:PITN;
-  let h=`<div class="fm"><div class="fmh"><div class="grab"></div><h3>${esc(p.name)}　<span class="pill">${p.pos==='B'?'野手':'投手'}</span>${p.tw?` <span class="pill" style="background:#d8c9f0">${TWN(p.tw)}</span>`:''}</h3>${(()=>{const t=titleOf(p);if(!t)return '';const cs=careerOf(p),te=effS(tEff(p),p.pos);return `<div class="ttbox"><span class="ttn big">『${esc(sfill(t.n))}』</span>${te?`<small>効果 ${te}</small>`:''}${cs.length?`<div style="margin-top:3px">${cs.slice(0,3).map(c=>`<span class="ctb">〔${esc(c.n)}〕</span>`).join('')}${cs.length>3?`<details style="display:inline"><summary class="mut" style="display:inline;font-size:11px">ほか${cs.length-3}個</summary>${cs.slice(3).map(c=>`<span class="ctb">〔${esc(c.n)}〕</span>`).join('')}</details>`:''}</div>`:''}</div>`})()}${statBox(p)}<div style="font-size:14px;margin-bottom:2px">Combat Rating（CR） <b style="font-size:17px;color:var(--ac)">${fmt(val(p))}</b></div>${p.tw?`<div class="mut">${p.pos==='B'?'投手':'野手'}としての育成は、選手画面の${p.pos==='B'?'投手':'野手'}欄から${p.twinOf?'。売却は'+(p.pos==='B'?'投手':'野手')+'側から':''}</div>`:''}${(p.pos==='B'?batLine(p):pitLine(p))?`<div class="mut">通算 ${p.pos==='B'?batLine(p):pitLine(p)}</div>`:''}<div class="mut">年俸 ${money(p.sal)}/年（週 ${money(p.sal/52)}）　練習Pt ${fmt(S.pt)}</div></div>`;
+  let h=`<div class="fm"><div class="fmh"><div class="grab"></div><h3>${esc(p.name)}　<span class="pill">${p.pos==='B'?'野手':'投手'}</span>${p.tw?` <span class="pill" style="background:#d8c9f0">${TWN(p.tw)}</span>`:''}${p.pos==='B'?` <span class="pill" style="font-size:11px">適正 ${natLabel(p)}</span>`:''}</h3>${(()=>{const t=titleOf(p);if(!t)return '';const cs=careerOf(p),te=effS(tEff(p),p.pos);return `<div class="ttbox"><span class="ttn big">『${esc(sfill(t.n))}』</span>${te?`<small>効果 ${te}</small>`:''}${cs.length?`<div style="margin-top:3px">${cs.slice(0,3).map(c=>`<span class="ctb">〔${esc(c.n)}〕</span>`).join('')}${cs.length>3?`<details style="display:inline"><summary class="mut" style="display:inline;font-size:11px">ほか${cs.length-3}個</summary>${cs.slice(3).map(c=>`<span class="ctb">〔${esc(c.n)}〕</span>`).join('')}</details>`:''}</div>`:''}</div>`})()}${statBox(p)}<div style="font-size:14px;margin-bottom:2px">Combat Rating（CR） <b style="font-size:17px;color:var(--ac)">${fmt(val(p))}</b></div>${p.tw?`<div class="mut">${p.pos==='B'?'投手':'野手'}としての育成は、選手画面の${p.pos==='B'?'投手':'野手'}欄から${p.twinOf?'。売却は'+(p.pos==='B'?'投手':'野手')+'側から':''}</div>`:''}${(p.pos==='B'?batLine(p):pitLine(p))?`<div class="mut">通算 ${p.pos==='B'?batLine(p):pitLine(p)}</div>`:''}<div class="mut">年俸 ${money(p.sal)}/年（週 ${money(p.sal/52)}）　練習Pt ${fmt(S.pt)}</div></div>`;
   if(p.rent){h+=`<div class="empty">レンタル選手は育成できません（${p.rent.slice(5).replace('-','/')}まで在籍）</div>`}
   else{
   if(p.pos==='B'){const cb=costBal(p);h+=`<div class="st2"><div class="hd"><span>弾道</span><b>${p.bal}/4</b></div><div class="tb" style="margin-top:5px"><button class="bl" data-a="bal" data-i="${p.id}" ${p.bal>=4||S.pt<cb?'disabled':''}>${p.bal>=4?'最大':'弾道'+(p.bal+1)+'へ'}<small>${p.bal>=4?'':fmt(cb)+' Pt'}</small></button></div></div>`}
@@ -921,7 +937,7 @@ function vS(){
   const ref=refVal(),sps=spList().filter(i=>!S.bought.includes(i)),ids=[...sps,...dayList().filter(i=>!S.bought.includes(i))],ng=buffs().nego;
   let h=`<div class="sec">今日のスカウト候補<span>資金 ${money(S.cash)}</span></div><div class="mut" style="margin:-2px 2px 8px">野手8人・投手7人の15人が毎日入れ替わります。今の資金で手が届く選手も必ず入ります（選手の平均Combat Rating（CR） ${fmt(ref)}）。${buffs().eye?`目利きスカウトの掘り出し物 ${Math.min(3,buffs().eye)}枠つき。`:''}${ng?`交渉スカウトで −${ng}%。`:''}</div>`;
   if(S.cash<0)h+=`<div class="card" style="border-color:var(--dg)"><b>資金がマイナスです</b><div class="mut">黒字に戻るまでスカウト・設備は買えません。年俸は週ごとに引かれ続けます。</div></div>`;
-  h+=ids.map(i=>{const r=DATA.db[i],fund=price(i),sal=r[14],v=dbVal(i),q=v/ref,L=k=>dn(k,r[{m:4,p:5,r:6,a:7,f:8,c:9}[k]]).replace(' ','');const db_=`弾道${r[3]}・ミ${L('m')} パ${L('p')} 走${L('r')} 肩${L('a')} 守${L('f')} 捕${L('c')}`,dp_=`${r[10]}km/h コン${rank(r[11])}${r[11]} スタ${rank(r[12])}${r[12]}<br>球種 ${genArs(r[13],hs(r[0]),r[19]).map(o=>PTY[o.t][1]+o.l).join(' ')}`;const d=r[16]?(r[1]==='B'?db_+'<br>投：'+dp_:dp_+'<br>打：'+db_):(r[1]==='B'?db_:dp_);
+  h+=ids.map(i=>{const r=DATA.db[i],fund=price(i),sal=r[14],v=dbVal(i),q=v/ref,L=k=>dn(k,r[{m:4,p:5,r:6,a:7,f:8,c:9}[k]]).replace(' ','');const db_=`${r[1]==='B'?'適正 '+natLabel(dbP(i))+'・':''}弾道${r[3]}・ミ${L('m')} パ${L('p')} 走${L('r')} 肩${L('a')} 守${L('f')} 捕${L('c')}`,dp_=`${r[10]}km/h コン${rank(r[11])}${r[11]} スタ${rank(r[12])}${r[12]}<br>球種 ${genArs(r[13],hs(r[0]),r[19]).map(o=>PTY[o.t][1]+o.l).join(' ')}`;const d=r[16]?(r[1]==='B'?db_+'<br>投：'+dp_:dp_+'<br>打：'+db_):(r[1]==='B'?db_:dp_);
     const tag=q<.9?['控え級','']:q<=1.25?['即戦力','y']:['大物','r'];
     return `<div class="row"${isSp(i)?' style="border-color:var(--y);border-style:solid"':''}><span class="pill">${r[1]==='B'?'野手':'投手'}</span><div class="nm">${esc(r[0])} ${isSp(i)?`<span class="pill y">掘り出し物・${esc(r[18])}</span>`:`<span class="pill ${tag[1]}">${tag[0]}</span>`}${r[16]?` <span class="pill" style="background:#d8c9f0">${r[16]===2?'二刀流':(r[1]==='B'?'投手は一応':'打撃は一応')}</span>`:''}<small>${d}<br>CR ${fmt(v)}　年俸 ${money(sal)}　${esc(r[2])}</small></div><div style="display:flex;flex-direction:column;gap:4px"><button class="btn ${S.cash>=fund?'g':''}" data-a="buy" data-i="${i}" ${S.cash<fund?'disabled':''}>契約 ${money(fund)}</button><button class="btn s" data-a="rent" data-i="${i}" ${S.cash<fund/5?'disabled':''}>3日レンタル ${money(fund/5)}</button></div></div>`}).join('')||'<div class="empty">今日の候補は全員獲得しました。明日また来てください</div>';
   return h;
@@ -935,6 +951,7 @@ function vB(){
   h+=`<div class="sec">球団職員・スカウト<span>資金+${bf.sales}%・練習Pt+${bf.coach}%・割引${bf.nego}%・掘り出し物${Math.min(3,bf.eye)}枠</span></div>`+(sf.length?sf.map(x=>`<div class="row"><span class="pill">${SROLE[x.role][2]}</span><div class="nm">${esc(x.name)}　<b>${SROLE[x.role][0]}</b><small>${SROLE[x.role][1]} ${x.role==='eye'?'+1枠':(x.role==='nego'?'−':'+')+(CLB[x.cls]||2)+'%'}　${esc(x.cls)}級　週給 ${money(x.sal/2/52)}</small></div><button class="btn s" data-a="fire" data-i="${x.id}">解雇</button></div>`).join(''):'<div class="card mut">選手の育成画面の「職員・スカウト」から、選手を球団職員（営業・コーチ）やスカウト（目利き・交渉）に転身させられます。</div>');
   h+=`<div class="sec">試合のルール</div><div class="card">${[['dh','DH（指名打者）',S.dh!==false,'オフにすると投手が打席に立ちます。先発が降りた後は代打。相手も同じルールです'],['oht','大谷ルール',S.oht!==false,'DHありのとき、二刀流の選手が先発投手と打者を兼任でき、降板後も打者として残ります。オフだと二刀流が先発する日はDH解除（本人が投手として打席へ）'] ].map(([k,l,on,d])=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dashed var(--bd)"><div><b>${l}</b><div class="mut" style="font-size:11px">${d}</div></div><button class="btn s" style="flex:none;min-width:64px;${on?'background:var(--ac);color:#fff':''}" data-a="rule" data-k="${k}" ${k==='oht'&&S.dh===false?'disabled':''}>${on?'あり':'なし'}</button></div>`).join('')}</div>`;
   h+=`<div class="sec">お金の流れ</div><div class="card mut">本体で獲得したpt × $500 × 球場倍率（＋営業）が毎日入ります。毎朝の観客の入場料、勝利で当日収入の45%・敗北で10%の試合収入。年俸は毎週月曜に全員分（職員・スカウトは半額）を支払います。</div>`;
+h+=`<div class="sec">記録</div><div class="card" style="padding:4px 12px">${S.log.length?S.log.map(x=>`<div class="lg"><div>${esc(x.t)}<i>${x.d}</i></div></div>`).join(''):'<div class="empty">まだ記録がありません</div>'}</div>`;
   h+=`<div class="sec">球団史<span>${(S.slog||[]).length}話</span></div><div class="card" style="padding:4px 12px;max-height:340px;overflow-y:auto">${(S.slog||[]).length?S.slog.map(e=>`<div class="lg"><div>${KIND[e.k][0]} ${esc(e.t)}<i>Lv.${e.lv}　${e.d}</i></div></div>`).join(''):'<div class="empty">まだ歴史はこれから</div>'}</div>`;
   h+=`<div class="sec">データ</div><div class="card"><div class="mut">本体との同期：開始日 ${new Date(S.t0).toLocaleDateString()}　同期済み ${fmt(S.synced||0)}pt</div><div class="fb"><button data-a="reset">野球部をリセット</button></div></div>`;
   return h;
@@ -991,6 +1008,7 @@ document.addEventListener('click',e=>{
   else if(a==='pu'){const p=S.roster.find(x=>x.id===i),o=ars(p)[+t.dataset.k];if(!o||o.l>=7)return;const c=pCost(o);if(S.pt<c)return;S.pt-=c;o.l++;syncB(p);save();toast(`${PTY[o.t][0]} Lv${o.l}`)}
   else if(a==='pl'){const p=S.roster.find(x=>x.id===i),k=t.dataset.k,c=PTY[k][4],a_=ars(p);if(S.pt<c||a_.length>=MAXPS||a_.some(o=>o.t===k))return;if(!confirm(PTY[k][0]+'を'+fmt(c)+'Ptで習得しますか？'))return;S.pt-=c;a_.push({t:k,l:1});syncB(p);save();toast(PTY[k][0]+'を習得！')}
   else if(a==='bxt'){BXT=t.dataset.k}
+  else if(a==='tst'){TST=t.dataset.k}
   else if(a==='rule'){const k=t.dataset.k;S[k]=S[k]===false?true:false;PVC=null;save();toast((k==='dh'?'DH':'大谷ルール')+'を'+(S[k]!==false?'あり':'なし')+'にしました')}
   else if(a==='sell'){const p=S.roster.find(x=>x.id===i);if(!confirm(p.name+'を'+money(p.fund/2)+'で売却しますか？'))return;S.cash+=p.fund/2;S.roster=S.roster.filter(x=>x.id!==i&&x.id!==p.twin);S.bought=S.bought.filter(x=>x!==p.db);closeSheet();save();toast('売却しました')}
   else if(a==='rent'){const r=DATA.db[+i],f=price(+i)/5;if(S.cash<f)return;S.cash-=f;S.bought.push(+i);const ps=mkAll(r,+i);ps.forEach(q=>{q.rent=addD(2);q.sal=0;q.fund=0});S.roster.push(...ps);S.log.unshift({d:dk(new Date()),t:'レンタル加入：'+r[0]+'（'+addD(2).slice(5).replace('-','/')+'まで）'});toast(r[0]+'をレンタル！（3日間）');if(tryMatch(bbD())){tab='t';toast('練習試合をしました！')}save()}
