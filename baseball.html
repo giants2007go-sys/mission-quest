@@ -76,6 +76,10 @@ a{color:var(--ac)}
 .ctb{display:inline-block;margin:0 0 2px 4px;font-size:10px;font-weight:800;letter-spacing:.08em;color:#ffd76a;background:linear-gradient(135deg,#17172a,#3d3214);border:1px solid #c9a227;border-radius:6px;padding:0 6px;box-shadow:0 0 6px rgba(201,162,39,.35);vertical-align:1px}
 .ttbox{margin:2px 0 4px}.ttbox small{display:inline-block;margin-left:6px;font-size:11px;color:var(--mut)}
 .hdl{flex:none;touch-action:none;cursor:grab;font-size:20px;line-height:1;color:var(--mut);padding:6px 4px;user-select:none;-webkit-user-select:none}
+.pzc{flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;font-weight:900;font-size:13px;color:#fff;margin-left:-6px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;box-shadow:0 2px 0 rgba(0,0,0,.18);border:2px solid #fff;transition:transform .1s}
+.pzc.ifd{background:#3f7fd6}.pzc.ofd{background:#2f9e6a}.pzc.cat{background:#d9621a}.pzc.dh{background:#8a7fb0}
+.pzc.sel{transform:scale(1.2);box-shadow:0 0 0 4px rgba(255,190,40,.7)}.pzc.tgt{transform:scale(1.25);box-shadow:0 0 0 4px rgba(63,127,214,.55)}
+.pzg{position:fixed;z-index:99;pointer-events:none;transform:translate(-50%,-60%) scale(1.4);opacity:.92}
 .row.drg{position:relative;z-index:5;border-style:solid;border-color:var(--ac);box-shadow:0 8px 20px rgba(0,0,0,.18);transform:scale(1.02);transition:transform .08s}
 .dg .row{transition:background .1s}.prw{border-style:solid;border-color:#ffb3b3;background:rgba(255,179,179,.12)}
 .sdt{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}.sdt th{font-weight:600;color:var(--mut);text-align:right;padding:2px 4px}.sdt th:nth-child(2),.sdt td:nth-child(2){text-align:left}.sdt td{text-align:right;padding:3px 4px;border-bottom:1px dashed var(--bd)}.sdt tr.us td{font-weight:800;background:rgba(74,159,216,.12)}.sdt tr.cut td{border-bottom:2px solid var(--dg)}
@@ -882,21 +886,25 @@ function vT(){
 function prow(p,i,list,tg,note){
   const v=val(p),st=p.pos==='B'?`弾道${p.bal}・${BAT.map(k=>rk(k,p.st[k])).join('')}`:`${kmh(p.st.v)}km/h ${rank(p.st.k)}${rank(p.st.s)}　${arsS(p)}`;
   const tag=tg||(p.pos==='B'?(i<9?`${i+1}番`:'控え'):(p.role==='SP'?['エース','先発2','先発3','先発4','先発5'][starters().indexOf(p)]||'先発':['抑え','セット','中継ぎ','中継ぎ','中継ぎ'][relievers().indexOf(p)]||'中継ぎ'));
-  return `<div class="row" data-id="${p.id}"><span class="hdl" aria-label="つかんで移動">≡</span><span class="pill ${tag==='4番'||tag==='エース'?'y':''}">${tag}</span><div class="nm">${esc(p.name)}${ttlH(p)}${p.rent?` <span class="pill y">レンタル〜${p.rent.slice(5).replace('-','/')}</span>`:''}${p.tw?` <span class="pill" style="background:#d8c9f0">${TWN(p.tw)}</span>`:''}${p.pos==='P'&&p.fat>0?` <span class="pill r">疲労${Math.round(p.fat)}</span>`:''}${note?'<br>'+note:''}<small>${st}${(()=>{const sk=scopeKey(),c=sk&&p.sea&&p.sea[sk.k];if(c&&(c.g||c.pg)){const q={...p,cs:c};const t=p.pos==='B'?batLine(q):pitLine(q);return t?'<br>'+(sk.t==='シーズン'?'今季':'シリーズ')+' '+t:''}const t=p.pos==='B'?batLine(p):pitLine(p);return t?'<br>通算 '+t:''})()}</small></div><b>${fmt(v)}</b><button class="btn s" data-a="open" data-i="${p.id}">育成</button></div>`;
+  return `<div class="row" data-id="${p.id}"><span class="hdl" aria-label="つかんで移動">≡</span><span class="pill ${tag==='4番'||tag==='エース'?'y':''}">${tag}</span>${p.pos==='B'?pzChip(p):''}<div class="nm">${esc(p.name)}${ttlH(p)}${p.rent?` <span class="pill y">レンタル〜${p.rent.slice(5).replace('-','/')}</span>`:''}${p.tw?` <span class="pill" style="background:#d8c9f0">${TWN(p.tw)}</span>`:''}${p.pos==='P'&&p.fat>0?` <span class="pill r">疲労${Math.round(p.fat)}</span>`:''}${note?'<br>'+note:''}<small>${st}${(()=>{const sk=scopeKey(),c=sk&&p.sea&&p.sea[sk.k];if(c&&(c.g||c.pg)){const q={...p,cs:c};const t=p.pos==='B'?batLine(q):pitLine(q);return t?'<br>'+(sk.t==='シーズン'?'今季':'シリーズ')+' '+t:''}const t=p.pos==='B'?batLine(p):pitLine(p);return t?'<br>通算 '+t:''})()}</small></div><b>${fmt(v)}</b><button class="btn s" data-a="open" data-i="${p.id}">育成</button></div>`;
 }
+let PZM=null;
+const pzCls=z=>z==='捕'?'cat':z==='DH'?'dh':OF3.has(z)?'ofd':'ifd';
+const pzChip=p=>{const z=PZM&&PZM[p.id];if(!z||z==='控')return '';return `<span class="pzc ${pzCls(z)} ${(S.pmap||{})[p.id]?'man':''}" data-pid="${p.id}" aria-label="${POSN[z]}・長押しで入れ替え">${z==='DH'?'DH':z}</span>`};
+function pzSwap(a,b){if(!PZM||a===b||!PZM[a]||!PZM[b])return;S.pmap={};for(const id in PZM)if(PZM[id]&&PZM[id]!=='控')S.pmap[id]=PZM[id];const t=S.pmap[a];S.pmap[a]=S.pmap[b];S.pmap[b]=t;PVC=null;save();render();toast(POSN[PZM[b]]+'⇄'+POSN[PZM[a]]+' を入れ替えました')}
 function posSel(p,PM){const cur=PM[p.id]||'控',man=(S.pmap||{})[p.id],opts=[...POS,...(S.dh!==false?['DH']:[])];
   const sk=PSK[cur]?Math.round(pskS(p.st,cur)*posPen(p,cur)*100):null,off=PSK[cur]&&posPen(p,cur)<1;
-  return `<span style="font-size:11px">守備 <select class="psel" data-id="${p.id}"><option value="">自動（${POSN[cur]||cur}）</option>${opts.map(o=>`<option value="${o}" ${man===o?'selected':''}>${POSN[o]}</option>`).join('')}</select>${sk!=null?` <span class="mut">守備${sk}</span>`:''}${off?' <span class="pill r" style="font-size:9px">適正外</span>':''}<br><span class="mut" style="font-size:10px">適正：${natLabel(p)}</span></span>`}
+  return `<span style="font-size:11px">${POSN[cur]||cur}${man?'':' <span class="mut">（自動）</span>'}${sk!=null?` <span class="mut">守備${sk}</span>`:''}${off?' <span class="pill r" style="font-size:9px">適正外</span>':''}<br><span class="mut" style="font-size:10px">適正：${natLabel(p)}</span></span>`}
 document.addEventListener('change',e=>{const t=e.target;if(!t.classList||!t.classList.contains('psel'))return;S.pmap=S.pmap||{};const id=t.dataset.id,v=t.value;
   if(!v)delete S.pmap[id];else{for(const k in S.pmap)if(S.pmap[k]===v&&k!==id)delete S.pmap[k];S.pmap[id]=v}PVC=null;save();render();toast(v?POSN[v]+'に固定しました':'守備位置を自動にしました')});
 function vP(){
   const hs=hitters(),ps=pitchers(),sp=starters(),nx=sp.length?sp[(S.rot||0)%sp.length]:null,GL=nx?gameLineup(nx):{off:S.dh===false,tw:null};
-  let rows,note='';const PM=nx?posMapFor(gameLineup(nx)):{};
+  let rows,note='';const PM=nx?posMapFor(gameLineup(nx)):{};PZM=PM;
   if(GL.off&&nx){const tw=GL.tw,fl=hs.filter(x=>x!==tw),at=GL.ps>=0?GL.ps:Math.min(8,S.pslot??8),list=fl.slice();list.splice(Math.min(at,list.length),0,'__P');
     rows=list.map((x,k)=>{const tg=k<9?(k+1)+'番':'控え';if(x==='__P')return `<div class="row prw" data-id="__P"><span class="hdl">≡</span><span class="pill r">${tg}</span><div class="nm">投 ${esc((tw||nx).name)}<small>${S.mday===bbD()?'次':'今日'}の先発。${tw?'二刀流なので自分の打撃で打席へ':'投手が打席に立ちます'}（降板後は代打）</small></div></div>`;return prow(x,k,null,tg,k<9?posSel(x,PM):'')}).join('')+(tw?prow(tw,99,null,'投手で出場'):'');
     note=`<div class="mut" style="margin:-2px 0 6px">${S.dh===false?'DHなし':'大谷ルールなし（二刀流が先発の日はDH解除）'}：投手の打順も ≡ で動かせます</div>`}
   else rows=hs.map((p,i)=>prow(p,i,null,null,i<9?posSel(p,PM):'')).join('');
-  let h=`<div class="sec">野手（打順）<span>${hs.length}人・${S.dh===false?'DHなし':'DHあり'}</span></div>${note}<div class="dg" data-g="B">${rows}</div>`+(hs.length?'':'<div class="empty">野手がいません</div>');
+  let h=`<div class="sec">野手（打順）<span>${hs.length}人・${S.dh===false?'DHなし':'DHあり'}</span></div>${note}<div class="mut" style="margin:-2px 2px 6px;font-size:11px">守備アイコンを長押しして、入れ替えたい人のアイコンへ（タップ→タップでも可）。<span style="display:inline-block;width:9px;height:9px;border-radius:3px;background:#3f7fd6"></span>内野 <span style="display:inline-block;width:9px;height:9px;border-radius:3px;background:#2f9e6a"></span>外野 <span style="display:inline-block;width:9px;height:9px;border-radius:3px;background:#d9621a"></span>捕手 <span style="display:inline-block;width:9px;height:9px;border-radius:3px;background:#8a7fb0"></span>DH${Object.keys(S.pmap||{}).length?` <button class="btn s" style="padding:2px 8px;font-size:11px" data-a="pzauto">自動に戻す</button>`:''}</div><div class="dg" data-g="B">${rows}</div>`+(hs.length?'':'<div class="empty">野手がいません</div>');
   const sps=starters(),rps=relievers(),cur=sps.length?(S.rot||0)%sps.length:0,gn=S.gno||0,played=S.mday===bbD();
   const spRow=(p,i)=>{const k=(i-cur+sps.length)%sps.length,lim=spLimit(p);return prow(p,i,null,i===0?'エース':'先発'+(i+1),`<span class="pill ${k===0?'y':''}" style="font-size:10px">${k===0?(played?'次の試合で先発':'今日の先発'):k+'試合後に先発'}</span> <span class="mut" style="font-size:10px">目安${lim}球</span>`)};
   const rpRow=(p,i)=>{const role=i===0?'抑え':i===1?'セットアッパー':isLong(p)?'ロング':'中継ぎ',ok=pAvail(p),yest=p.lg===gn-1;return prow(p,i,null,role,`${ok?'':`<span class="pill r" style="font-size:10px">${(p.fat||0)>=80?'疲労で休養':'3連投のため休養'}</span>`}${yest&&ok?` <span class="pill" style="font-size:10px">連投${p.cd||1}</span>`:''}${role==='ロング'?' <span class="mut" style="font-size:10px">スタミナ◎・序盤の降板時に長いイニングを担当</span>':''}`)};
@@ -1015,6 +1023,19 @@ function applyOrder(g,ids){
   else{const pi=ids.indexOf('__P');if(pi>=0)S.pslot=Math.min(8,pi);const hid=ids.filter(x=>x!=='__P'&&S.roster.some(p=>p.id===x&&p.pos==='B')),hs=hid.map(id=>S.roster.find(p=>p.id===id)),ords=hs.map(p=>p.ord).sort((a,b)=>a-b);hs.forEach((p,k)=>p.ord=ords[k])}
   PVC=null;save();render()}
 let DRG=null;
+let PZD=null,PZS=null;
+document.addEventListener('pointerdown',e=>{const c=e.target.closest('.pzc');if(!c)return;e.preventDefault();const st={c,id:c.dataset.pid,x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,on:false,g:null,tg:null,mv:false};
+  st.tm=setTimeout(()=>{st.on=true;const g=c.cloneNode(true);g.classList.add('pzg');g.style.left=st.x+'px';g.style.top=st.y+'px';document.body.appendChild(g);st.g=g;c.style.opacity=.35;if(navigator.vibrate)try{navigator.vibrate(15)}catch(_){}},280);PZD=st;try{c.setPointerCapture(e.pointerId)}catch(_){}});
+document.addEventListener('pointermove',e=>{const st=PZD;if(!st)return;st.x=e.clientX;st.y=e.clientY;if(!st.on){if(Math.hypot(e.clientX-st.x0,e.clientY-st.y0)>12){st.mv=true;clearTimeout(st.tm)}return}e.preventDefault();st.g.style.left=e.clientX+'px';st.g.style.top=e.clientY+'px';
+  const el=document.elementFromPoint(e.clientX,e.clientY),t=el&&el.closest&&el.closest('.pzc');if(st.tg&&st.tg!==t)st.tg.classList.remove('tgt');st.tg=t&&t!==st.c?t:null;if(st.tg)st.tg.classList.add('tgt')},{passive:false});
+const pzEnd=e=>{const st=PZD;if(!st)return;PZD=null;clearTimeout(st.tm);
+  if(st.on){st.g&&st.g.remove();st.c.style.opacity='';const el=document.elementFromPoint(e.clientX,e.clientY),t=el&&el.closest&&el.closest('.pzc');if(t&&t!==st.c)pzSwap(st.id,t.dataset.pid);else if(st.tg)st.tg.classList.remove('tgt');return}
+  if(st.mv)return;
+  // タップ：1つ目を選択→2つ目で入れ替え
+  if(PZS&&PZS!==st.id){const a=PZS;PZS=null;pzSwap(a,st.id);return}
+  if(PZS===st.id){PZS=null;st.c.classList.remove('sel');return}
+  document.querySelectorAll('.pzc.sel').forEach(x=>x.classList.remove('sel'));PZS=st.id;st.c.classList.add('sel');toast(POSN[PZM[st.id]]+'を選択中：入れ替える相手のアイコンをタップ')};
+document.addEventListener('pointerup',pzEnd);document.addEventListener('pointercancel',e=>{const st=PZD;if(!st)return;PZD=null;clearTimeout(st.tm);st.g&&st.g.remove();st.c.style.opacity=''});
 document.addEventListener('pointerdown',e=>{const hd=e.target.closest('.hdl');if(!hd)return;const row=hd.closest('.row'),g=row&&row.parentElement;if(!g||!g.classList.contains('dg'))return;e.preventDefault();DRG={row,g};row.classList.add('drg');try{hd.setPointerCapture(e.pointerId)}catch(_){}});
 document.addEventListener('pointermove',e=>{if(!DRG)return;e.preventDefault();const {row,g}=DRG,rs=[...g.children].filter(r=>r!==row&&r.classList.contains('row'));let put=false;
   for(const r of rs){const b=r.getBoundingClientRect();if(e.clientY<b.top+b.height/2){if(row.nextElementSibling!==r)g.insertBefore(row,r);put=true;break}}
@@ -1055,6 +1076,7 @@ document.addEventListener('click',e=>{
     else{const sel=$('#trs_'+ix),p=sel&&S.roster.find(x=>x.id===sel.value);if(!p||!tradeOK(ix).includes(p)||!confirm(p.name+' ⇄ '+r[0]+'（'+e.t+'）のトレードを成立させますか？'))return;
       S.tx=S.tx||{};const out=[p,...S.roster.filter(q=>q.twinOf===p.id)];out.forEach(q=>{if(q.db!=null)S.tx[q.db]=e.t});S.roster=S.roster.filter(q=>!out.includes(q));S.log.unshift({d:bbD(),t:'トレード：'+p.name+' ⇄ '+r[0]+'（'+e.t+'）'})}
     goneSet();S.bought.push(ix);S.gone.push(ix);delete (S.tx||{})[ix];S.roster.push(...mkAll(r,ix));ORC={};save();toast(r[0]+'がトレードで加入！')}
+  else if(a==='pzauto'){S.pmap={};PVC=null;save();render();toast('守備位置を自動（最適配置）に戻しました')}
   else if(a==='buy'){const r=DATA.db[+i],f=price(+i);if(S.cash<f)return;S.cash-=f;goneSet();S.bought.push(+i);S.gone.push(+i);{const tm=teamOf(+i);if(tm)S.log.unshift({d:bbD(),t:'引き抜き：'+r[0]+'を'+tm.t+'から獲得'+(tm.core?'（主力が抜けた！）':'')})}S.roster.push(...mkAll(r,+i));save();toast(r[0]+'が入団！');if(tryMatch(bbD())){tab='t'}if(S.lv<=4){const need=RECRUIT[S.lv];if(heads()>=need)advance();save()}}
   else if(a==='stad'){const n=STAD[S.stad+1];if(!n||S.cash<n[1])return;S.cash-=n[1];S.stad++;save();toast(n[0]+'が完成！')}
   else if(a==='reset'){if(!confirm('野球部のデータを全部消します。よろしいですか？（本体のデータには影響しません）'))return;localStorage.removeItem('bb');init();return}
