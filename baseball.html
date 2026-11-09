@@ -394,8 +394,9 @@ function gateCalc(td){
   const rev=Math.round(att*(g[3]/g[2])*(1+sb/100)*(1+chB/100));S.cash+=rev;
   S.gate={d:td,tier:g[1],cap:g[2],avg,r1,cl,r2,att,full:fans>=g[2]&&att>0,rev,sb,chN,chB,seen:false};
   S.log.unshift({d:td,t:'🏟 観客 '+fmt(att)+'人'+(S.gate.full?'（満員御礼）':'')+'　入場料 '+money(rev)})}
+const RENT_MAX=2,rentN=()=>S.roster.filter(p=>p.rent&&!p.twinOf).length,rentOK=()=>S.lv>=5&&rentN()<=RENT_MAX&&allH()>=9;
 function tryMatch(td){if(isNight()||S.mday===td||pitchers().length<1)return false;const rent=S.roster.some(p=>p.rent);
-  if(rent&&allH()>=9)playMatch(td,true);else if(!rent&&S.lv>=5&&heads()>=9)playMatch(td,compWaiting());else return false;S.mday=td;return true}
+  if(rent&&rentOK())playMatch(td,compWaiting());else if(rent&&allH()>=9)playMatch(td,true);else if(!rent&&S.lv>=5&&heads()>=9)playMatch(td,compWaiting());else return false;S.mday=td;return true}
 function advance(){const st=stage();(S.stDone=S.stDone||[]).includes(S.lv)||S.stDone.push(S.lv);{const y=STY[S.lv];if(y&&S.sty&&S.sty.lv===S.lv&&!S.sty.c)stEv('c',y.c,S.lv)}S.lv++;storyTick();S.wins=0;S.lose=0;S.log.unshift({d:S.day,t:'🎉 Lv.'+st[0]+'「'+st[6]+'」達成。次は'+(stage()[4])});toast('Lv.'+S.lv+'へ進出！')}
 const CS0=()=>({g:0,ab:0,h:0,hr:0,rbi:0,sb:0,pg:0,w:0,l:0,sv:0,o:0,er:0,so:0,ab2:0,h2:0,bb:0,bso:0,tb:0,pbb:0,ph:0});
 const cs=p=>p.cs||(p.cs=CS0());
@@ -799,13 +800,13 @@ function playMatch(td,pr){setAway();const SK0=pr?null:scopeKey();
   const pLines=[...g.plog.entries()].sort((a,b)=>a[1].ord-b[1].ord).map(([p,k])=>({id:p.id,n:p.name,role:k.role,ip:Math.floor(k.outs/3)+(k.outs%3?'.'+k.outs%3:''),pc:k.pc,h:k.h,r:k.r,er:k.er,so:k.so,bb:k.bb}));
   const hrK=g.my.filter(x=>x.box&&x.box.hr).sort((x,y)=>y.box.hr-x.box.hr)[0],walk=g.evs.some(e=>e.walk);
   const line=win?(g.oSP.tag&&g.opRA<=2?'超エースを攻略した':walk?'劇的なサヨナラ勝ち':a-b>=4?(hrK?hrK.name+'の一発で打線爆発':'打線がつながり快勝'):g.E[0]===0&&b<=2?'堅い守りで逃げ切り':'接戦をものにした'):(g.oSP.tag&&a<=1?'相手の超エースに封じられた':g.E[0]>=2?'守備の乱れが響いて敗戦':b-a>=4?'投手陣が捕まり大敗':'あと一本が出ず惜敗');
-  const inc=(S.lastEarn||600)*DOL*stad()[2]*(win?.45:.10)*(pr?.8:1)*(1+buffs().sales/100);S.cash+=inc;
+  const inc=(S.lastEarn||600)*DOL*stad()[2]*(win?.45:.10)*(pr?.8:1)*(!pr&&rentN()?1-.1*rentN():1)*(1+buffs().sales/100);S.cash+=inc;
   const PNM={'先発':'先','中継ぎ':'中','セットアッパー':'セ','抑え':'抑','ロング':'ロ'},wpN=win?((spK&&spK.outs>=15)?rot:(rl[1]||clo)):null,lpN=!win?rot:null,svN=win&&clo&&g.cloIn&&g.svOpp?clo:null;
   pLines.forEach(x=>{x.res=wpN&&x.id===wpN.id?'勝':lpN&&x.id===lpN.id?'敗':svN&&x.id===svN.id?'S':''});
   const seaAvg=id=>{const p=S.roster.find(q=>q.id===id);const c=(SK0&&p&&p.sea&&p.sea[SK0.k])||(p&&p.cs);return c?avgS(c):'-'};
   const uB=bLines.map((x,i)=>({...x,pz:i<9?'('+(x.pos==='控'?'-':x.pos)+')':'打',avg:seaAvg(x.id)})),oB=g.opBat.map(x=>({n:x.name,pz:x.pz==='打'?'打':'('+x.pz+')',avg:x.pz==='投'?'-':f3(.2+.1*Math.min(1.3,x.m)),...x.box})),oP=g.opPit.map((x,i)=>({n:x.n,role:x.rl,ip:ipS(x.outs),pc:x.pc,h:x.h,r:x.r,er:x.er,so:x.so,bb:x.bb,res:i===0?(win?'敗':(x.outs>=15?'勝':'')):(!win&&i===1&&g.opPit[0].outs<15?'勝':'')}));
   if(!pr){const L=lstCur();if(L){g.opBat.forEach(x=>{if(x.pz==='投')return;addBat(lsE(L,st[4],x.name,0),x.box)});oP.forEach(x=>{const k=g.opPit.find(q=>q.n===x.n);if(!k)return;const e=lsE(L,st[4],x.n,1);addPit(e,{outs:k.outs,er:k.er,so:k.so,bb:k.bb,h:k.h});if(x.res==='勝')e.w++;if(x.res==='敗')e.l++})}}
-  S.last={pl:pLines,bat:bLines,box:{away:AWAY,us:{bat:uB,pit:pLines},op:{n:st[4],bat:oB,pit:oP}},td,win,a,b,sp:rot?rot.name:'—',line,P,my,op,inc,vs:st[4],hl:[...simHL(g,win),...tail].slice(0,8),osp:g.oSP.name+'（'+g.oSP.rl+(g.oSP.tag?'・'+g.oSP.tag:'')+'）',pr:!!pr,ls:g.ls,H:g.H,E:g.E};NOSTAT=false;
+  S.last={rn:pr?0:rentN(),pl:pLines,bat:bLines,box:{away:AWAY,us:{bat:uB,pit:pLines},op:{n:st[4],bat:oB,pit:oP}},td,win,a,b,sp:rot?rot.name:'—',line,P,my,op,inc,vs:st[4],hl:[...simHL(g,win),...tail].slice(0,8),osp:g.oSP.name+'（'+g.oSP.rl+(g.oSP.tag?'・'+g.oSP.tag:'')+'）',pr:!!pr,ls:g.ls,H:g.H,E:g.E};NOSTAT=false;
   S.log.unshift({d:td,t:(pr?'【練習試合】':'')+(win?'○ ':'● ')+a+'-'+b+' '+st[4]+'　'+line});
   if(pr){if(S.lv>=5&&compWaiting())S.last.cm='歩み待ちのため練習試合（順位・シリーズには影響なし）';return}
   if(win)S.wins=(S.wins||0)+1;else S.lose=(S.lose||0)+1;
@@ -829,7 +830,7 @@ const travelBox=()=>{const e=travel(),c=Math.min(5,(S.oc&&S.oc.n)||1);return `<d
 const witBox=()=>{const w=S.wcur||wit(),c=Math.min(3,(S.oc&&S.oc.n)||1);return `<div class="card" style="text-align:center;margin-top:14px"><div style="font-size:11px;color:var(--mut)">うまいこと言う ${c}/3　No.${w.n}/${w.N}</div><div style="font-size:15px;font-weight:700;margin-top:4px">${esc(w.t)}</div></div>`};
 function onOpen(){const td=dk(new Date());if(!S.oc||S.oc.d!==td)S.oc={d:td,n:0};S.oc.n++;if(S.oc.n<=3||!S.wcur){S.wcur=wit();S.wi=(S.wi||0)+1}save()}
 let PVC=null;
-function previewCard(st){setAway();const rent=S.roster.some(p=>p.rent),can=rent?allH()>=9:(S.lv>=5&&heads()>=9);if(!can||!pitchers().length)return '';
+function previewCard(st){setAway();const rent=S.roster.some(p=>p.rent)&&!rentOK(),can=S.roster.some(p=>p.rent)?allH()>=9:(S.lv>=5&&heads()>=9);if(!can||!pitchers().length)return '';
   const pst=rent&&S.lv<5?STG.find(x=>x[0]===5):st,OR=oppRoster(pst),o=OR.rot[(S.orot||0)%5],sp=starters(),mine=sp.length?sp[(S.rot||0)%sp.length]:null;
   const key=[pst[0],pst[4],AWAY,S.orot,S.rot,S.stad,S.dh,S.oht,JSON.stringify(S.roster.map(p=>[p.id,p.st,p.ord,p.role,p.fat,p.bal,p.ps]))].join('|');
   if(!PVC||PVC.k!==key){TEC=new Map(S.roster.map(p=>[p.id,tEff(p)]));PVC={k:key,p:winP(pst,mine,(S.orot||0)%5)};TEC=null}
@@ -876,7 +877,7 @@ function vT(){
   else if(heads()<9)h+=`<div class="card"><b>選手が${heads()}人しかいません</b><div class="mut">9人揃うまで試合はできません。スカウトで補充してください。</div></div>`;
   else if(hitters().length<9)h+=`<div class="card mut">野手が${hitters().length}人なので、投手が打席にも立ちます（打撃は弱め）。</div>`;
   else if(!pitchers().length)h+=`<div class="card"><b>投手がいません</b><div class="mut">選手画面で誰かを投手に回すか、スカウトしてください。</div></div>`;
-  if(l)h+=`<div class="card"><div class="mut">${l.pr?'<span class="pill y">練習試合</span> ':''}${l.td}　vs ${esc(l.vs)}　勝率${Math.round(l.P*100)}%</div><div class="sc">${l.a} - ${l.b}<small>${l.win?'勝利':'敗北'}　先発：${esc(l.sp)}</small></div><div style="text-align:center;font-size:13px;margin-top:4px">${esc(l.line)}</div>${l.ls?lsTable(l):''}${l.cm&&l.td===S.mday?`<div style="text-align:center;font-size:12px;margin-top:6px;font-weight:700">${esc(l.cm)}</div>`:''}${l.hl&&l.hl.length?`<div style="border-top:1px dashed var(--bd);margin-top:8px;padding-top:6px;font-size:12.5px;line-height:1.75">${l.hl.map(x=>'・'+esc(x)).join('<br>')}</div>`:''}${l.box?boxScore(l):''}${l.wall&&l.td===S.mday?`<div class="card" style="margin:8px 0 0;background:var(--bg)"><b>勝利！…だが、まだ先へは進めない</b><div class="mut">🧱 ${esc(l.wall)}</div></div>`:''}<div class="mut" style="text-align:center">試合収入 ${money(l.inc)}${l.pr?'（練習試合・レンタル×0.8／成績は記録されません）':''}</div></div>`;
+  if(l)h+=`<div class="card"><div class="mut">${l.pr?'<span class="pill y">練習試合</span> ':''}${l.td}　vs ${esc(l.vs)}　勝率${Math.round(l.P*100)}%</div><div class="sc">${l.a} - ${l.b}<small>${l.win?'勝利':'敗北'}　先発：${esc(l.sp)}</small></div><div style="text-align:center;font-size:13px;margin-top:4px">${esc(l.line)}</div>${l.ls?lsTable(l):''}${l.cm&&l.td===S.mday?`<div style="text-align:center;font-size:12px;margin-top:6px;font-weight:700">${esc(l.cm)}</div>`:''}${l.hl&&l.hl.length?`<div style="border-top:1px dashed var(--bd);margin-top:8px;padding-top:6px;font-size:12.5px;line-height:1.75">${l.hl.map(x=>'・'+esc(x)).join('<br>')}</div>`:''}${l.box?boxScore(l):''}${l.wall&&l.td===S.mday?`<div class="card" style="margin:8px 0 0;background:var(--bg)"><b>勝利！…だが、まだ先へは進めない</b><div class="mut">🧱 ${esc(l.wall)}</div></div>`:''}<div class="mut" style="text-align:center">試合収入 ${money(l.inc)}${l.pr?'（練習試合・レンタル×0.8／成績は記録されません）':l.rn?`（レンタル${l.rn}人 −${l.rn*10}%）`:''}</div></div>`;
   h+=previewCard(S.lv>=5?gameRow():st);if(S.lv>=5){h+=teamStats();h+=raceCard();h+=compCard()}h+=storyCard(st);
   h+=`<div class="sec">進行<span>1日1試合・自動</span></div><div class="card"><div class="mut" style="margin-top:6px">戦力：自軍 ${fmt(teamPower())}（先発込み平均）　相手 ${fmt(st[2])}</div></div>`;
   h+=witBox();
